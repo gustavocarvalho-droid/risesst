@@ -2456,14 +2456,120 @@
     });
   }
 
+
+// ══ WA Global aliases — onclick handlers ══
+var waGo              = function(t){ go(t); };
+var waToggleSidebar   = function(){ toggleSidebar(); };
+var waCloseSidebar    = function(){ closeSidebar(); };
+var waCheckNum        = function(){ checkNum(); };
+var waGerarQR         = function(){ gerarQR(); };
+var waTrocarNum       = function(){ trocarNum(); };
+var waSaveConf        = function(){ saveConf(); };
+var waTestConn        = function(){ testConn(); };
+var waTestDB          = function(){ testDB(); };
+var waWipeDB          = function(){ wipeDB(); };
+var waStartFire       = function(){ startFire(); };
+var waStopFire        = function(){ stopFire(); };
+var waSendTest        = function(){ sendTest(); };
+var waUpdDisparo      = function(){ updDisparo(); };
+var waSyncFireSliders = function(){ syncFireSliders(); };
+var waSyncAgSliders   = function(){ syncAgSliders(); };
+var waCriarAgendamento= function(){ criarAgendamento(); };
+var waRenderAgendamentos= function(){ renderAgendamentos(); };
+var waCancelAgendamento = function(a){ cancelAgendamento(a); };
+var waExcluirAg       = function(a){ excluirAg(a); };
+var wa_DoExcluirAg    = function(a){ _doExcluirAg(a); };
+var waArquivarAg      = function(a){ arquivarAg(a); };
+var waLimparAgendamentos=function(){ limparAgendamentos(); };
+var wa_LimparAgs      = function(t){ _limparAgs(t); };
+var waDispararAgNow   = function(a){ dispararAgNow(a); };
+var wa_ConfirmDispararAgNow=function(a){ _confirmDispararAgNow(a); };
+var waVerHistoricoAg  = function(a){ verHistoricoAg(a); };
+var waCriarLista      = function(){ criarLista(); };
+var waToggleLista     = function(i){ toggleLista(i); };
+var waExcluirLista    = function(i){ excluirLista(i); };
+var waRemDaLista      = function(l,c){ remDaLista(l,c); };
+var waReadFileLista   = function(i,l){ readFileLista(i,l); };
+var waDispararLista   = function(i){ dispararLista(i); };
+var waRenderC         = function(){ renderC(); };
+var waRenderChatList  = function(){ renderChatList(); };
+var waSetChatTab      = function(t){ setChatTab(t); };
+var waSelTodos        = function(){ selTodos(); };
+var waDeselTodos      = function(){ deselTodos(); };
+var waSelTodosChk     = function(e){ selTodosChk(e); };
+var waUpdSel          = function(){ updSel(); };
+var waCtPageGo        = function(p){ ctPageGo(p); };
+var waDelContato      = function(i){ delContato(i); };
+var waClrAll          = function(){ clrAll(); };
+var wa_DoClrAll       = function(){ _doClrAll(); };
+var waHandleDrop      = function(e){ handleDrop(e); };
+var waReadFile        = function(i){ readFile(i); };
+var wa_DoImport       = function(){ _doImport(); };
+var waOpenAddModal    = function(){ openAddModal(); };
+var waAtribuirResp    = function(i){ atribuirResp(i); };
+var wa_DoAtribuirResp = function(i){ _doAtribuirResp(i); };
+var waAddContato      = function(){ addContato(); };
+var waAddSelecionadosModal=function(){ addSelecionadosModal(); };
+var wa_DoAddSel       = function(s){ _doAddSel(s); };
+var waExportContatos  = function(){ exportContatos(); };
+var waOpenChat        = function(i){ openChat(i); };
+var waOpenChatWindow_tel=function(t){ openChatWindow_tel(t); };
+var waSendChatMsg     = function(){ sendChatMsg(); };
+var waOpenSendModal   = function(){ openSendModal(); };
+var wa_DoSendModal    = function(){ _doSendModal(); };
+var waSendMsg         = function(i){ sendMsg(i); };
+var waInsVar          = function(v){ insVar(v); };
+var waUpdPrev         = function(){ updPrev(); };
+var waSaveMsg         = function(){ saveMsg(); };
+var waSaveTpl         = function(){ saveTpl(); };
+var wa_DoSaveTpl      = function(){ _doSaveTpl(); };
+var waLoadTpl         = function(){ loadTpl(); };
+var waUseTpl          = function(i){ useTpl(i); };
+var waDelTpl          = function(i){ delTpl(i); };
+var waLoadFireTpl     = function(){ loadFireTpl(); };
+var waClearFireMsg    = function(){ clearFireMsg(); };
+var waUpdFirePrev     = function(){ updFirePrev(); };
+var waPopulateFireTpls= function(){ populateFireTpls(); };
+var waLoadAgTpl       = function(){ loadAgTpl(); };
+var waClearAgMsg      = function(){ clearAgMsg(); };
+var waUpdAgPrev       = function(){ updAgPrev(); };
+var waPopulateAgTpls  = function(){ populateAgTpls(); };
+var waExpLogs         = function(){ expLogs(); };
+var waLimparLogs      = function(){ limparLogs(); };
+var waReenviarFalhas  = function(){ reenviarFalhas(); };
+var wa_DoReenviarFalhas=function(){ _doReenviarFalhas(); };
+var waRenderConfig    = function(){ renderConfig(); };
+var waEditUserInst    = function(k){ editUserInst(k); };
+var wa_SaveUserInst   = function(k){ _saveUserInst(k); };
+var waChangePwd       = function(k){ changePwd(k); };
+var wa_DoChangePwd    = function(k){ _doChangePwd(k); };
+var waOpenAddUser     = function(){ openAddUser(); };
+var wa_DoAddUser      = function(){ _doAddUser(); };
+var waShowModal       = function(h){ showModal(h); };
+var waCloseModal      = function(){ closeModal(); };
+var waSetupWebhook    = function(){ setupWebhook(); };
+var waOpenUserMenu    = function(){ openUserMenu(); };
+var waDoLogout        = function(){ doLogout(); };
+var waTrocarUsuario   = function(){ trocarUsuario(); };
+var waOpenChangePwdSelf=function(){ openChangePwdSelf(); };
+var wa_DoChangePwdSelf=function(){ _doChangePwdSelf(); };
+var waAddCRMCol       = function(){ addCRMCol(); };
+var wa_DoAddCRMCol    = function(){ _doAddCRMCol(); };
+var waDelCRMCol       = function(i){ delCRMCol(i); };
+var wa_DoDelCRMCol    = function(i){ _doDelCRMCol(i); };
+var waRenderCRM       = function(){ }; // CRM removed from WA
+var waExpCRM          = function(){ }; // CRM removed from WA
+
 // ── RISE SST WHATSAPP MODULE INIT ──
 window.waInitModule = function() {
   if (window._waModuleReady) return;
   window._waModuleReady = true;
-  // Boot directly — no login required
   const ls = document.getElementById('wa-login-screen');
   if (ls) ls.style.display = 'none';
-  waBootApp();
+  // Small delay to ensure all aliases are set
+  setTimeout(function() {
+    if (typeof window.waBootApp === 'function') window.waBootApp();
+  }, 50);
 };
 
 </script>
@@ -2474,7 +2580,7 @@ window.waInitModule = function() {
 // ══════════════════════════════════════
 //  RISE WHATSAPP v2.0 — RISE SST Module
 // ══════════════════════════════════════
-(function() {
+
   // ID proxy: redirect getElementById to wa- prefixed IDs within this module
   const _origGet = document.getElementById.bind(document);
   const _origQSA = document.querySelectorAll.bind(document);
@@ -2511,7 +2617,7 @@ const TABS = {
   mensagem: ['Mensagem','Crie e salve modelos de mensagem'],
   disparo:  ['Disparar Agora','Envie mensagens para sua base'],
   agendamento: ['Agendamentos','Programe disparos para o futuro'],
-  listas:   ['Listas','Organize contatos em grupos'],
+  wa_listas:   ['Listas','Organize contatos em grupos'],
   relatorio:['Relatório','Histórico de envios'],
   numero:   ['Meu Número','Status e QR Code'],
   config:   ['Configurações','API e configurações do sistema'],
@@ -2526,33 +2632,33 @@ const CRM_COLS_DEFAULT = [
   {id:'seminteresse', label:'Sem Interesse', color:'var(--red)'},
 ];
 // CRM_COLS pode ser estendido com colunas customizadas
-let crmCustomCols = [];
+let wa_crmCustomCols = [];
 function getCRMCols() {
-  return [...CRM_COLS_DEFAULT, ...crmCustomCols];
+  return [...CRM_COLS_DEFAULT, ...wa_crmCustomCols];
 }
 // Alias para compatibilidade
 const CRM_COLS = CRM_COLS_DEFAULT;
 
 // ── STATE ──
-let contacts = [];
-let listas = [];
-let logs = [];
-let crmData = [];
-let fila = [];
-let agendamentos = [];
-let savedMsg = '';
-let tpls = [];
-let currentUser = null;
-let fireActive = false;
-let fireTimer = null;
-let filaIdx = 0;
-let chatContact = null;
-let chatLogs = {};
-let inboxContacts = [];
-let chatTab = 'historico'; // historico | novos | todos
+let wa_contacts = [];
+let wa_listas = [];
+let wa_logs = [];
+let wa_crmData = [];
+let wa_fila = [];
+let wa_agendamentos = [];
+let wa_savedMsg = '';
+let wa_tpls = [];
+let wa_currentUser = null;
+let wa_fireActive = false;
+let wa_fireTimer = null;
+let wa_filaIdx = 0;
+let wa_chatContact = null;
+let wa_chatLogs = {};
+let wa_inboxContacts = [];
+let wa_chatTab = 'historico'; // historico | novos | todos
 
 function setChatTab(tab) {
-  chatTab = tab;
+  wa_chatTab = tab;
   ['historico','novos','todos'].forEach(t => {
     const btn = document.getElementById('chat-tab-'+t);
     if(btn) {
@@ -2564,9 +2670,9 @@ function setChatTab(tab) {
   });
   renderChatList();
 } // Contatos que iniciaram conversa mas não estão na lista
-let ctPage = 0;
+let wa_ctPage = 0;
 const CT_PER_PAGE = 50;
-let agTimer = null;
+let wa_agTimer = null;
 
 // ── USERS ──
 function getUsers() {
@@ -2584,7 +2690,7 @@ function saveUsers(u) { localStorage.setItem('rise_wa_users', JSON.stringify(u))
 
 // ── CONFIG ──
 function getCfgKey() {
-  return CFG_KEY + '_' + (currentUser?.key||'default');
+  return CFG_KEY + '_' + (wa_currentUser?.key||'default');
 }
 function getCfg() {
   try {
@@ -2605,7 +2711,7 @@ function getInst()   { return getCfg().inst||''; }
 // ── NAVIGATION ──
 function go(tab) {
   Object.keys(TABS).forEach(t => {
-    const p = document.getElementById('wa-panel-'+'t);
+    const p = document.getElementById('wa-panel-'+t);
     const m = document.getElementById('wa-mn-'+t);
     if(p) p.className = 'wa-panel'+(t===tab?' show':'');
     if(m){ m.classList.toggle('active', t===tab); }
@@ -2615,7 +2721,7 @@ function go(tab) {
   wGet('wa-tb-sub').textContent = info[1];
   closeSidebar();
   if(tab==='contatos') renderC();
-  if(tab==='listas') renderListas();
+  if(tab==='wa_listas') renderListas();
   if(tab==='mensagem') { loadTpl(); updPrev(); }
   if(tab==='disparo') { updDisparo(); populateFireTpls(); updFirePrev(); setTimeout(()=>syncFireSliders(),50); }
   if(tab==='crm') renderCRM();
@@ -2647,9 +2753,9 @@ function toast(msg, type='ok') {
 }
 
 // ── LOGIN ──
-let selUsuario = null;
+let wa_selUsuario = null;
 function selUser(u) {
-  selUsuario = u;
+  wa_selUsuario = u;
   document.querySelectorAll('.user-card').forEach(el=>el.classList.remove('sel'));
   const users = getUsers();
   document.querySelectorAll('.user-card').forEach(el=>{
@@ -2662,11 +2768,11 @@ function selUser(u) {
 function backLogin() {
   wGet('wa-login-step1').style.display='block';
   wGet('wa-login-step2').style.display='none';
-  selUsuario = null;
+  wa_selUsuario = null;
 }
 function doLogin() {
   const users = getUsers();
-  const u = users[selUsuario];
+  const u = users[wa_selUsuario];
   if(!u) return;
   const pwd = wGet('wa-pwd-input').value;
   const err = wGet('wa-login-err');
@@ -2674,13 +2780,13 @@ function doLogin() {
     err.textContent = '❌ Senha incorreta'; return;
   }
   err.textContent = '';
-  localStorage.setItem(SESS_KEY, JSON.stringify({key:selUsuario, ts:Date.now()}));
-  currentUser = {key:selUsuario, ...u};
+  localStorage.setItem(SESS_KEY, JSON.stringify({key:wa_selUsuario, ts:Date.now()}));
+  wa_currentUser = {key:wa_selUsuario, ...u};
   iniciarApp();
 }
 function iniciarApp() {
   wGet('wa-login-screen').style.display='none';
-  const u = currentUser;
+  const u = wa_currentUser;
   wGet('wa-user-av').textContent = u.name.split(' ').map(w=>w[0]).join('').slice(0,2);
   wGet('wa-user-name').textContent = u.name;
   wGet('wa-user-role').textContent = u.role;
@@ -2692,9 +2798,9 @@ function iniciarApp() {
   // Ensure user has URL+Key from global config
   const globalCfg2 = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
   if(globalCfg2.url||globalCfg2.key) {
-    const userCfgCheck = JSON.parse(localStorage.getItem(CFG_KEY+'_'+(currentUser?.key||''))||'{}');
+    const userCfgCheck = JSON.parse(localStorage.getItem(CFG_KEY+'_'+(wa_currentUser?.key||''))||'{}');
     if(!userCfgCheck.url) {
-      localStorage.setItem(CFG_KEY+'_'+(currentUser?.key||''), JSON.stringify({
+      localStorage.setItem(CFG_KEY+'_'+(wa_currentUser?.key||''), JSON.stringify({
         ...userCfgCheck, url:globalCfg2.url, key:globalCfg2.key
       }));
     }
@@ -2708,12 +2814,69 @@ function iniciarApp() {
   });
 }
 // autoLogin disabled
+  // ═══ Critical camelCase aliases for WA HTML onclick handlers ═══
+  window.waGo = window.wago;
+  window.waToggleSidebar = window.watoggleSidebar;
+  window.waCloseSidebar = window.wacloseSidebar;
+  window.waRenderC = window.warenderC;
+  window.waUpdBadges = window.waupdBadges;
+  window.waCheckNum = window.wacheckNum;
+  window.waGerarQR = window.wagerarQR;
+  window.waTrocarNum = window.watrocarNum;
+  window.waSaveConf = window.wasaveConf;
+  window.waTestConn = window.watestConn;
+  window.waTestDB = window.watestDB;
+  window.waWipeDB = window.wawipeDB;
+  window.waStartFire = window.wastartFire;
+  window.waStopFire = window.wastopFire;
+  window.waSendTest = window.wasendTest;
+  window.waUpdDisparo = window.waupdDisparo;
+  window.waCriarAgendamento = window.wacriarAgendamento;
+  window.waRenderAgendamentos = window.warenderAgendamentos;
+  window.waCriarLista = window.wacriarLista;
+  window.waRenderListas = window.warenderListas;
+  window.waRenderChatList = window.warenderChatList;
+  window.waSendChatMsg = window.wasendChatMsg;
+  window.waOpenSendModal = window.waopenSendModal;
+  window.waSaveMsg = window.wasaveMsg;
+  window.waSaveTpl = window.wasaveTpl;
+  window.waLoadTpl = window.waloadTpl;
+  window.waUpdPrev = window.waupdPrev;
+  window.waInsVar = window.wainsVar;
+  window.waSelTodos = window.waselTodos;
+  window.waDeselTodos = window.wadeselTodos;
+  window.waExportContatos = window.waexportContatos;
+  window.waOpenAddModal = window.waopenAddModal;
+  window.waClrAll = window.waclrAll;
+  window.waSetChatTab = window.wasetChatTab;
+  window.waAddSelecionadosModal = window.waaddSelecionadosModal;
+  window.waUpdFirePrev = window.waupdFirePrev;
+  window.waLoadFireTpl = window.waloadFireTpl;
+  window.waClearFireMsg = window.waclearFireMsg;
+  window.waPopulateFireTpls = window.wapopulateFireTpls;
+  window.waSyncFireSliders = window.wasyncFireSliders;
+  window.waSyncAgSliders = window.wasyncAgSliders;
+  window.waLoadAgTpl = window.waloadAgTpl;
+  window.waClearAgMsg = window.waclearAgMsg;
+  window.waUpdAgPrev = window.waupdAgPrev;
+  window.waLimparAgendamentos = window.walimparAgendamentos;
+  window.waToggleLista = window.watoggleLista;
+  window.waExcluirLista = window.waexcluirLista;
+  window.waDispararLista = window.wadispararLista;
+  window.waOpenAddUser = window.waopenAddUser;
+  window.waRenderConfig = window.warenderConfig;
+  window.waSetupWebhook = window.wasetupWebhook;
+  window.waExpLogs = window.waexpLogs;
+  window.waLimparLogs = window.walimparLogs;
+  window.waReenviarFalhas = window.wareenviarFalhas;
+  window.waOpenUserMenu = window.waopenUserMenu;
+  window.waDoLogout = window.wadoLogout;
 
 // ── PERSIST: NEON ──
-let saveTimeout = null;
+let wa_saveTimeout = null;
 function salvarDados() {
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(_saveNeon, 1500);
+  clearTimeout(wa_saveTimeout);
+  wa_saveTimeout = setTimeout(_saveNeon, 1500);
 }
 async function salvarImediato() { await _saveNeon(); }
 async function _saveNeon() {
@@ -2722,7 +2885,7 @@ async function _saveNeon() {
     const res = await fetch('/api/dados', {
       method:'POST',
       headers:{'Content-Type':'application/json','x-user-key':'shared'},
-      body:JSON.stringify({contacts,listas,logs,crm:crmData,fila,agendamentos,savedmsg:savedMsg,config:{tpls}})
+      body:JSON.stringify({wa_contacts,wa_listas,wa_logs,crm:wa_crmData,wa_fila,wa_agendamentos,savedmsg:wa_savedMsg,config:{wa_tpls}})
     });
     if(!res.ok) throw new Error('HTTP '+res.status);
     if(ind){ind.style.opacity='1';setTimeout(()=>ind.style.opacity='0',2000);}
@@ -2737,14 +2900,14 @@ async function carregarDados() {
     });
     if(!res.ok) return;
     const d = await res.json();
-    contacts = d.contacts||[];
-    listas = d.listas||[];
-    logs = d.logs||[];
-    crmData = d.crm||[];
-    fila = d.fila||[];
-    agendamentos = d.agendamentos||[];
-    savedMsg = d.savedmsg||'';
-    if(d.config?.tpls) tpls = d.config.tpls;
+    wa_contacts = d.wa_contacts||[];
+    wa_listas = d.wa_listas||[];
+    wa_logs = d.wa_logs||[];
+    wa_crmData = d.crm||[];
+    wa_fila = d.wa_fila||[];
+    wa_agendamentos = d.wa_agendamentos||[];
+    wa_savedMsg = d.savedmsg||'';
+    if(d.config?.wa_tpls) wa_tpls = d.config.wa_tpls;
     renderC(); renderListas(); updBadges(); renderAgendamentos();
     loadAllChats();
   } catch(e) {
@@ -2760,18 +2923,18 @@ function uid(){ return Date.now()+'_'+Math.random().toString(36).slice(2,7); }
 function tsNow(){ return new Date().toLocaleString('pt-BR'); }
 
 function updBadges() {
-  wGet('wa-nb-contatos').textContent = contacts.length;
-  wGet('wa-nb-listas').textContent = listas.length;
-  const nr = crmData.filter(x=>x.status==='naoresp').length;
+  wGet('wa-nb-contatos').textContent = wa_contacts.length;
+  wGet('wa-nb-wa_listas').textContent = wa_listas.length;
+  const nr = wa_crmData.filter(x=>x.status==='naoresp').length;
   const nb = wGet('wa-nb-crm');
   nb.textContent=nr; nb.style.display=nr?'':'none';
-  const ag = agendamentos.filter(a=>a.status==='pending').length;
+  const ag = wa_agendamentos.filter(a=>a.status==='pending').length;
   const nba = wGet('wa-nb-agenda');
   nba.textContent=ag; nba.style.display=ag?'':'none';
-  const env=contacts.filter(c=>c.status==='enviado').length;
-  const err=contacts.filter(c=>c.status==='falha').length;
-  const pend=contacts.filter(c=>c.status!=='enviado'&&c.status!=='falha').length;
-  wGet('s-total').textContent=contacts.length;
+  const env=wa_contacts.filter(c=>c.status==='enviado').length;
+  const err=wa_contacts.filter(c=>c.status==='falha').length;
+  const pend=wa_contacts.filter(c=>c.status!=='enviado'&&c.status!=='falha').length;
+  wGet('s-total').textContent=wa_contacts.length;
   wGet('s-ok').textContent=env;
   wGet('s-err').textContent=err;
   wGet('s-pend').textContent=pend;
@@ -2779,7 +2942,7 @@ function updBadges() {
 
 // ── CONTATOS ──
 function buildFilters() {
-  const cidades = [...new Set(contacts.map(c=>c.cidade||'').filter(Boolean))].sort();
+  const cidades = [...new Set(wa_contacts.map(c=>c.cidade||'').filter(Boolean))].sort();
   const cc = wGet('ct-cidade');
   const cur = cc.value;
   cc.innerHTML = '<option value="">Todas cidades</option>';
@@ -2787,8 +2950,8 @@ function buildFilters() {
   cc.value = cur;
   const cl = wGet('ct-lista');
   const curl = cl.value;
-  cl.innerHTML = '<option value="">Todas listas</option>';
-  listas.forEach(l=>{ const o=document.createElement('option');o.value=l.id;o.textContent=l.nome;cl.appendChild(o); });
+  cl.innerHTML = '<option value="">Todas wa_listas</option>';
+  wa_listas.forEach(l=>{ const o=document.createElement('option');o.value=l.id;o.textContent=l.nome;cl.appendChild(o); });
   cl.value = curl;
 }
 
@@ -2800,9 +2963,9 @@ function renderC() {
   const lst = wGet('ct-lista')?.value||'';
   const resp = wGet('ct-resp')?.value||'';
 
-  const listaIds = lst ? (listas.find(l=>String(l.id)===lst)||{contatos:[]}).contatos : null;
+  const listaIds = lst ? (wa_listas.find(l=>String(l.id)===lst)||{contatos:[]}).contatos : null;
 
-  let filtered = contacts.filter(c=>{
+  let filtered = wa_contacts.filter(c=>{
     if(srch && !`${c.nome||''} ${c.empresa||''} ${c.tel||''}`.toLowerCase().includes(srch)) return false;
     if(st && c.status!==st) return false;
     if(cid && c.cidade!==cid) return false;
@@ -2813,13 +2976,13 @@ function renderC() {
 
   const total = filtered.length;
   const pages = Math.ceil(total/CT_PER_PAGE);
-  ctPage = Math.min(ctPage, Math.max(0,pages-1));
-  const start = ctPage*CT_PER_PAGE;
+  wa_ctPage = Math.min(wa_ctPage, Math.max(0,pages-1));
+  const start = wa_ctPage*CT_PER_PAGE;
   const slice = filtered.slice(start, start+CT_PER_PAGE);
 
-  // Map contact → listas
+  // Map contact → wa_listas
   const cListaMap = {};
-  listas.forEach(l=>{
+  wa_listas.forEach(l=>{
     l.contatos.forEach(id=>{ if(!cListaMap[id]) cListaMap[id]=[]; cListaMap[id].push(l.nome); });
   });
 
@@ -2872,8 +3035,8 @@ function renderC() {
       pager.innerHTML = `
         <span>${start+1}–${Math.min(start+CT_PER_PAGE,total)} de ${total}</span>
         <div style="display:flex;gap:6px">
-          <button class="wa-btn wa-btn-xs" onclick="ctPageGo(${ctPage-1})" ${ctPage===0?'disabled':''}>←</button>
-          <button class="wa-btn wa-btn-xs" onclick="ctPageGo(${ctPage+1})" ${ctPage>=pages-1?'disabled':''}>→</button>
+          <button class="wa-btn wa-btn-xs" onclick="ctPageGo(${wa_ctPage-1})" ${wa_ctPage===0?'disabled':''}>←</button>
+          <button class="wa-btn wa-btn-xs" onclick="ctPageGo(${wa_ctPage+1})" ${wa_ctPage>=pages-1?'disabled':''}>→</button>
         </div>
       `;
     } else {
@@ -2882,7 +3045,7 @@ function renderC() {
   }
   updSel();
 }
-function ctPageGo(p){ ctPage=p; renderC(); }
+function ctPageGo(p){ wa_ctPage=p; renderC(); }
 function updSel(){
   const n = document.querySelectorAll('.c-chk:checked').length;
   const el = wGet('sel-count');
@@ -2893,15 +3056,15 @@ function deselTodos(){ wQSA('.c-chk').forEach(c=>c.checked=false); updSel(); }
 function selTodosChk(el){ wQSA('.c-chk').forEach(c=>c.checked=el.checked); updSel(); }
 
 function delContato(id) {
-  contacts = contacts.filter(c=>c.id!==id);
-  listas.forEach(l=>{ l.contatos=l.contatos.filter(i=>i!==id); });
-  crmData = crmData.filter(x=>x.contactId!==id);
+  wa_contacts = wa_contacts.filter(c=>c.id!==id);
+  wa_listas.forEach(l=>{ l.contatos=l.contatos.filter(i=>i!==id); });
+  wa_crmData = wa_crmData.filter(x=>x.contactId!==id);
   renderC(); updBadges(); salvarDados();
 }
 function clrAll() {
   showModal(`
     <div class="wa-modal-title">⚠️ Confirmar limpeza</div>
-    <p class="wa-modal-sub">Isso removerá todos os contatos, listas e logs.</p>
+    <p class="wa-modal-sub">Isso removerá todos os contatos, wa_listas e wa_logs.</p>
     <div class="wa-modal-footer">
       <button class="wa-btn wa-btn-sm" onclick="closeModal()">Cancelar</button>
       <button class="wa-btn wa-btn-danger wa-btn-sm" onclick="_doClrAll()">Confirmar</button>
@@ -2909,7 +3072,7 @@ function clrAll() {
   `);
 }
 function _doClrAll(){
-  contacts=[];listas=[];logs=[];crmData=[];fila=[];
+  wa_contacts=[];wa_listas=[];wa_logs=[];wa_crmData=[];wa_fila=[];
   renderC();renderListas();renderCRM();renderLogs();updBadges();salvarDados();
   closeModal();toast('Base de dados limpa');
 }
@@ -2976,7 +3139,7 @@ function processFile(file, listaId) {
       if(!tel) return;
       if(tel.length===10||tel.length===11) tel='55'+tel;
       if(tel.length<10) return;
-      const existe = contacts.find(c=>c.tel===tel);
+      const existe = wa_contacts.find(c=>c.tel===tel);
       if(existe){ dup++; return; }
       const c = {
         id: Date.now()+i,
@@ -2988,8 +3151,8 @@ function processFile(file, listaId) {
         status:'pendente',
         addedAt: Date.now()
       };
-      contacts.push(c);
-      if(listaId){ const l=listas.find(l=>l.id===listaId); if(l)l.contatos.push(c.id); }
+      wa_contacts.push(c);
+      if(listaId){ const l=wa_listas.find(l=>l.id===listaId); if(l)l.contatos.push(c.id); }
       added++;
     });
     salvarImediato().then(()=>{ renderC(); updBadges(); toast(`${added} contato(s) importado(s)${dup?`, ${dup} duplicado(s) ignorado(s)`:''}`); });
@@ -3014,7 +3177,7 @@ function openAddModal() {
   `);
 }
 function atribuirResp(id) {
-  const c = contacts.find(x=>x.id===id);
+  const c = wa_contacts.find(x=>x.id===id);
   if(!c) return;
   showModal(`
     <div class="wa-modal-title">👤 Atribuir Responsável</div>
@@ -3035,7 +3198,7 @@ function atribuirResp(id) {
   `);
 }
 function _doAtribuirResp(id) {
-  const c = contacts.find(x=>x.id===id);
+  const c = wa_contacts.find(x=>x.id===id);
   if(!c) return;
   c.responsavel = wGet('atr-resp-sel')?.value||'';
   salvarDados(); renderC(); closeModal();
@@ -3046,8 +3209,8 @@ function addContato() {
   let tel = (wGet('na-tel').value||'').replace(/\D/g,'');
   if(!tel){ toast('Telefone obrigatório','err'); return; }
   if(tel.length===10||tel.length===11) tel='55'+tel;
-  if(contacts.find(c=>c.tel===tel)){ toast('Contato já existe','warn'); return; }
-  contacts.push({
+  if(wa_contacts.find(c=>c.tel===tel)){ toast('Contato já existe','warn'); return; }
+  wa_contacts.push({
     id:Date.now(), tel,
     nome:wGet('na-nome').value,
     empresa:wGet('na-emp').value,
@@ -3066,7 +3229,7 @@ function addSelecionadosModal() {
     <div class="wa-field">
       <label>Lista de destino</label>
       <select class="wa-sel" id="add-lista-sel">
-        ${listas.map(l=>`<option value="${l.id}">${esc(l.nome)} (${l.contatos.length})</option>`).join('')||'<option disabled>Nenhuma lista criada</option>'}
+        ${wa_listas.map(l=>`<option value="${l.id}">${esc(l.nome)} (${l.contatos.length})</option>`).join('')||'<option disabled>Nenhuma lista criada</option>'}
       </select>
     </div>
     <div class="wa-modal-footer">
@@ -3077,7 +3240,7 @@ function addSelecionadosModal() {
 }
 function _doAddSel(sels) {
   const listaId = parseInt(wGet('add-lista-sel').value);
-  const lista = listas.find(l=>l.id===listaId);
+  const lista = wa_listas.find(l=>l.id===listaId);
   if(!lista){ toast('Selecione uma lista','warn'); return; }
   let added=0;
   sels.forEach(id=>{ if(!lista.contatos.includes(id)){lista.contatos.push(id);added++;} });
@@ -3085,7 +3248,7 @@ function _doAddSel(sels) {
 }
 
 function exportContatos() {
-  const rows = contacts.map(c=>({
+  const rows = wa_contacts.map(c=>({
     Telefone:c.tel, Nome:c.nome, Empresa:c.empresa,
     Cidade:c.cidade, Status:c.status
   }));
@@ -3096,8 +3259,8 @@ function exportContatos() {
 
 // ── CHAT ──
 function openChat(id) {
-  chatContact = contacts.find(c=>c.id===id);
-  if(!chatContact){ toast('Contato não encontrado','err'); return; }
+  wa_chatContact = wa_contacts.find(c=>c.id===id);
+  if(!wa_chatContact){ toast('Contato não encontrado','err'); return; }
   go('conversa');
   renderChatList();
   openChatWindow(id);
@@ -3108,8 +3271,8 @@ function renderChatList() {
   if(!list) return;
 
   const sortByLast = arr => [...arr].sort((a,b) => {
-    const aLogs = chatLogs[a.id]||[];
-    const bLogs = chatLogs[b.id]||[];
+    const aLogs = wa_chatLogs[a.id]||[];
+    const bLogs = wa_chatLogs[b.id]||[];
     const aTs = aLogs[aLogs.length-1]?.ts||0;
     const bTs = bLogs[bLogs.length-1]?.ts||0;
     return bTs - aTs;
@@ -3119,19 +3282,19 @@ function renderChatList() {
 
   let allItems = [];
 
-  if(chatTab === 'historico') {
+  if(wa_chatTab === 'historico') {
     // Apenas contatos que têm histórico de mensagens
-    const withHistory = contacts.filter(c => chatLogs[c.id]?.length > 0 && matchSearch(c));
-    const inboxFiltered = inboxContacts.filter(c => matchSearch(c));
+    const withHistory = wa_contacts.filter(c => wa_chatLogs[c.id]?.length > 0 && matchSearch(c));
+    const inboxFiltered = wa_inboxContacts.filter(c => matchSearch(c));
     allItems = sortByLast([...withHistory, ...inboxFiltered]);
-  } else if(chatTab === 'novos') {
+  } else if(wa_chatTab === 'novos') {
     // Apenas inbox (quem chamou mas não está nos contatos)
-    allItems = inboxContacts.filter(c => matchSearch(c));
+    allItems = wa_inboxContacts.filter(c => matchSearch(c));
   } else {
     // Todos os contatos
-    const withHistory = contacts.filter(c => chatLogs[c.id]?.length > 0 && matchSearch(c));
-    const withoutHistory = contacts.filter(c => !(chatLogs[c.id]?.length > 0) && matchSearch(c));
-    const inboxFiltered = inboxContacts.filter(c => matchSearch(c));
+    const withHistory = wa_contacts.filter(c => wa_chatLogs[c.id]?.length > 0 && matchSearch(c));
+    const withoutHistory = wa_contacts.filter(c => !(wa_chatLogs[c.id]?.length > 0) && matchSearch(c));
+    const inboxFiltered = wa_inboxContacts.filter(c => matchSearch(c));
     allItems = [...sortByLast([...withHistory, ...inboxFiltered]), ...withoutHistory];
   }
 
@@ -3141,15 +3304,15 @@ function renderChatList() {
       novos: '🆕 Nenhuma conversa nova',
       todos: '👥 Nenhum contato encontrado'
     };
-    list.innerHTML=`<div class="wa-empty-state"><span class="wa-empty-icon">💬</span><p>${msgs[chatTab]||''}</p></div>`;
+    list.innerHTML=`<div class="wa-empty-state"><span class="wa-empty-icon">💬</span><p>${msgs[wa_chatTab]||''}</p></div>`;
     return;
   }
 
   function makeItem(c, isInbox) {
-    const msgs = chatLogs[c.id]||[];
+    const msgs = wa_chatLogs[c.id]||[];
     const last = msgs[msgs.length-1];
     const hasUnread = msgs.some(m=>m.dir==='in'&&!m.read);
-    const isActive = chatContact?.id===c.id||chatContact?.tel===c.tel;
+    const isActive = wa_chatContact?.id===c.id||wa_chatContact?.tel===c.tel;
     return `<div class="wa-contact-item${isActive?' active':''}" onclick="openChatWindow_tel('${c.tel||c.id}')">
       <div class="wa-ci-av" style="${isInbox?'background:rgba(255,171,64,.15);color:var(--amber)':''}">
         ${initials(c.nome||c.tel)}
@@ -3166,23 +3329,23 @@ function renderChatList() {
     </div>`;
   }
 
-  list.innerHTML = allItems.map(c => makeItem(c, inboxContacts.includes(c))).join('');
+  list.innerHTML = allItems.map(c => makeItem(c, wa_inboxContacts.includes(c))).join('');
 }
 
-// Abrir conversa por telefone (para inbox contacts)
+// Abrir conversa por telefone (para inbox wa_contacts)
 function openChatWindow_tel(telOrId) {
   // Tentar achar por id primeiro
-  let c = contacts.find(x=>String(x.id)===String(telOrId));
+  let c = wa_contacts.find(x=>String(x.id)===String(telOrId));
   // Tentar por tel
-  if(!c) c = contacts.find(x=>x.tel===telOrId);
+  if(!c) c = wa_contacts.find(x=>x.tel===telOrId);
   // Tentar inbox
-  if(!c) c = inboxContacts.find(x=>x.tel===telOrId||String(x.id)===String(telOrId));
+  if(!c) c = wa_inboxContacts.find(x=>x.tel===telOrId||String(x.id)===String(telOrId));
   if(!c) return;
   openChatWindowObj(c);
 }
 
 function openChatWindowObj(c) {
-  chatContact = c;
+  wa_chatContact = c;
   wGet('chat-av').textContent = initials(c.nome||c.tel);
   wGet('chat-name').textContent = c.nome||fmt(c.tel);
   wGet('chat-tel').textContent = fmt(c.tel)+(c.empresa?` • ${c.empresa}`:'');
@@ -3193,15 +3356,15 @@ function openChatWindowObj(c) {
   renderChatList();
 }
 function openChatWindow(id) {
-  const c = contacts.find(x=>x.id===id);
+  const c = wa_contacts.find(x=>x.id===id);
   if(!c) return;
   openChatWindowObj(c);
 }
 function renderChatHistory() {
   const body = wGet('chat-body');
   // Try by id first, then by tel
-  const tel = (chatContact?.tel||'').replace(/[^0-9]/g,'');
-  const msgs = chatLogs[chatContact?.id] || chatLogs[tel] || chatLogs['inbox_'+tel] || [];
+  const tel = (wa_chatContact?.tel||'').replace(/[^0-9]/g,'');
+  const msgs = wa_chatLogs[wa_chatContact?.id] || wa_chatLogs[tel] || wa_chatLogs['inbox_'+tel] || [];
   if(!msgs.length){
     body.innerHTML=`<div class="wa-empty-state"><span class="wa-empty-icon">💬</span><p>Nenhuma mensagem ainda. Clique em "Enviar Mensagem" para iniciar.</p></div>`;
     return;
@@ -3217,16 +3380,16 @@ function renderChatHistory() {
 function sendChatMsg() {
   const inp = wGet('chat-input');
   const text = inp?.value?.trim();
-  if(!text||!chatContact){ return; }
+  if(!text||!wa_chatContact){ return; }
   inp.value=''; inp.style.height='auto';
-  doSendMsg(chatContact.id, text);
+  doSendMsg(wa_chatContact.id, text);
 }
 function openSendModal() {
-  if(!chatContact) return;
-  const defMsg = buildMsg(savedMsg, chatContact);
+  if(!wa_chatContact) return;
+  const defMsg = buildMsg(wa_savedMsg, wa_chatContact);
   showModal(`
-    <div class="wa-modal-title">📤 Enviar para ${esc(chatContact.nome||fmt(chatContact.tel))}</div>
-    <div class="wa-modal-sub">${esc(fmt(chatContact.tel))}</div>
+    <div class="wa-modal-title">📤 Enviar para ${esc(wa_chatContact.nome||fmt(wa_chatContact.tel))}</div>
+    <div class="wa-modal-sub">${esc(fmt(wa_chatContact.tel))}</div>
     <div class="wa-field"><label>Mensagem</label>
       <textarea class="wa-ta" id="sm-text" rows="5">${esc(defMsg)}</textarea>
     </div>
@@ -3240,10 +3403,10 @@ async function _doSendModal() {
   const text = wGet('sm-text')?.value?.trim();
   if(!text){ toast('Mensagem vazia','warn'); return; }
   closeModal();
-  await doSendMsg(chatContact.id, text);
+  await doSendMsg(wa_chatContact.id, text);
 }
 async function doSendMsg(cId, text) {
-  const c = contacts.find(x=>x.id===cId);
+  const c = wa_contacts.find(x=>x.id===cId);
   if(!c){ toast('Contato não encontrado','err'); return; }
   const base = getApiBase(); const key = getApiKey(); const inst = getInst();
   if(!base||!key||!inst){ toast('Configure a API primeiro','warn'); return; }
@@ -3255,18 +3418,18 @@ async function doSendMsg(cId, text) {
     });
     const ok = res.ok;
     const ts = tsNow();
-    if(!chatLogs[cId]) chatLogs[cId]=[];
-    chatLogs[cId].push({text, dir:'out', time:ts});
+    if(!wa_chatLogs[cId]) wa_chatLogs[cId]=[];
+    wa_chatLogs[cId].push({text, dir:'out', time:ts});
     if(ok) {
       c.status='enviado';
-      logs.unshift({id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:'enviado',msg:text.slice(0,60),enviadoPor:currentUser?.name||''});
+      wa_logs.unshift({id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:'enviado',msg:text.slice(0,60),enviadoPor:wa_currentUser?.name||''});
       toast('Mensagem enviada ✓');
     } else {
-      logs.unshift({id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:'falha',msg:text.slice(0,60),enviadoPor:currentUser?.name||''});
+      wa_logs.unshift({id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:'falha',msg:text.slice(0,60),enviadoPor:wa_currentUser?.name||''});
       toast('Falha ao enviar','err');
     }
     salvarDados();
-    if(chatContact?.id===cId) renderChatHistory();
+    if(wa_chatContact?.id===cId) renderChatHistory();
     renderChatList();
     updBadges();
     // Atualizar relatório se estiver aberto
@@ -3291,7 +3454,7 @@ function updPrev() {
   if(prev) prev.textContent = text||'Nenhuma mensagem digitada ainda...';
 }
 function saveMsg() {
-  savedMsg = wGet('msg-text')?.value||'';
+  wa_savedMsg = wGet('msg-text')?.value||'';
   salvarDados(); toast('Mensagem salva ✓');
 }
 let _pendingTplText = '';
@@ -3314,7 +3477,7 @@ function saveTpl() {
 function _doSaveTpl() {
   const name = wGet('tpl-name-inp')?.value?.trim();
   if(!name){ toast('Nome obrigatório','warn'); return; }
-  tpls.push({id:uid(), name, text:_pendingTplText});
+  wa_tpls.push({id:uid(), name, text:_pendingTplText});
   salvarDados(); loadTpl(); closeModal(); toast(`Modelo "${name}" salvo`);
 }
 function loadTpl() {
@@ -3322,13 +3485,13 @@ function loadTpl() {
   if(sel) {
     const cur = sel.value;
     sel.innerHTML = '<option value="">— Selecionar modelo —</option>';
-    tpls.forEach(t=>{ const o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o); });
+    wa_tpls.forEach(t=>{ const o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o); });
     sel.value=cur;
   }
   const list = wGet('tpl-list');
   if(list) {
-    list.innerHTML = tpls.length
-      ? tpls.map(t=>`
+    list.innerHTML = wa_tpls.length
+      ? wa_tpls.map(t=>`
         <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd2)">
           <div style="flex:1;font-size:13px">
             <div style="font-weight:600">${esc(t.name)}</div>
@@ -3341,13 +3504,13 @@ function loadTpl() {
   }
 }
 function useTpl(id) {
-  const t = tpls.find(t=>t.id===id);
+  const t = wa_tpls.find(t=>t.id===id);
   if(!t) return;
   const ta = wGet('msg-text');
   if(ta){ ta.value=t.text; updPrev(); }
 }
 function delTpl(id) {
-  tpls = tpls.filter(t=>t.id!==id);
+  wa_tpls = wa_tpls.filter(t=>t.id!==id);
   salvarDados(); loadTpl(); toast('Modelo removido');
 }
 
@@ -3360,14 +3523,14 @@ function updDisparo() {
   if(listasSel) {
     const cur = listasSel.value;
     listasSel.innerHTML = '<option value="">Selecionar lista...</option>';
-    listas.forEach(l=>{ const o=document.createElement('option');o.value=l.id;o.textContent=`${l.nome} (${l.contatos.length})`;listasSel.appendChild(o); });
+    wa_listas.forEach(l=>{ const o=document.createElement('option');o.value=l.id;o.textContent=`${l.nome} (${l.contatos.length})`;listasSel.appendChild(o); });
     listasSel.value=cur;
   }
   const list = getFireList();
   const pc = wGet('fire-preview-count');
   if(pc) pc.textContent = `📋 ${list.length} contato(s) no alvo`;
 
-  // Render fila
+  // Render wa_fila
   renderFireQueue();
 }
 
@@ -3376,16 +3539,16 @@ function getFireList() {
   if(tgt==='lista') {
     const listaId = wGet('fire-lista-sel')?.value;
     if(listaId) {
-      const lista = listas.find(l=>String(l.id)===listaId);
-      if(lista) return contacts.filter(c=>lista.contatos.includes(c.id));
+      const lista = wa_listas.find(l=>String(l.id)===listaId);
+      if(lista) return wa_contacts.filter(c=>lista.contatos.includes(c.id));
     }
     return [];
   }
   if(tgt==='sel') {
     const sels = Array.from(document.querySelectorAll('.c-chk:checked')).map(c=>parseInt(c.dataset.id));
-    if(sels.length) return contacts.filter(c=>sels.includes(c.id));
+    if(sels.length) return wa_contacts.filter(c=>sels.includes(c.id));
   }
-  return contacts.filter(c=>c.status!=='enviado');
+  return wa_contacts.filter(c=>c.status!=='enviado');
 }
 
 function renderFireQueue() {
@@ -3417,24 +3580,24 @@ function startFire() {
   if(!list.length){ toast('Nenhum contato no alvo','warn'); return; }
   const fireQty = getFireQty();
   const fireList = fireQty > 0 ? list.slice(0, fireQty) : list;
-  fila = fireList.map(c=>c.id);
-  filaIdx = 0; fireActive = true;
+  wa_fila = fireList.map(c=>c.id);
+  wa_filaIdx = 0; wa_fireActive = true;
   wGet('fire-btn').disabled = true;
   wGet('fire-banner').style.display='block';
   updFireUI();
   fireNext();
 }
 function stopFire() {
-  fireActive=false;
-  clearTimeout(fireTimer);
+  wa_fireActive=false;
+  clearTimeout(wa_fireTimer);
   wGet('fire-btn').disabled=false;
   wGet('fire-banner').style.display='none';
   toast('Disparo parado','warn');
   salvarDados();
 }
 function updFireUI() {
-  const total=fila.length;
-  const done=filaIdx;
+  const total=wa_fila.length;
+  const done=wa_filaIdx;
   const pct = total?Math.round(done/total*100):0;
   const prog = wGet('fire-prog');
   const txt = wGet('fire-prog-txt');
@@ -3443,25 +3606,25 @@ function updFireUI() {
   updFireTimeline();
 }
 async function fireNext() {
-  if(!fireActive) return;
-  if(filaIdx>=fila.length) {
-    fireActive=false;
+  if(!wa_fireActive) return;
+  if(wa_filaIdx>=wa_fila.length) {
+    wa_fireActive=false;
     wGet('fire-btn').disabled=false;
     wGet('fire-banner').style.display='none';
-    const env=logs.filter(l=>l.status==='enviado'&&fila.includes(l.id)).length;
-    const total=fila.length;
+    const env=wa_logs.filter(l=>l.status==='enviado'&&wa_fila.includes(l.id)).length;
+    const total=wa_fila.length;
     toast(`🚀 Disparo concluído! ${total} processados`);
     salvarDados(); renderC(); updBadges(); renderLogs(); return;
   }
-  const cId=fila[filaIdx];
-  const c=contacts.find(x=>x.id===cId);
-  filaIdx++;
+  const cId=wa_fila[wa_filaIdx];
+  const c=wa_contacts.find(x=>x.id===cId);
+  wa_filaIdx++;
   updFireUI();
   // Pular contato inexistente mas continuar
   if(!c){ fireNext(); return; }
 
   const cur = wGet('fire-current');
-  if(cur) cur.textContent=`[${filaIdx}/${fila.length}] ${c.nome||fmt(c.tel)} — ${fmt(c.tel)}`;
+  if(cur) cur.textContent=`[${wa_filaIdx}/${wa_fila.length}] ${c.nome||fmt(c.tel)} — ${fmt(c.tel)}`;
 
   const base=getApiBase();const key=getApiKey();const inst=getInst();
   const text=buildMsg(getFireMsg(),c);
@@ -3502,7 +3665,7 @@ async function fireNext() {
   }
 
   // Atualizar status do contato — SEMPRE continua
-  const ct=contacts.find(x=>x.id===cId);
+  const ct=wa_contacts.find(x=>x.id===cId);
   if(ct) ct.status=sucesso?'enviado':'falha';
 
   // Registrar log com motivo do erro
@@ -3511,13 +3674,13 @@ async function fireNext() {
     nome:c.nome,empresa:c.empresa,tel:c.tel,
     status:sucesso?'enviado':'falha',
     msg:text.slice(0,60),
-    enviadoPor:currentUser?.name||'',
+    enviadoPor:wa_currentUser?.name||'',
     erro:erroMotivo||''
   };
-  logs.unshift(logEntry);
+  wa_logs.unshift(logEntry);
 
-  if(!chatLogs[cId]) chatLogs[cId]=[];
-  if(sucesso) chatLogs[cId].push({text,dir:'out',time:ts});
+  if(!wa_chatLogs[cId]) wa_chatLogs[cId]=[];
+  if(sucesso) wa_chatLogs[cId].push({text,dir:'out',time:ts});
 
   // Atualizar UI em tempo real
   salvarDados();
@@ -3542,22 +3705,22 @@ async function fireNext() {
   const min=parseInt(wGet('fire-min')?.value||10);
   const max=parseInt(wGet('fire-max')?.value||25);
   const delay=(min+Math.random()*(max-min))*1000;
-  fireTimer=setTimeout(fireNext,delay);
+  wa_fireTimer=setTimeout(fireNext,delay);
 }
 function buildMsg(tpl,c) {
   return (tpl||'').replace(/\{nome\}/g,c.nome||'').replace(/\{empresa\}/g,c.empresa||'').replace(/\{tel\}/g,fmt(c.tel)).replace(/\{cidade\}/g,c.cidade||'');
 }
 function sendMsg(cId) {
-  const c=contacts.find(x=>x.id===cId);
+  const c=wa_contacts.find(x=>x.id===cId);
   if(!c) return;
-  chatContact=c;
+  wa_chatContact=c;
   go('conversa');
   setTimeout(()=>{ openChatWindow(cId); openSendModal(); },50);
 }
 async function sendTest() {
   const num=(wGet('fire-test-num')?.value||'').replace(/\D/g,'');
   if(!num){ toast('Informe o número de teste','warn'); return; }
-  if(!savedMsg){ toast('Salve uma mensagem primeiro','warn'); return; }
+  if(!wa_savedMsg){ toast('Salve uma mensagem primeiro','warn'); return; }
   const c={tel:num,nome:'Teste',empresa:'—',cidade:'—'};
   const base=getApiBase();const key=getApiKey();const inst=getInst();
   if(!base||!key||!inst){ toast('Configure a API','warn'); return; }
@@ -3566,7 +3729,7 @@ async function sendTest() {
     const res=await fetch(`${base}/message/sendText/${inst}`,{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':key},
-      body:JSON.stringify({number:num,textMessage:{text:buildMsg(savedMsg,c)}})
+      body:JSON.stringify({number:num,textMessage:{text:buildMsg(wa_savedMsg,c)}})
     });
     res.ok?toast('Teste enviado ✓'):toast('Falha no teste','err');
   } catch(e){ toast('Erro: '+e.message,'err'); }
@@ -3582,7 +3745,7 @@ function criarAgendamento() {
   if(dt<=new Date()){ toast('Data/hora deve ser no futuro','warn'); return; }
   const tgt=wGet('ag-target')?.value||'all';
   const listaId=tgt==='lista'?(wGet('ag-lista-sel')?.value||null):null;
-  agendamentos.push({
+  wa_agendamentos.push({
     id:uid(), nome, data, hora,
     ts:dt.getTime(), target:tgt,
     listaId, msg:wGet('ag-msg')?.value||'',
@@ -3604,16 +3767,16 @@ function renderAgendamentos() {
   // populate lista sel
   const agl=wGet('ag-lista-sel');
   if(agl){
-    agl.innerHTML=listas.map(l=>`<option value="${l.id}">${esc(l.nome)}</option>`).join('');
+    agl.innerHTML=wa_listas.map(l=>`<option value="${l.id}">${esc(l.nome)}</option>`).join('');
   }
   const ag=wGet('ag-target');
   if(ag){ const f=wGet('ag-lista-field');if(f)f.style.display=ag.value==='lista'?'':'none'; }
 
-  if(!agendamentos.length){
+  if(!wa_agendamentos.length){
     wrap.innerHTML='<div class="wa-empty-state"><span class="wa-empty-icon">🗓️</span><p>Nenhum agendamento</p></div>';
     return;
   }
-  const sorted=[...agendamentos].filter(a=>a.status!=='archived').sort((a,b)=>a.ts-b.ts);
+  const sorted=[...wa_agendamentos].filter(a=>a.status!=='archived').sort((a,b)=>a.ts-b.ts);
   wrap.innerHTML=sorted.map(ag=>{
     const dt=new Date(ag.ts);
     const isPast=dt<new Date();
@@ -3627,7 +3790,7 @@ function renderAgendamentos() {
     // Descobrir qual mensagem será usada
     const msgPreview = (() => {
       if(ag.msg && ag.msg.trim()) return ag.msg.trim().slice(0,80)+(ag.msg.trim().length>80?'...':'');
-      if(savedMsg) return savedMsg.slice(0,80)+(savedMsg.length>80?'...':'');
+      if(wa_savedMsg) return wa_savedMsg.slice(0,80)+(wa_savedMsg.length>80?'...':'');
       return 'Mensagem principal';
     })();
     return `<div class="wa-sched-card" style="flex-direction:column;align-items:stretch;gap:0;padding:0">
@@ -3636,7 +3799,7 @@ function renderAgendamentos() {
         <div class="wa-sched-info">
           <div class="wa-sched-title">${esc(ag.nome)}</div>
           <div class="wa-sched-meta" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:3px">
-            <span>📋 ${ag.target==='lista'?`Lista: ${esc(listas.find(l=>l.id==ag.listaId)?.nome||'—')}`:'Todos pendentes'}</span>
+            <span>📋 ${ag.target==='lista'?`Lista: ${esc(wa_listas.find(l=>l.id==ag.listaId)?.nome||'—')}`:'Todos pendentes'}</span>
             <span>⏱ ${ag.minInterval||10}s–${ag.maxInterval||25}s</span>
             ${ag.maxQty>0?`<span>📨 ${ag.maxQty} msgs</span>`:''}
           </div>
@@ -3665,7 +3828,7 @@ function renderAgendamentos() {
   }).join('');
 }
 function cancelAgendamento(id) {
-  const a=agendamentos.find(x=>x.id===id);
+  const a=wa_agendamentos.find(x=>x.id===id);
   if(a) a.status='cancelled';
   salvarDados(); renderAgendamentos(); updBadges(); toast('Agendamento cancelado');
 }
@@ -3680,19 +3843,19 @@ function excluirAg(id) {
   `);
 }
 function _doExcluirAg(id) {
-  agendamentos = agendamentos.filter(a=>a.id!==id);
+  wa_agendamentos = wa_agendamentos.filter(a=>a.id!==id);
   salvarDados(); renderAgendamentos(); updBadges(); closeModal();
   toast('Agendamento excluído');
 }
 function arquivarAg(id) {
-  const a=agendamentos.find(x=>x.id===id);
+  const a=wa_agendamentos.find(x=>x.id===id);
   if(a){ a.arquivado=true; a.status='archived'; }
   salvarDados(); renderAgendamentos(); updBadges();
   toast('Agendamento arquivado');
 }
 function limparAgendamentos() {
   showModal(`
-    <div class="wa-modal-title">🗑 Limpar agendamentos</div>
+    <div class="wa-modal-title">🗑 Limpar wa_agendamentos</div>
     <div class="wa-modal-sub">O que deseja remover?</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
       <button class="wa-btn" onclick="_limparAgs('done')" style="justify-content:flex-start;gap:10px">
@@ -3711,17 +3874,17 @@ function limparAgendamentos() {
   `);
 }
 function _limparAgs(tipo) {
-  if(tipo==='all') agendamentos=[];
-  else agendamentos=agendamentos.filter(a=>a.status!==tipo);
+  if(tipo==='all') wa_agendamentos=[];
+  else wa_agendamentos=wa_agendamentos.filter(a=>a.status!==tipo);
   salvarDados(); renderAgendamentos(); updBadges(); closeModal();
   toast('Agendamentos removidos');
 }
 function startAgTimer() {
-  clearInterval(agTimer);
-  agTimer=setInterval(()=>{
+  clearInterval(wa_agTimer);
+  wa_agTimer=setInterval(()=>{
     const now=Date.now();
     let fired=false;
-    agendamentos.forEach(ag=>{
+    wa_agendamentos.forEach(ag=>{
       if(ag.status==='pending'&&ag.ts<=now) {
         ag.status='firing'; fired=true;
         fireAgendamento(ag);
@@ -3735,15 +3898,15 @@ async function fireAgendamento(ag) {
   if(!base||!key||!inst){ ag.status='pending'; return; }
   let list=[];
   if(ag.target==='lista'&&ag.listaId){
-    const l=listas.find(x=>x.id==ag.listaId);
-    if(l) list=contacts.filter(c=>l.contatos.includes(c.id));
+    const l=wa_listas.find(x=>x.id==ag.listaId);
+    if(l) list=wa_contacts.filter(c=>l.contatos.includes(c.id));
   } else {
-    list=contacts.filter(c=>c.status!=='enviado');
+    list=wa_contacts.filter(c=>c.status!=='enviado');
   }
   if(ag.maxQty > 0) list = list.slice(0, ag.maxQty);
   toast(`🗓️ Iniciando agendamento: ${ag.nome} (${list.length} contatos)`);
   for(const c of list) {
-    const text=buildMsg(ag.msg||savedMsg, c);
+    const text=buildMsg(ag.msg||wa_savedMsg, c);
     const ts=tsNow();
     try {
       const res=await fetch(`${base}/message/sendText/${inst}`,{
@@ -3751,15 +3914,15 @@ async function fireAgendamento(ag) {
         headers:{'Content-Type':'application/json','apikey':key},
         body:JSON.stringify({number:c.tel,textMessage:{text}})
       });
-      const ct=contacts.find(x=>x.id===c.id);
+      const ct=wa_contacts.find(x=>x.id===c.id);
       if(ct&&res.ok) ct.status='enviado';
-      const logEntry={id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:res.ok?'enviado':'falha',msg:text.slice(0,60),enviadoPor:currentUser?.name||'',agId:ag.id};
-      logs.unshift(logEntry);
+      const logEntry={id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:res.ok?'enviado':'falha',msg:text.slice(0,60),enviadoPor:wa_currentUser?.name||'',agId:ag.id};
+      wa_logs.unshift(logEntry);
       if(!ag.historico) ag.historico=[];
       ag.historico.push(logEntry);
     } catch(e){
-      const logEntry={id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:'falha',msg:'',enviadoPor:currentUser?.name||'',agId:ag.id};
-      logs.unshift(logEntry);
+      const logEntry={id:uid(),time:ts,nome:c.nome,empresa:c.empresa,tel:c.tel,status:'falha',msg:'',enviadoPor:wa_currentUser?.name||'',agId:ag.id};
+      wa_logs.unshift(logEntry);
       if(!ag.historico) ag.historico=[];
       ag.historico.push(logEntry);
     }
@@ -3774,20 +3937,20 @@ async function fireAgendamento(ag) {
 function criarLista() {
   const nome=(wGet('lista-nome-input')?.value||'').trim();
   if(!nome){ toast('Nome obrigatório','warn'); return; }
-  if(listas.find(l=>l.nome===nome)){ toast('Lista já existe','warn'); return; }
-  listas.push({id:Date.now(), nome, contatos:[], createdAt:Date.now()});
+  if(wa_listas.find(l=>l.nome===nome)){ toast('Lista já existe','warn'); return; }
+  wa_listas.push({id:Date.now(), nome, contatos:[], createdAt:Date.now()});
   wGet('lista-nome-input').value='';
   salvarDados(); renderListas(); updBadges(); toast(`Lista "${nome}" criada`);
 }
 function renderListas() {
-  const wrap=wGet('listas-wrap');
+  const wrap=wGet('wa_listas-wrap');
   if(!wrap) return;
-  if(!listas.length){
+  if(!wa_listas.length){
     wrap.innerHTML='<div class="wa-empty-state"><span class="wa-empty-icon">📋</span><p>Nenhuma lista criada ainda</p></div>';
     return;
   }
-  wrap.innerHTML=listas.map(l=>{
-    const ctots=contacts.filter(c=>l.contatos.includes(c.id));
+  wrap.innerHTML=wa_listas.map(l=>{
+    const ctots=wa_contacts.filter(c=>l.contatos.includes(c.id));
     const env=ctots.filter(c=>c.status==='enviado').length;
     return `<div class="wa-lista-item" id="lcard-${l.id}">
       <div class="wa-lista-header" onclick="toggleLista(${l.id})">
@@ -3823,16 +3986,16 @@ function toggleLista(id) {
   if(b) b.classList.toggle('open');
 }
 function excluirLista(id) {
-  listas=listas.filter(l=>l.id!==id);
+  wa_listas=wa_listas.filter(l=>l.id!==id);
   salvarDados(); renderListas(); updBadges(); toast('Lista removida');
 }
 function remDaLista(listaId, cId) {
-  const l=listas.find(x=>x.id===listaId);
+  const l=wa_listas.find(x=>x.id===listaId);
   if(l){ l.contatos=l.contatos.filter(i=>i!==cId); salvarDados(); renderListas(); }
 }
 function readFileLista(inp,listaId) { if(inp.files[0]) askResponsavelImport(inp.files[0], listaId); inp.value=''; }
 function dispararLista(id) {
-  const lista=listas.find(l=>l.id===id);
+  const lista=wa_listas.find(l=>l.id===id);
   if(!lista){ return; }
   go('disparo');
   setTimeout(()=>{
@@ -3848,12 +4011,12 @@ function dispararLista(id) {
 // ── CRM ──
 function enviarSelecionadosCRM() {
   const sels = Array.from(document.querySelectorAll('.c-chk:checked')).map(c=>parseInt(c.dataset.id));
-  const list = sels.length ? contacts.filter(c=>sels.includes(c.id)) : contacts;
+  const list = sels.length ? wa_contacts.filter(c=>sels.includes(c.id)) : wa_contacts;
   if(!list.length){ toast('Nenhum contato para enviar','warn'); return; }
   let added = 0;
   list.forEach(c => {
-    if(!crmData.find(x=>x.contactId===c.id)) {
-      crmData.push({
+    if(!wa_crmData.find(x=>x.contactId===c.id)) {
+      wa_crmData.push({
         id:uid(), contactId:c.id,
         nome:c.nome, tel:c.tel, empresa:c.empresa,
         status:'naoresp', nota:'', updatedAt:Date.now()
@@ -3870,8 +4033,8 @@ function enviarSelecionadosCRM() {
 }
 
 function addCRM(c) {
-  if(crmData.find(x=>x.contactId===c.id)) return;
-  crmData.push({
+  if(wa_crmData.find(x=>x.contactId===c.id)) return;
+  wa_crmData.push({
     id:uid(), contactId:c.id,
     nome:c.nome, tel:c.tel, empresa:c.empresa,
     status:'naoresp', nota:'', updatedAt:Date.now()
@@ -3881,15 +4044,15 @@ function addCRM(c) {
 function renderCRM() {
   const srch=(wGet('crm-search')?.value||'').toLowerCase();
   const colF=wGet('crm-col-filter')?.value||'';
-  let filtered=crmData.filter(c=>!srch||`${c.nome||''} ${c.empresa||''} ${c.tel||''}`.toLowerCase().includes(srch));
+  let filtered=wa_crmData.filter(c=>!srch||`${c.nome||''} ${c.empresa||''} ${c.tel||''}`.toLowerCase().includes(srch));
 
   // Stats
-  wGet('cs-nr').textContent=crmData.filter(c=>c.status==='naoresp').length;
-  wGet('cs-ab').textContent=crmData.filter(c=>c.status==='abertura').length;
-  wGet('cs-ag').textContent=crmData.filter(c=>c.status==='agendado').length;
-  wGet('cs-cv').textContent=crmData.filter(c=>c.status==='convertido').length;
+  wGet('cs-nr').textContent=wa_crmData.filter(c=>c.status==='naoresp').length;
+  wGet('cs-ab').textContent=wa_crmData.filter(c=>c.status==='abertura').length;
+  wGet('cs-ag').textContent=wa_crmData.filter(c=>c.status==='agendado').length;
+  wGet('cs-cv').textContent=wa_crmData.filter(c=>c.status==='convertido').length;
   const siEl=wGet('cs-si');
-  if(siEl) siEl.textContent=crmData.filter(c=>c.status==='seminteresse').length;
+  if(siEl) siEl.textContent=wa_crmData.filter(c=>c.status==='seminteresse').length;
 
   // Populate column filter
   const cf=wGet('crm-col-filter');
@@ -3908,7 +4071,7 @@ function renderCRM() {
   if(!wrap) return;
   wrap.innerHTML=cols.map(col=>{
     const items=filtered.filter(c=>c.status===col.id);
-    const isCustom=crmCustomCols.find(x=>x.id===col.id);
+    const isCustom=wa_crmCustomCols.find(x=>x.id===col.id);
     return `<div class="wa-crm-col">
       <div class="wa-crm-col-header">
         <span style="width:8px;height:8px;border-radius:50%;background:${col.color};display:inline-block;flex-shrink:0"></span>
@@ -3930,7 +4093,7 @@ function renderCRM() {
   }).join('');
 }
 function editCRM(crmId) {
-  const item=crmData.find(c=>String(c.id)===String(crmId));
+  const item=wa_crmData.find(c=>String(c.id)===String(crmId));
   if(!item) return;
   const opts=CRM_COLS.map(c=>`<option value="${c.id}" ${item.status===c.id?'selected':''}>${c.label}</option>`).join('');
   showModal(`
@@ -3963,7 +4126,7 @@ function editCRM(crmId) {
   `);
 }
 function _saveCRM(id) {
-  const item=crmData.find(c=>String(c.id)===String(id));
+  const item=wa_crmData.find(c=>String(c.id)===String(id));
   if(!item) return;
   item.status=wGet('crm-st-sel')?.value;
   item.nota=wGet('crm-nota-inp')?.value;
@@ -3974,11 +4137,11 @@ function _saveCRM(id) {
   salvarDados(); renderCRM(); updBadges(); closeModal(); toast('CRM atualizado');
 }
 function delCRM(id) {
-  crmData=crmData.filter(c=>String(c.id)!==String(id));
+  wa_crmData=wa_crmData.filter(c=>String(c.id)!==String(id));
   salvarDados(); renderCRM(); updBadges(); closeModal(); toast('Removido do CRM');
 }
 function expCRM() {
-  const rows=crmData.map(c=>({
+  const rows=wa_crmData.map(c=>({
     Nome:c.nome, Telefone:c.tel, OutroTel:c.outroTel||'',
     Empresa:c.empresa, Responsavel:c.responsavel||'',
     Email:c.email||'', Status:c.status, Anotacao:c.nota,
@@ -3991,15 +4154,15 @@ function expCRM() {
 
 // ── LOGS ──
 function renderLogs() {
-  const logs_env=logs.filter(l=>l.status==='enviado').length;
-  const logs_err=logs.filter(l=>l.status==='falha').length;
+  const logs_env=wa_logs.filter(l=>l.status==='enviado').length;
+  const logs_err=wa_logs.filter(l=>l.status==='falha').length;
   wGet('rlog-env').textContent=logs_env;
   wGet('rlog-err').textContent=logs_err;
-  wGet('rlog-total').textContent=logs.length;
-  wGet('rlog-rate').textContent=logs.length?Math.round(logs_env/logs.length*100)+'%':'0%';
+  wGet('rlog-total').textContent=wa_logs.length;
+  wGet('rlog-rate').textContent=wa_logs.length?Math.round(logs_env/wa_logs.length*100)+'%':'0%';
   const tbody=wGet('log-tbody');
   if(!tbody) return;
-  tbody.innerHTML=logs.slice(0,200).map(l=>`<tr>
+  tbody.innerHTML=wa_logs.slice(0,200).map(l=>`<tr>
     <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${esc(l.time)}</td>
     <td>${esc(l.nome||'—')}</td>
     <td style="font-family:var(--mono);font-size:12px">${esc(fmt(l.tel))}</td>
@@ -4017,22 +4180,22 @@ function renderLogs() {
         : (l.status==='enviado' ? '<span style="color:var(--t3);font-size:11px">—</span>' : '')
       }
     </td>
-  </tr>`).join('')||'<tr><td colspan="7"><div class="wa-empty-state"><span class="wa-empty-icon">📋</span><p>Sem logs ainda</p></div></td></tr>';
+  </tr>`).join('')||'<tr><td colspan="7"><div class="wa-empty-state"><span class="wa-empty-icon">📋</span><p>Sem wa_logs ainda</p></div></td></tr>';
 }
 function expLogs() {
   const csv='Data,Nome,Telefone,Enviado Por,Status,Mensagem,Erro\n'+
-    logs.map(l=>[l.time,l.nome,fmt(l.tel),l.enviadoPor||'',l.status,(l.msg||'').replace(/,/g,';'),(l.erro||'').replace(/,/g,';')].join(',')).join('\n');
+    wa_logs.map(l=>[l.time,l.nome,fmt(l.tel),l.enviadoPor||'',l.status,(l.msg||'').replace(/,/g,';'),(l.erro||'').replace(/,/g,';')].join(',')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='logs_rise.csv'; a.click();
 }
 function limparLogs() {
   showModal(`
-    <div class="wa-modal-title">🗑 Limpar logs</div>
+    <div class="wa-modal-title">🗑 Limpar wa_logs</div>
     <p class="wa-modal-sub">Apagar todos os registros de envio?</p>
     <div class="wa-modal-footer">
       <button class="wa-btn wa-btn-sm" onclick="closeModal()">Cancelar</button>
-      <button class="wa-btn wa-btn-danger wa-btn-sm" onclick="logs=[];salvarDados();renderLogs();closeModal();toast('Logs apagados')">Confirmar</button>
+      <button class="wa-btn wa-btn-danger wa-btn-sm" onclick="wa_logs=[];salvarDados();renderLogs();closeModal();toast('Logs apagados')">Confirmar</button>
     </div>
   `);
 }
@@ -4171,7 +4334,7 @@ function wipeDB() {
 async function _doWipe() {
   try {
     await fetch('/api/dados',{method:'DELETE',headers:{'x-user-key':'shared'}});
-    contacts=[];listas=[];logs=[];crmData=[];fila=[];agendamentos=[];savedMsg='';
+    wa_contacts=[];wa_listas=[];wa_logs=[];wa_crmData=[];wa_fila=[];wa_agendamentos=[];wa_savedMsg='';
     closeModal(); renderC(); renderListas(); renderCRM(); renderLogs(); updBadges();
     toast('Dados apagados do banco');
   } catch(e){ toast('Erro: '+e.message,'err'); closeModal(); }
@@ -4200,7 +4363,7 @@ function renderConfig() {
     instWrap.innerHTML = Object.entries(users).map(([k,u])=>{
       const userCfg = JSON.parse(localStorage.getItem(CFG_KEY+'_'+k)||'{}');
       const inst = userCfg.inst||'';
-      const isMe = k === currentUser?.key;
+      const isMe = k === wa_currentUser?.key;
       return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--s2);border:1px solid ${isMe?'var(--bd)':'var(--bd2)'};border-radius:10px;margin-bottom:8px">
         <div class="user-av" style="width:34px;height:34px;font-size:11px;flex-shrink:0;${isMe?'background:linear-gradient(135deg,var(--g2),#003820)':''}">${k.slice(0,2).toUpperCase()}</div>
         <div style="flex:1;min-width:0">
@@ -4249,7 +4412,7 @@ function _saveUserInst(userKey) {
   closeModal();
   renderConfig();
   // Se for o usuário atual, atualizar status
-  if(userKey===currentUser?.key) {
+  if(userKey===wa_currentUser?.key) {
     toast(`Instância atualizada: ${inst}`);
     checkNum();
   } else {
@@ -4327,7 +4490,7 @@ wGet('ag-target')?.addEventListener('change', function(){
   if(f) f.style.display=this.value==='lista'?'':'none';
 });
 
-// Populate ag lista sel whenever listas changes (covered in renderAgendamentos)
+// Populate ag lista sel whenever wa_listas changes (covered in renderAgendamentos)
 // Handle fire target change
 wGet('fire-target')?.addEventListener('change', updDisparo);
 wGet('fire-lista-sel')?.addEventListener('change', updDisparo);
@@ -4338,7 +4501,7 @@ function populateFireTpls() {
   if(!sel) return;
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Usar mensagem principal —</option>';
-  tpls.forEach(t => {
+  wa_tpls.forEach(t => {
     const o = document.createElement('option');
     o.value = t.id; o.textContent = t.name; sel.appendChild(o);
   });
@@ -4348,7 +4511,7 @@ function loadFireTpl() {
   const id = wGet('fire-tpl-sel')?.value;
   const ta = wGet('fire-msg-custom');
   if(id && ta) {
-    const t = tpls.find(x=>x.id===id);
+    const t = wa_tpls.find(x=>x.id===id);
     if(t) ta.value = t.text;
   }
   updFirePrev();
@@ -4363,10 +4526,10 @@ function clearFireMsg() {
 function updFirePrev() {
   const text = wGet('fire-msg-custom')?.value||'';
   const prev = wGet('fire-msg-prev');
-  if(prev) prev.textContent = text || (savedMsg ? savedMsg.slice(0,120)+(savedMsg.length>120?'...':'') : 'Usando mensagem principal...');
+  if(prev) prev.textContent = text || (wa_savedMsg ? wa_savedMsg.slice(0,120)+(wa_savedMsg.length>120?'...':'') : 'Usando mensagem principal...');
 }
 function getFireMsg() {
-  return wGet('fire-msg-custom')?.value?.trim() || savedMsg || '';
+  return wGet('fire-msg-custom')?.value?.trim() || wa_savedMsg || '';
 }
 
 // ── MENSAGEM NO AGENDAMENTO ──
@@ -4375,7 +4538,7 @@ function populateAgTpls() {
   if(!sel) return;
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Usar mensagem principal —</option>';
-  tpls.forEach(t => {
+  wa_tpls.forEach(t => {
     const o = document.createElement('option');
     o.value = t.id; o.textContent = t.name; sel.appendChild(o);
   });
@@ -4385,7 +4548,7 @@ function loadAgTpl() {
   const id = wGet('ag-tpl-sel')?.value;
   const ta = wGet('ag-msg');
   if(id && ta) {
-    const t = tpls.find(x=>x.id===id);
+    const t = wa_tpls.find(x=>x.id===id);
     if(t) ta.value = t.text;
   }
   updAgPrev();
@@ -4400,7 +4563,7 @@ function clearAgMsg() {
 function updAgPrev() {
   const text = wGet('ag-msg')?.value||'';
   const prev = wGet('ag-msg-prev');
-  if(prev) prev.textContent = text || (savedMsg ? savedMsg.slice(0,120)+(savedMsg.length>120?'...':'') : 'Usando mensagem principal...');
+  if(prev) prev.textContent = text || (wa_savedMsg ? wa_savedMsg.slice(0,120)+(wa_savedMsg.length>120?'...':'') : 'Usando mensagem principal...');
 }
 
 // ── INTERVAL CHARTS ──
@@ -4475,8 +4638,8 @@ function updAgIntervalChart() {
 
 // Update fire timeline dots
 function updFireTimeline() {
-  const total = fila.length;
-  const done = filaIdx;
+  const total = wa_fila.length;
+  const done = wa_filaIdx;
   const pct = total ? done/total : 0;
   const tl = wGet('fire-timeline');
   if(tl) tl.style.width = (pct*100)+'%';
@@ -4485,8 +4648,8 @@ function updFireTimeline() {
     const n = Math.min(total, 12);
     dots.innerHTML = Array.from({length:n}, (_,i) => {
       const idx = Math.floor(i/(n-1)*(total-1));
-      const done2 = idx < filaIdx;
-      const active = idx === filaIdx;
+      const done2 = idx < wa_filaIdx;
+      const active = idx === wa_filaIdx;
       return `<div style="width:${active?10:7}px;height:${active?10:7}px;border-radius:50%;background:${done2?'var(--g)':active?'var(--amber)':'var(--s4)'};border:1px solid ${done2?'var(--g)':active?'var(--amber)':'var(--t3)'};transition:all .3s;${active?'box-shadow:0 0 8px var(--amber)':''}"></div>`;
     }).join('');
   }
@@ -4561,7 +4724,7 @@ function getAgQty() {
 
 // ── LOGOUT / TROCAR USUÁRIO ──
 function openUserMenu() {
-  const u = currentUser;
+  const u = wa_currentUser;
   showModal(`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--bd2)">
       <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--g2),#003820);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--g);font-family:var(--mono);flex-shrink:0">${esc((u?.key||'?').slice(0,2).toUpperCase())}</div>
@@ -4593,14 +4756,14 @@ function openUserMenu() {
 
 function doLogout() {
   localStorage.removeItem('rise_wa_session');
-  currentUser = null;
+  wa_currentUser = null;
   wGet('wa-login-screen').style.display='flex';
   wGet('wa-pwd-input').value='';
   wGet('wa-login-err').textContent='';
   wGet('wa-login-step1').style.display='block';
   wGet('wa-login-step2').style.display='none';
   document.querySelectorAll('.user-card').forEach(el=>el.classList.remove('sel'));
-  selUsuario = null;
+  wa_selUsuario = null;
   toast('Sessão encerrada');
 }
 
@@ -4609,10 +4772,10 @@ function trocarUsuario() {
 }
 
 function openChangePwdSelf() {
-  if(!currentUser) return;
+  if(!wa_currentUser) return;
   showModal(`
     <div class="wa-modal-title">🔑 Alterar minha senha</div>
-    <div class="wa-modal-sub">Usuário: ${esc(currentUser.name)}</div>
+    <div class="wa-modal-sub">Usuário: ${esc(wa_currentUser.name)}</div>
     <div class="wa-field"><label>Senha atual</label><input type="password" class="wa-inp" id="cp-atual" placeholder="••••••••"></div>
     <div class="wa-field"><label>Nova senha</label><input type="password" class="wa-inp" id="cp-nova" placeholder="••••••••"></div>
     <div class="wa-field"><label>Confirmar nova senha</label><input type="password" class="wa-inp" id="cp-conf" placeholder="••••••••"></div>
@@ -4628,7 +4791,7 @@ function _doChangePwdSelf() {
   const nova  = wGet('cp-nova')?.value;
   const conf  = wGet('cp-conf')?.value;
   const users = getUsers();
-  const u = users[currentUser.key];
+  const u = users[wa_currentUser.key];
   if(!u || btoa(atual) !== u.pass){ toast('Senha atual incorreta','err'); return; }
   if(!nova || nova.length < 4){ toast('Nova senha muito curta','warn'); return; }
   if(nova !== conf){ toast('Senhas não coincidem','err'); return; }
@@ -4640,7 +4803,7 @@ function _doChangePwdSelf() {
 
 // ── REENVIAR FALHAS ──
 function reenviarFalhas() {
-  const falhas = contacts.filter(c=>c.status==='falha');
+  const falhas = wa_contacts.filter(c=>c.status==='falha');
   if(!falhas.length){ toast('Nenhuma falha para reenviar','warn'); return; }
   showModal(`
     <div class="wa-modal-title">🔁 Reenviar Falhas</div>
@@ -4653,7 +4816,7 @@ function reenviarFalhas() {
   `);
 }
 function _doReenviarFalhas() {
-  const falhas = contacts.filter(c=>c.status==='falha');
+  const falhas = wa_contacts.filter(c=>c.status==='falha');
   falhas.forEach(c=>{ c.status='pendente'; });
   salvarDados(); renderC(); updBadges(); closeModal();
   toast(`${falhas.length} contato(s) resetado(s) — vá em Disparar Agora`);
@@ -4662,9 +4825,9 @@ function _doReenviarFalhas() {
 
 // ── HISTÓRICO DE AGENDAMENTO ──
 function verHistoricoAg(agId) {
-  const ag = agendamentos.find(x=>x.id===agId);
+  const ag = wa_agendamentos.find(x=>x.id===agId);
   if(!ag) return;
-  const hist = ag.historico || logs.filter(l=>l.agId===agId);
+  const hist = ag.historico || wa_logs.filter(l=>l.agId===agId);
   const env = hist.filter(l=>l.status==='enviado').length;
   const falha = hist.filter(l=>l.status==='falha').length;
   showModal(`
@@ -4709,7 +4872,7 @@ function verHistoricoAg(agId) {
 
 // ── DISPARAR AGENDAMENTO IMEDIATAMENTE ──
 function dispararAgNow(agId) {
-  const ag = agendamentos.find(x=>x.id===agId);
+  const ag = wa_agendamentos.find(x=>x.id===agId);
   if(!ag) return;
   showModal(`
     <div class="wa-modal-title">🚀 Disparar Agendamento</div>
@@ -4723,7 +4886,7 @@ function dispararAgNow(agId) {
 }
 function _confirmDispararAgNow(agId) {
   closeModal();
-  const ag = agendamentos.find(x=>x.id===agId);
+  const ag = wa_agendamentos.find(x=>x.id===agId);
   if(!ag) return;
   ag.status = 'firing';
   fireAgendamento(ag);
@@ -4762,7 +4925,7 @@ function _doAddCRMCol() {
   if(!name){toast('Nome obrigatório','warn');return;}
   const color=wGet('new-col-color')?.value||'#40c4ff';
   const id='custom_'+uid();
-  crmCustomCols.push({id, label:name, color});
+  wa_crmCustomCols.push({id, label:name, color});
   salvarDados(); renderCRM(); closeModal();
   toast(`Coluna "${name}" criada ✓`);
 }
@@ -4777,7 +4940,7 @@ function delCRMCol(id) {
   `);
 }
 function _doDelCRMCol(id) {
-  crmCustomCols=crmCustomCols.filter(c=>c.id!==id);
+  wa_crmCustomCols=wa_crmCustomCols.filter(c=>c.id!==id);
   salvarDados(); renderCRM(); closeModal();
   toast('Coluna removida');
 }
@@ -4831,21 +4994,21 @@ function receberMensagem(data) {
     const msgId = msg.key?.id;
 
     // Deduplicar
-    if(msgId && processedMsgIds.has(msgId)) return;
-    if(msgId) processedMsgIds.add(msgId);
+    if(msgId && wa_processedMsgIds.has(msgId)) return;
+    if(msgId) wa_processedMsgIds.add(msgId);
 
     // Encontrar contato pelo número exato
-    const contact = contacts.find(c=>{
+    const contact = wa_contacts.find(c=>{
       const ct=c.tel.replace(/\D/g,'');
       return ct===tel || ('55'+ct)===tel || ct===('55'+tel);
     });
     const cId = contact?.id||tel;
 
-    // Adicionar ao chatLogs APENAS deste contato
-    if(!chatLogs[cId]) chatLogs[cId]=[];
+    // Adicionar ao wa_chatLogs APENAS deste contato
+    if(!wa_chatLogs[cId]) wa_chatLogs[cId]=[];
     // Evitar duplicata na lista
-    if(!chatLogs[cId].find(m=>m.id===msgId)) {
-      chatLogs[cId].push({id:msgId, text, dir:'in', time:ts});
+    if(!wa_chatLogs[cId].find(m=>m.id===msgId)) {
+      wa_chatLogs[cId].push({id:msgId, text, dir:'in', time:ts});
     }
 
     // Notificar com nome do contato
@@ -4853,8 +5016,8 @@ function receberMensagem(data) {
     toast(`💬 ${displayName}: ${text.slice(0,50)}`, 'info');
 
     // Atualizar conversa se for a aberta
-    if(chatContact) {
-      const chatTel = (chatContact.tel||'').replace(/\D/g,'');
+    if(wa_chatContact) {
+      const chatTel = (wa_chatContact.tel||'').replace(/\D/g,'');
       if(chatTel===tel||('55'+chatTel)===tel||chatTel===('55'+tel)) {
         renderChatHistory();
       }
@@ -4863,14 +5026,14 @@ function receberMensagem(data) {
 
     // Se não está nos contatos, adicionar ao inbox
     if(!contact) {
-      const existInbox = inboxContacts.find(x=>x.tel===tel||x.tel===('55'+tel));
+      const existInbox = wa_inboxContacts.find(x=>x.tel===tel||x.tel===('55'+tel));
       if(!existInbox) {
         const newInbox = {
           id: 'inbox_'+tel,
           tel, nome: tel, empresa: '',
           status: 'inbox', addedAt: Date.now()
         };
-        inboxContacts.push(newInbox);
+        wa_inboxContacts.push(newInbox);
         toast(`📨 Nova conversa de ${fmt(tel)}`,'info');
       }
     }
@@ -4899,14 +5062,14 @@ function receberMensagem(data) {
 }
 
 // Polling de mensagens (alternativa ao webhook)
-let pollTimer = null;
-let lastPollTs = Date.now();
-let processedMsgIds = new Set();
+let wa_pollTimer = null;
+let wa_lastPollTs = Date.now();
+let wa_processedMsgIds = new Set();
 
 async function startPolling() {
-  if(pollTimer) return;
+  if(wa_pollTimer) return;
   // Poll a cada 8 segundos
-  pollTimer = setInterval(pollMessages, 8000);
+  wa_pollTimer = setInterval(pollMessages, 8000);
 }
 
 async function pollMessages() {
@@ -4926,24 +5089,24 @@ async function pollMessages() {
       const d=await res.json();
       const msgs=Array.isArray(d)?d:(d?.messages?.records||d?.messages||[]);
       // Filtrar apenas mensagens novas
-      const cutoff=lastPollTs/1000;
+      const cutoff=wa_lastPollTs/1000;
       msgs.forEach(msg=>{
         const ts=msg.messageTimestamp||msg.messageTimestamp;
         if(ts && ts < cutoff) return;
         const msgId=msg.key?.id;
-        if(msgId && processedMsgIds.has(msgId)) return;
-        if(msgId) processedMsgIds.add(msgId);
-        if(processedMsgIds.size>500) processedMsgIds=new Set([...processedMsgIds].slice(-200));
+        if(msgId && wa_processedMsgIds.has(msgId)) return;
+        if(msgId) wa_processedMsgIds.add(msgId);
+        if(wa_processedMsgIds.size>500) wa_processedMsgIds=new Set([...wa_processedMsgIds].slice(-200));
         receberMensagem({data:msg});
       });
-      lastPollTs=Date.now();
+      wa_lastPollTs=Date.now();
       return;
     }
   } catch(e){}
 
   // Fallback: tentar endpoint alternativo v1.7.x
   try {
-    const contacts_list = contacts.filter(c=>c.status==='enviado').slice(0,20);
+    const contacts_list = wa_contacts.filter(c=>c.status==='enviado').slice(0,20);
     for(const c of contacts_list) {
       const res2=await fetch(`${base}/chat/findMessages/${inst}`, {
         method:'POST',
@@ -4958,12 +5121,12 @@ async function pollMessages() {
       const msgs2=Array.isArray(d2)?d2:(d2?.messages?.records||d2?.messages||[]);
       msgs2.forEach(msg=>{
         const msgId=msg.key?.id;
-        if(msgId && processedMsgIds.has(msgId)) return;
-        if(msgId) processedMsgIds.add(msgId);
+        if(msgId && wa_processedMsgIds.has(msgId)) return;
+        if(msgId) wa_processedMsgIds.add(msgId);
         receberMensagem({data:msg});
       });
     }
-    lastPollTs=Date.now();
+    wa_lastPollTs=Date.now();
   } catch(e){}
 }
 
@@ -4974,12 +5137,12 @@ async function fetchChatHistory(tel) {
 
   const telClean = tel.replace(/[^0-9]/g,'');
   const jid = telClean + '@s.whatsapp.net';
-  const contact = contacts.find(c=>c.tel===telClean||c.tel===tel);
+  const contact = wa_contacts.find(c=>c.tel===telClean||c.tel===tel);
   const cId = contact?.id||telClean;
 
   // Loading
   const body = wGet('chat-body');
-  if(body && (!chatLogs[cId]||!chatLogs[cId].length)) {
+  if(body && (!wa_chatLogs[cId]||!wa_chatLogs[cId].length)) {
     body.innerHTML = '<div class="wa-empty-state"><span class="wa-empty-icon">⏳</span><p>Carregando mensagens...</p></div>';
   }
 
@@ -5098,21 +5261,21 @@ async function fetchChatHistory(tel) {
       .sort((a,b)=>a.ts-b.ts);
 
     if(converted.length) {
-      chatLogs[cId] = converted;
+      wa_chatLogs[cId] = converted;
       // Also store by tel for easy lookup
-      chatLogs[telClean] = converted;
+      wa_chatLogs[telClean] = converted;
       converted.filter(m=>m.dir==='in').forEach(m=>{
-        if(!processedMsgIds.has(m.id)) processedMsgIds.add(m.id);
+        if(!wa_processedMsgIds.has(m.id)) wa_processedMsgIds.add(m.id);
       });
     }
   }
 
   if(!apiMsgs.length) {
     // API não tem histórico — mostrar aviso mas manter mensagens locais
-    const existingLocal = chatLogs[cId]||[];
+    const existingLocal = wa_chatLogs[cId]||[];
     if(!existingLocal.length) {
       const b=wGet('chat-body');
-      if(b&&chatContact?.id===cId) {
+      if(b&&wa_chatContact?.id===cId) {
         b.innerHTML=`<div class="wa-empty-state">
           <span class="wa-empty-icon">💬</span>
           <p>Histórico não disponível na API</p>
@@ -5126,7 +5289,7 @@ async function fetchChatHistory(tel) {
     }
   }
 
-  if(chatContact?.id===cId||chatContact?.tel===telClean||chatContact?.tel===tel) {
+  if(wa_chatContact?.id===cId||wa_chatContact?.tel===telClean||wa_chatContact?.tel===tel) {
     renderChatHistory();
   }
 }
@@ -5153,7 +5316,7 @@ async function loadAllChats() {
       if(!tel||tel.length<8) return;
 
       // Verificar se já existe nos contatos
-      const exists = contacts.find(c=>{
+      const exists = wa_contacts.find(c=>{
         const ct=(c.tel||'').replace(/[^0-9]/g,'');
         const clean=tel.replace(/^55/,'');
         const ctclean=ct.replace(/^55/,'');
@@ -5162,13 +5325,13 @@ async function loadAllChats() {
 
       // Se não existe nos contatos, adicionar ao inbox
       if(!exists) {
-        const existInbox = inboxContacts.find(x=>{
+        const existInbox = wa_inboxContacts.find(x=>{
           const xt=(x.tel||'').replace(/[^0-9]/g,'');
           return xt===tel||xt.endsWith(tel.replace(/^55/,''));
         });
         if(!existInbox) {
           const name = chat.name||chat.pushName||fmt(tel);
-          inboxContacts.push({
+          wa_inboxContacts.push({
             id:'inbox_'+tel, tel, nome:name,
             empresa:'', status:'inbox', addedAt:Date.now()
           });
@@ -5176,7 +5339,7 @@ async function loadAllChats() {
       }
     });
 
-    if(inboxContacts.length > 0) {
+    if(wa_inboxContacts.length > 0) {
       renderChatList();
     }
   } catch(e) { console.warn('loadAllChats error:', e); }
@@ -5461,30 +5624,28 @@ async function loadAllChats() {
   window.wa_doDelCRMCol = _doDelCRMCol;
   window.wasetupWebhook = setupWebhook;
   window.wasetChatTab = setChatTab;
-})();
 
 // Boot the WA module directly (no login)
 window.waBootApp = function() {
-  // Set a default user context so internal code that references currentUser doesn't break
-  if (typeof currentUser === 'undefined' || !currentUser) {
-    try { currentUser = {key:'admin', name:'Admin', role:'Master', master:true}; } catch(e) {}
-  }
-  // No user UI elements needed
-  // Load config into form and fetch data
-  if (typeof waloadCfgToForm === 'function') waloadCfgToForm();
-  if (typeof wacarregarDados === 'function') {
-    wacarregarDados().then(() => {
-      if (typeof wastartPolling    === 'function') wastartPolling();
-      if (typeof warendC           === 'function') warendC();
-      if (typeof waupdBadges       === 'function') waupdBadges();
-      if (typeof wastartAgTimer    === 'function') wastartAgTimer();
-      if (typeof wacheckNum        === 'function') wacheckNum();
-    }).catch(() => {
-      if (typeof warendC    === 'function') warendC();
-      if (typeof waupdBadges=== 'function') waupdBadges();
+  // All WA functions are now global — call directly
+  if (typeof loadCfgToForm  === 'function') loadCfgToForm();
+  if (typeof carregarDados  === 'function') {
+    carregarDados().then(function() {
+      if (typeof startPolling === 'function') startPolling();
+      if (typeof renderC      === 'function') renderC();
+      if (typeof updBadges    === 'function') updBadges();
+      if (typeof startAgTimer === 'function') startAgTimer();
+      if (typeof checkNum     === 'function') checkNum();
+    }).catch(function() {
+      if (typeof renderC   === 'function') renderC();
+      if (typeof updBadges === 'function') updBadges();
     });
+  } else {
+    if (typeof renderC   === 'function') renderC();
+    if (typeof updBadges === 'function') updBadges();
+    if (typeof checkNum  === 'function') checkNum();
   }
-};
+}
 
 </script>
 <script>

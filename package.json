@@ -1,0 +1,14 @@
+{
+  "name": "rise-sst",
+  "version": "2.0.0",
+  "description": "RISE SST — Ecossistema completo de ferramentas para SST",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
+  },
+  "engines": { "node": ">=18" }
+}

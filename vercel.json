@@ -1,10 +1,6 @@
 {
   "version": 2,
   "functions": {
-    "api/buscar.js": { "maxDuration": 120 },
-    "api/dados.js":  { "maxDuration": 30  }
-  },
-  "rewrites": [
-    { "source": "/buscar", "destination": "/api/buscar" }
-  ]
+    "api/*.js": { "maxDuration": 120 }
+  }
 }

@@ -2259,9 +2259,30 @@
         body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       progressTx.textContent = 'processando...';
+
+      if (!res.ok) {
+        let errMsg = `Erro HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          errMsg = errData.error || errData.obs || errMsg;
+        } catch(je) {}
+        // Show error to user clearly
+        statusText.textContent = '❌ ' + errMsg;
+        statusText.style.color = '#A32D2D';
+        setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 5000);
+        bBatches.push({ query: q, ts: new Date(), empresas: [], error: errMsg });
+        return;
+      }
+
       const data = await res.json();
+
+      // Show obs/error from API response
+      if (data.obs) {
+        statusText.textContent = data.obs.includes('ANTHROPIC') || data.obs.includes('API')
+          ? '⚠️ ' + data.obs
+          : data.obs;
+      }
 
       bBatches.push({
         query: data.query || q,
@@ -2270,7 +2291,11 @@
         error: data.error || null
       });
     } catch (e) {
-      bBatches.push({ query: q, ts: new Date(), empresas: [], error: e.message });
+      const msg = e.message || 'Erro de conexão';
+      statusText.textContent = '❌ ' + msg;
+      statusText.style.color = '#A32D2D';
+      setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 5000);
+      bBatches.push({ query: q, ts: new Date(), empresas: [], error: msg });
     }
 
     statusBar.style.display = 'none';

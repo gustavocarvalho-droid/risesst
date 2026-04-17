@@ -2253,7 +2253,7 @@
     progressTx.textContent = 'chamando servidor...';
 
     try {
-      const res = await fetch('/buscar', {
+      const res = await fetch('/api/buscar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })
@@ -2581,35 +2581,15 @@ window.waInitModule = function() {
 //  RISE WHATSAPP v2.0 — RISE SST Module
 // ══════════════════════════════════════
 
-  // ID proxy: redirect getElementById to wa- prefixed IDs within this module
-  const _origGet = document.getElementById.bind(document);
-  const _origQSA = document.querySelectorAll.bind(document);
-  
-  function wGet(id) {
-    // Try wa- prefix first, fallback to original
-    return _origGet('wa-' + id) || _origGet(id);
-  }
-  function wQSA(sel) {
-    // Remap common class selectors
-    const remap = {
-      '.c-chk': '.wa-c-chk',
-      '.fbtn': '.wa-fbtn',
-    };
-    return _origQSA(remap[sel] || sel);
-  }
-  
-  // Shadow document.getElementById within this scope
-  const document_getElementById_orig = document.getElementById;
-  Object.defineProperty(window, '_waGet', {value: wGet, writable: true});
-  
-
-// ╔══════════════════════════════════════════════╗
-// ║            RISE WHATSAPP v2.0                ║
-// ╚══════════════════════════════════════════════╝
-
-// ── CONFIG ──
-const CFG_KEY = 'rise_wa_config';
-const SESS_KEY = 'rise_wa_session';
+  /// ID proxy — wa- prefix lookup
+function wGet(id) {
+  return document.getElementById('wa-' + id) || document.getElementById(id);
+}
+function wQSA(sel) {
+  var remap = { '.c-chk': '.wa-c-chk', '.fbtn': '.wa-fbtn' };
+  return document.querySelectorAll(remap[sel] || sel);
+}
+window._waGet = wGet;
 
 const TABS = {
   contatos: ['Contatos','Gerencie sua base de contatos'],
@@ -2721,7 +2701,7 @@ function go(tab) {
   wGet('wa-tb-sub').textContent = info[1];
   closeSidebar();
   if(tab==='contatos') renderC();
-  if(tab==='wa_listas') renderListas();
+  if(tab==='listas') renderListas();
   if(tab==='mensagem') { loadTpl(); updPrev(); }
   if(tab==='disparo') { updDisparo(); populateFireTpls(); updFirePrev(); setTimeout(()=>syncFireSliders(),50); }
   if(tab==='crm') renderCRM();
@@ -2885,7 +2865,7 @@ async function _saveNeon() {
     const res = await fetch('/api/dados', {
       method:'POST',
       headers:{'Content-Type':'application/json','x-user-key':'shared'},
-      body:JSON.stringify({wa_contacts,wa_listas,wa_logs,crm:wa_crmData,wa_fila,wa_agendamentos,savedmsg:wa_savedMsg,config:{wa_tpls}})
+      body:JSON.stringify({contacts:wa_contacts,listas:wa_listas,logs:wa_logs,crm:wa_crmData,fila:wa_fila,agendamentos:wa_agendamentos,savedmsg:wa_savedMsg,config:{tpls:wa_tpls}})
     });
     if(!res.ok) throw new Error('HTTP '+res.status);
     if(ind){ind.style.opacity='1';setTimeout(()=>ind.style.opacity='0',2000);}
@@ -2900,14 +2880,14 @@ async function carregarDados() {
     });
     if(!res.ok) return;
     const d = await res.json();
-    wa_contacts = d.wa_contacts||[];
-    wa_listas = d.wa_listas||[];
-    wa_logs = d.wa_logs||[];
+    wa_contacts = d.contacts||[];
+    wa_listas = d.listas||[];
+    wa_logs = d.logs||[];
     wa_crmData = d.crm||[];
-    wa_fila = d.wa_fila||[];
-    wa_agendamentos = d.wa_agendamentos||[];
+    wa_fila = d.fila||[];
+    wa_agendamentos = d.agendamentos||[];
     wa_savedMsg = d.savedmsg||'';
-    if(d.config?.wa_tpls) wa_tpls = d.config.wa_tpls;
+    if(d.config?.wa_tpls) wa_tpls = d.config.tpls;
     renderC(); renderListas(); updBadges(); renderAgendamentos();
     loadAllChats();
   } catch(e) {
@@ -2923,21 +2903,35 @@ function uid(){ return Date.now()+'_'+Math.random().toString(36).slice(2,7); }
 function tsNow(){ return new Date().toLocaleString('pt-BR'); }
 
 function updBadges() {
-  wGet('wa-nb-contatos').textContent = wa_contacts.length;
-  wGet('wa-nb-wa_listas').textContent = wa_listas.length;
-  const nr = wa_crmData.filter(x=>x.status==='naoresp').length;
-  const nb = wGet('wa-nb-crm');
-  nb.textContent=nr; nb.style.display=nr?'':'none';
-  const ag = wa_agendamentos.filter(a=>a.status==='pending').length;
-  const nba = wGet('wa-nb-agenda');
-  nba.textContent=ag; nba.style.display=ag?'':'none';
-  const env=wa_contacts.filter(c=>c.status==='enviado').length;
-  const err=wa_contacts.filter(c=>c.status==='falha').length;
-  const pend=wa_contacts.filter(c=>c.status!=='enviado'&&c.status!=='falha').length;
-  wGet('s-total').textContent=wa_contacts.length;
-  wGet('s-ok').textContent=env;
-  wGet('s-err').textContent=err;
-  wGet('s-pend').textContent=pend;
+  // Safe helper — only update if element exists (WA panel may not be open)
+  function safeSet(id, val) {
+    const el = wGet(id); if (el) el.textContent = val;
+  }
+  function safeDisp(id, val) {
+    const el = wGet(id);
+    if (el) { el.textContent = val; el.style.display = val ? '' : 'none'; }
+  }
+
+  safeSet('wa-nb-contatos', wa_contacts.length);
+  safeSet('wa-nb-listas',   wa_listas.length);
+
+  const nr  = (wa_crmData||[]).filter(x=>x.status==='naoresp').length;
+  const ag  = (wa_agendamentos||[]).filter(a=>a.status==='pending').length;
+  safeDisp('wa-nb-crm',    nr);
+  safeDisp('wa-nb-agenda', ag);
+
+  const env  = wa_contacts.filter(c=>c.status==='enviado').length;
+  const err  = wa_contacts.filter(c=>c.status==='falha').length;
+  const pend = wa_contacts.filter(c=>c.status!=='enviado'&&c.status!=='falha').length;
+  safeSet('wa-s-total', wa_contacts.length);
+  safeSet('wa-s-ok',    env);
+  safeSet('wa-s-err',   err);
+  safeSet('wa-s-pend',  pend);
+  // Also update dashboard KPIs if they exist
+  safeSet('s-total', wa_contacts.length);
+  safeSet('s-ok',    env);
+  safeSet('s-err',   err);
+  safeSet('s-pend',  pend);
 }
 
 // ── CONTATOS ──
@@ -3433,7 +3427,7 @@ async function doSendMsg(cId, text) {
     renderChatList();
     updBadges();
     // Atualizar relatório se estiver aberto
-    if(wGet('panel-relatorio')?.classList.contains('show')) renderLogs();
+    if(document.getElementById('wa-panel-relatorio')?.classList.contains('show')) renderLogs();
   } catch(e) {
     toast('Erro de conexão: '+e.message,'err');
   }
@@ -3684,7 +3678,7 @@ async function fireNext() {
 
   // Atualizar UI em tempo real
   salvarDados();
-  if(wGet('panel-relatorio')?.classList.contains('show')) renderLogs();
+  if(document.getElementById('wa-panel-relatorio')?.classList.contains('show')) renderLogs();
   updBadges();
 
   // Se enviado com sucesso → push para CRM ZapDisparos
@@ -3943,7 +3937,7 @@ function criarLista() {
   salvarDados(); renderListas(); updBadges(); toast(`Lista "${nome}" criada`);
 }
 function renderListas() {
-  const wrap=wGet('wa_listas-wrap');
+  const wrap=wGet('listas-wrap');
   if(!wrap) return;
   if(!wa_listas.length){
     wrap.innerHTML='<div class="wa-empty-state"><span class="wa-empty-icon">📋</span><p>Nenhuma lista criada ainda</p></div>';
@@ -5055,7 +5049,7 @@ function receberMensagem(data) {
     }
 
     // Atualizar lista de conversas
-    if(wGet('panel-conversa')?.classList.contains('show')) {
+    if(document.getElementById('wa-panel-conversa')?.classList.contains('show')) {
       renderChatList();
     }
   } catch(e){ console.warn('receberMensagem error:', e); }

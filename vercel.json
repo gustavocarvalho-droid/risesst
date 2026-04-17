@@ -2,5 +2,9 @@
   "version": 2,
   "functions": {
     "api/*.js": { "maxDuration": 120 }
-  }
+  },
+  "rewrites": [
+    { "source": "/buscar", "destination": "/api/buscar" },
+    { "source": "/api/dados", "destination": "/api/dados" }
+  ]
 }

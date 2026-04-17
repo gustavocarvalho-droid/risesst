@@ -2253,7 +2253,7 @@
     progressTx.textContent = 'chamando servidor...';
 
     try {
-      const res = await fetch('/api/buscar', {
+      const res = await fetch('/buscar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })

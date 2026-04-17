@@ -4,9 +4,7 @@
     "api/buscar.js": { "maxDuration": 120 },
     "api/dados.js":  { "maxDuration": 30  }
   },
-  "routes": [
-    { "src": "/buscar", "dest": "/api/buscar" },
-    { "src": "/api/dados", "dest": "/api/dados" },
-    { "src": "/",        "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/buscar", "destination": "/api/buscar" }
   ]
 }

@@ -1,49 +1,39 @@
 const https = require("https");
 
-// ─── Read raw POST body ───
-function readBody(req) {
-  return new Promise((resolve) => {
-    let data = "";
-    req.on("data", chunk => data += chunk);
-    req.on("end", () => {
-      try { resolve(JSON.parse(data)); }
-      catch(e) { resolve({}); }
-    });
-    req.on("error", () => resolve({}));
-  });
-}
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// ─── Call Anthropic API ───
-function callAnthropic(query, qtd, filtro, existingCnpjs, tentativa = 1) {
+function callAnthropic(query, qtd, filtro, ordem, existingCnpjs, tentativa = 1) {
   return new Promise((resolve, reject) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      reject(new Error("ANTHROPIC_API_KEY não configurada. Vá em Vercel → Settings → Environment Variables."));
-      return;
-    }
 
     const exclusao = existingCnpjs.length > 0
-      ? ` Ignore estes CNPJs: ${existingCnpjs.slice(0, 10).join(", ")}.`
-      : "";
+      ? ` Ignore estes CNPJs já encontrados: ${existingCnpjs.slice(0, 15).join(', ')}.`
+      : '';
 
     const filtroStr = filtro === "ativa" ? "somente Ativa"
       : filtro === "mei" ? "somente MEI"
       : filtro === "epp" ? "somente ME/EPP"
       : "qualquer situação";
 
-    const systemPrompt = `Agente de busca de CNPJs de empresas brasileiras. Retorne APENAS JSON puro sem texto antes ou depois.
+    const systemPrompt = `Agente de busca de CNPJs de empresas brasileiras. Retorne APENAS JSON puro sem nenhum texto antes ou depois.
 
 Busque ${qtd} empresas com CNPJ confirmado via web search (casadosdados.com.br, cnpj.biz, jusbrasil.com.br).
 Filtro: ${filtroStr}.${exclusao}
 Inclua APENAS empresas cujo CNPJ foi verificado. Se não encontrar o CNPJ, descarte.
 
-EXCLUIR: órgãos públicos, prefeituras, hospitais públicos, bancos, igrejas, partidos, sindicatos.
+EXCLUIR OBRIGATORIAMENTE (não inclua nenhuma dessas):
+- Órgãos públicos, prefeituras, secretarias, autarquias, fundações públicas, câmaras municipais
+- Hospitais, UBSs, postos de saúde, clínicas públicas, INAMPS, SUS
+- Times, clubes e associações de futebol ou esporte
+- Bancos, caixas econômicas, cooperativas de crédito, financeiras públicas (Bradesco, Itaú, CEF, BB, Santander etc.)
+- Igrejas, templos, entidades religiosas
+- Partidos políticos, sindicatos, entidades governamentais
+
 Busque APENAS empresas privadas do setor produtivo/comercial/serviços.
 
-JSON de resposta (sem markdown, sem texto extra):
+JSON de resposta (sem markdown, sem texto extra, só o JSON):
 {"query":"string","total":N,"empresas":[{"nome":"string","nome_fantasia":"string|null","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa|null","porte":"MEI|ME|EPP|Grande|null","municipio":"string|null","atividade":"string|null","email":"string|null","site":"string|null","telefone":"string|null","fonte_cnpj":"string","obs":"string|null"}]}`;
 
-    const body = JSON.stringify({
+    const requestBody = JSON.stringify({
       model: "claude-sonnet-4-20250514",
       max_tokens: 3000,
       system: systemPrompt,
@@ -51,96 +41,130 @@ JSON de resposta (sem markdown, sem texto extra):
       messages: [{ role: "user", content: `Busque ${qtd} empresas com CNPJ para: ${query}` }],
     });
 
+    const contentLength = Buffer.byteLength(requestBody, "utf8");
+
     const options = {
       hostname: "api.anthropic.com",
       path: "/v1/messages",
       method: "POST",
-      timeout: 115000,
+      timeout: 120000,
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
+        "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
         "anthropic-beta": "web-search-2025-03-05",
-        "Content-Length": Buffer.byteLength(body, "utf8"),
+        "Content-Length": contentLength,
       },
     };
 
     const req = https.request(options, (res) => {
-      let raw = "";
-      res.on("data", c => raw += c);
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
         try {
-          const parsed = JSON.parse(raw);
-          if (parsed?.error?.type === "rate_limit_error" && tentativa <= 3) {
-            setTimeout(() =>
-              callAnthropic(query, qtd, filtro, existingCnpjs, tentativa + 1)
-                .then(resolve).catch(reject),
-              65000
-            );
+          const parsed = JSON.parse(data);
+          if (parsed?.error?.type === "rate_limit_error") {
+            const espera = tentativa <= 3 ? 65000 : 0;
+            if (espera) {
+              setTimeout(() => {
+                callAnthropic(query, qtd, filtro, ordem, existingCnpjs, tentativa + 1)
+                  .then(resolve).catch(reject);
+              }, espera);
+            } else {
+              reject(new Error("Rate limit: tente novamente em 1 minuto"));
+            }
             return;
           }
           resolve(parsed);
-        } catch(e) {
-          reject(new Error("Resposta inválida da API: " + raw.slice(0, 200)));
+        } catch (e) {
+          reject(new Error("JSON invalido: " + data.substring(0, 150)));
         }
       });
     });
 
-    req.on("error", e => reject(e));
-    req.on("timeout", () => { req.destroy(); reject(new Error("Timeout — tente novamente")); });
-    req.write(body);
+    req.on("error", (e) => reject(e));
+    req.on("timeout", () => { req.destroy(); reject(new Error("Timeout")); });
+    req.write(requestBody);
     req.end();
   });
 }
 
-// ─── Extract JSON from response ───
 function extrairJSON(raw) {
   if (!raw) return null;
-  const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
-  if (s === -1 || e === -1) return null;
-  try { return JSON.parse(raw.substring(s, e + 1)); } catch { return null; }
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start === -1 || end === -1) return null;
+  const jsonStr = raw.substring(start, end + 1);
+  try { return JSON.parse(jsonStr); } catch { return null; }
 }
 
-const EXCLUIR = [
+const excluir = [
   /prefeitura/i, /secretaria/i, /câmara/i, /camara/i, /autarquia/i,
-  /fundação/i, /fundacao/i, /municipal/i, /estadual/i, /federal/i,
-  /ministério/i, /ministerio/i, /hospital/i, /ubs\b/i, /sus\b/i,
-  /futebol clube/i, /esporte clube/i,
-  /\bbanco\b/i, /\bcaixa economica\b/i, /bradesco/i, /itaú/i, /itau/i,
-  /santander/i, /\bigreja\b/i, /\btemplo\b/i, /partido\b/i, /sindicato/i,
+  /fundação/i, /fundacao/i, /governo/i, /municipal/i, /estadual/i,
+  /federal/i, /ministério/i, /ministerio/i, /policia/i, /polícia/i,
+  /hospital/i, /ubs\b/i, /posto de saude/i, /sus\b/i, /inamps/i,
+  /futebol clube/i, /esporte clube/i, /atletico/i, /\bflamengo\b/i,
+  /\bcorinthians\b/i, /\bpalmeiras\b/i, /\bsantos fc\b/i,
+  /banco\b/i, /\bcaixa economica\b/i, /bradesco/i, /itaú/i, /itau/i,
+  /santander/i, /\bnubank\b/i, /\bbtg\b/i, /\bbndes\b/i,
+  /cooperativa de credito/i, /\bigreja\b/i, /\btemplo\b/i,
+  /paróquia/i, /paroquia/i, /partido\b/i, /sindicato/i,
 ];
 
-// ─── Vercel Serverless Handler ───
+// ── Vercel serverless handler ──
 module.exports = async (req, res) => {
-  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") { res.status(204).end(); return; }
-  if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
 
-  // Parse body — handle both auto-parsed (Express) and raw
-  let payload = req.body;
-  if (!payload || typeof payload !== "object") {
-    payload = await readBody(req);
-  }
-
-  const { query, qtd = 5, filtro = "todos", existingCnpjs = [] } = payload;
-
-  if (!query || !query.trim()) {
-    res.status(400).json({ error: "Campo 'query' obrigatório" });
+  if (req.method === "GET") {
+    res.status(200).json({ status: "ok", key: ANTHROPIC_API_KEY ? "configurada" : "FALTANDO" });
     return;
   }
 
-  console.log(`[RISE SST] Buscando: "${query}" | qtd=${qtd} | filtro=${filtro}`);
+  if (req.method !== "POST") { res.status(405).end(); return; }
+
+  // ── Ler body (Vercel não faz parse automático) ──
+  let payload = {};
+  try {
+    if (req.body && typeof req.body === "object") {
+      payload = req.body;
+    } else {
+      const raw = await new Promise((resolve) => {
+        let d = "";
+        req.on("data", c => d += c);
+        req.on("end", () => resolve(d));
+      });
+      payload = JSON.parse(raw);
+    }
+  } catch(e) {
+    res.status(400).json({ error: "Body invalido" });
+    return;
+  }
+
+  const { query, qtd, filtro, ordem } = payload;
+  const existingCnpjs = Array.isArray(payload.existingCnpjs) ? payload.existingCnpjs : [];
+
+  if (!query) {
+    res.status(400).json({ error: "Campo query obrigatorio" });
+    return;
+  }
+
+  if (!ANTHROPIC_API_KEY) {
+    res.status(200).json({ query, total: 0, empresas: [], obs: "ANTHROPIC_API_KEY nao configurada na Vercel" });
+    return;
+  }
 
   try {
-    const apiResponse = await callAnthropic(query.trim(), qtd, filtro, existingCnpjs);
+    const apiResponse = await callAnthropic(
+      query, qtd || 5, filtro || "todos", ordem || "relevancia", existingCnpjs
+    );
 
-    if (apiResponse.error) {
-      console.error("[RISE SST] API error:", apiResponse.error);
-      res.status(200).json({ query, total: 0, empresas: [], obs: apiResponse.error.message });
+    if (apiResponse.type === "error" || apiResponse.error) {
+      const msg = apiResponse.error?.message || "Erro desconhecido";
+      res.status(200).json({ query, total: 0, empresas: [], obs: msg });
       return;
     }
 
@@ -148,25 +172,23 @@ module.exports = async (req, res) => {
     const result = extrairJSON(textBlock?.text || "") || { query, total: 0, empresas: [] };
 
     if (Array.isArray(result.empresas)) {
-      const seen = new Set(existingCnpjs.map(c => c.replace(/\D/g, "")));
+      const existingSet = new Set(existingCnpjs.map(c => c.replace(/\D/g, "")));
       result.empresas = result.empresas.filter(e => {
         if (!e.cnpj || e.cnpj === "null") return false;
         const digits = e.cnpj.replace(/\D/g, "");
         if (digits.length < 14) return false;
-        if (seen.has(digits)) return false;
-        const nome = `${e.nome || ""} ${e.nome_fantasia || ""} ${e.atividade || ""}`;
-        if (EXCLUIR.some(rx => rx.test(nome))) return false;
-        seen.add(digits);
+        if (existingSet.has(digits)) return false;
+        const nome = (e.nome || "") + " " + (e.nome_fantasia || "") + " " + (e.atividade || "");
+        if (excluir.some(rx => rx.test(nome))) return false;
+        existingSet.add(digits);
         return true;
       });
       result.total = result.empresas.length;
     }
 
-    console.log(`[RISE SST] OK: ${result.total} empresas`);
     res.status(200).json(result);
 
-  } catch(e) {
-    console.error("[RISE SST] Erro:", e.message);
+  } catch (e) {
     res.status(200).json({ query, total: 0, empresas: [], obs: e.message });
   }
 };

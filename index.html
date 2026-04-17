@@ -2250,10 +2250,10 @@
     statusText.textContent = existingCnpjs.length > 0
       ? `Buscando mais resultados para "${q}"...`
       : `Buscando "${q}"...`;
-    progressTx.textContent = 'chamando servidor...';
+    progressTx.textContent = 'aguarde ~30s (IA pesquisando)...';
 
     try {
-      const res = await fetch('/buscar', {
+      const res = await fetch('/api/buscar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })

@@ -123,7 +123,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "POST" && req.url === "/buscar") {
+  if (req.method === "POST" && (req.url === "/buscar" || req.url === "/api/buscar")) {
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {

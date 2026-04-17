@@ -1,7 +1,5 @@
 const https = require("https");
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-
 function callAnthropic(query, qtd, filtro, ordem, existingCnpjs, tentativa = 1) {
   return new Promise((resolve, reject) => {
 
@@ -14,6 +12,7 @@ function callAnthropic(query, qtd, filtro, ordem, existingCnpjs, tentativa = 1) 
       : filtro === "epp" ? "somente ME/EPP"
       : "qualquer situação";
 
+    // Prompt enxuto para economizar tokens
     const systemPrompt = `Agente de busca de CNPJs de empresas brasileiras. Retorne APENAS JSON puro sem nenhum texto antes ou depois.
 
 Busque ${qtd} empresas com CNPJ confirmado via web search (casadosdados.com.br, cnpj.biz, jusbrasil.com.br).
@@ -42,6 +41,7 @@ JSON de resposta (sem markdown, sem texto extra, só o JSON):
     });
 
     const contentLength = Buffer.byteLength(requestBody, "utf8");
+    console.log(`[tentativa ${tentativa}] request ${contentLength} bytes`);
 
     const options = {
       hostname: "api.anthropic.com",
@@ -50,7 +50,7 @@ JSON de resposta (sem markdown, sem texto extra, só o JSON):
       timeout: 120000,
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
         "anthropic-beta": "web-search-2025-03-05",
         "Content-Length": contentLength,
@@ -59,13 +59,16 @@ JSON de resposta (sem markdown, sem texto extra, só o JSON):
 
     const req = https.request(options, (res) => {
       let data = "";
+      console.log("[HTTP]", res.statusCode);
       res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
         try {
           const parsed = JSON.parse(data);
+
           if (parsed?.error?.type === "rate_limit_error") {
             const espera = tentativa <= 3 ? 65000 : 0;
             if (espera) {
+              console.log(`[RATE LIMIT] Tentativa ${tentativa}/3 — aguardando ${espera/1000}s...`);
               setTimeout(() => {
                 callAnthropic(query, qtd, filtro, ordem, existingCnpjs, tentativa + 1)
                   .then(resolve).catch(reject);
@@ -75,14 +78,15 @@ JSON de resposta (sem markdown, sem texto extra, só o JSON):
             }
             return;
           }
+
           resolve(parsed);
         } catch (e) {
-          reject(new Error("JSON invalido: " + data.substring(0, 150)));
+          reject(new Error("JSON inválido: " + data.substring(0, 150)));
         }
       });
     });
 
-    req.on("error", (e) => reject(e));
+    req.on("error", (e) => { console.error("[rede]", e.message); reject(e); });
     req.on("timeout", () => { req.destroy(); reject(new Error("Timeout")); });
     req.write(requestBody);
     req.end();
@@ -91,6 +95,7 @@ JSON de resposta (sem markdown, sem texto extra, só o JSON):
 
 function extrairJSON(raw) {
   if (!raw) return null;
+  // Remove qualquer texto antes do primeiro {
   const start = raw.indexOf("{");
   const end = raw.lastIndexOf("}");
   if (start === -1 || end === -1) return null;
@@ -98,18 +103,6 @@ function extrairJSON(raw) {
   try { return JSON.parse(jsonStr); } catch { return null; }
 }
 
-const excluir = [
-  /prefeitura/i, /secretaria/i, /câmara/i, /camara/i, /autarquia/i,
-  /fundação/i, /fundacao/i, /governo/i, /municipal/i, /estadual/i,
-  /federal/i, /ministério/i, /ministerio/i, /policia/i, /polícia/i,
-  /hospital/i, /ubs\b/i, /posto de saude/i, /sus\b/i, /inamps/i,
-  /futebol clube/i, /esporte clube/i, /atletico/i, /\bflamengo\b/i,
-  /\bcorinthians\b/i, /\bpalmeiras\b/i, /\bsantos fc\b/i,
-  /banco\b/i, /\bcaixa economica\b/i, /bradesco/i, /itaú/i, /itau/i,
-  /santander/i, /\bnubank\b/i, /\bbtg\b/i, /\bbndes\b/i,
-  /cooperativa de credito/i, /\bigreja\b/i, /\btemplo\b/i,
-  /paróquia/i, /paroquia/i, /partido\b/i, /sindicato/i,
-];
 
 // ── Vercel serverless handler ──
 module.exports = async (req, res) => {
@@ -120,27 +113,23 @@ module.exports = async (req, res) => {
   if (req.method === "OPTIONS") { res.status(204).end(); return; }
 
   if (req.method === "GET") {
-    res.status(200).json({ status: "ok", key: ANTHROPIC_API_KEY ? "configurada" : "FALTANDO" });
+    const key = process.env.ANTHROPIC_API_KEY;
+    res.status(200).json({ status: "ok", key: key ? "configurada" : "FALTANDO" });
     return;
   }
 
   if (req.method !== "POST") { res.status(405).end(); return; }
 
-  // ── Ler body (Vercel não faz parse automático) ──
+  // Ler body — Vercel não faz parse automático
+  let body = "";
+  await new Promise((resolve) => {
+    req.on("data", chunk => body += chunk);
+    req.on("end", resolve);
+  });
+
   let payload = {};
-  try {
-    if (req.body && typeof req.body === "object") {
-      payload = req.body;
-    } else {
-      const raw = await new Promise((resolve) => {
-        let d = "";
-        req.on("data", c => d += c);
-        req.on("end", () => resolve(d));
-      });
-      payload = JSON.parse(raw);
-    }
-  } catch(e) {
-    res.status(400).json({ error: "Body invalido" });
+  try { payload = JSON.parse(body); } catch(e) {
+    res.status(400).json({ error: "Body inválido" });
     return;
   }
 
@@ -148,12 +137,14 @@ module.exports = async (req, res) => {
   const existingCnpjs = Array.isArray(payload.existingCnpjs) ? payload.existingCnpjs : [];
 
   if (!query) {
-    res.status(400).json({ error: "Campo query obrigatorio" });
+    res.status(400).json({ error: "Campo query obrigatório" });
     return;
   }
 
+  // Usar a API KEY da Vercel
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_API_KEY) {
-    res.status(200).json({ query, total: 0, empresas: [], obs: "ANTHROPIC_API_KEY nao configurada na Vercel" });
+    res.status(200).json({ query, total: 0, empresas: [], obs: "ANTHROPIC_API_KEY não configurada" });
     return;
   }
 
@@ -169,10 +160,23 @@ module.exports = async (req, res) => {
     }
 
     const textBlock = apiResponse.content?.find(b => b.type === "text");
-    const result = extrairJSON(textBlock?.text || "") || { query, total: 0, empresas: [] };
+    const raw = textBlock?.text || "";
+    const result = extrairJSON(raw) || { query, total: 0, empresas: [] };
 
     if (Array.isArray(result.empresas)) {
       const existingSet = new Set(existingCnpjs.map(c => c.replace(/\D/g, "")));
+      const excluir = [
+        /prefeitura/i, /secretaria/i, /câmara/i, /camara/i, /autarquia/i,
+        /fundação/i, /fundacao/i, /governo/i, /municipal/i, /estadual/i,
+        /federal/i, /ministério/i, /ministerio/i, /policia/i, /polícia/i,
+        /hospital/i, /ubs\b/i, /posto de saude/i, /sus\b/i, /inamps/i,
+        /futebol clube/i, /esporte clube/i, /atletico/i, /\bflamengo\b/i,
+        /\bcorinthians\b/i, /\bpalmeiras\b/i, /\bsantos fc\b/i,
+        /banco\b/i, /\bcaixa economica\b/i, /bradesco/i, /itaú/i, /itau/i,
+        /santander/i, /\bnubank\b/i, /\bbtg\b/i, /\bbndes\b/i,
+        /cooperativa de credito/i, /\bigreja\b/i, /\btemplo\b/i,
+        /paróquia/i, /paroquia/i, /partido\b/i, /sindicato/i,
+      ];
       result.empresas = result.empresas.filter(e => {
         if (!e.cnpj || e.cnpj === "null") return false;
         const digits = e.cnpj.replace(/\D/g, "");

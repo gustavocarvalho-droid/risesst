@@ -2591,13 +2591,17 @@ function wQSA(sel) {
 }
 window._waGet = wGet;
 
+// ── WA MODULE CONSTANTS ──
+const CFG_KEY  = 'rise_wa_config';
+const SESS_KEY = 'rise_wa_session';
+
 const TABS = {
   contatos: ['Contatos','Gerencie sua base de contatos'],
   conversa: ['Conversas','Clique em um contato para abrir a conversa'],
   mensagem: ['Mensagem','Crie e salve modelos de mensagem'],
   disparo:  ['Disparar Agora','Envie mensagens para sua base'],
   agendamento: ['Agendamentos','Programe disparos para o futuro'],
-  wa_listas:   ['Listas','Organize contatos em grupos'],
+  listas:   ['Listas','Organize contatos em grupos'],
   relatorio:['Relatório','Histórico de envios'],
   numero:   ['Meu Número','Status e QR Code'],
   config:   ['Configurações','API e configurações do sistema'],

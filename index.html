@@ -1336,6 +1336,128 @@
     .hist-summary-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
     .hist-summary-sep { width: 1px; height: 32px; background: var(--border); }
 
+  
+    /* ══ SISTEMA DE CRÉDITOS ══ */
+    .credit-pill {
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+    }
+    .credit-pill:hover { transform: scale(1.03); box-shadow: 0 2px 8px rgba(30,30,92,.15); }
+
+    .credit-pill.low  { background: #FCEBEB; border-color: #A32D2D; }
+    .credit-pill.low  .credit-label { color: #A32D2D; }
+    .credit-pill.low  .credit-val   { color: #A32D2D; }
+    .credit-pill.zero { background: #A32D2D; border-color: #7a1f1f; animation: pulse-red 1.5s infinite; }
+    .credit-pill.zero .credit-label { color: #fff; }
+    .credit-pill.zero .credit-val   { color: #fff; }
+    @keyframes pulse-red { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+    /* Modal de créditos */
+    .credits-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .credits-modal {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden;
+      animation: slideUp .2s ease;
+    }
+    .credits-modal-header {
+      background: var(--rise-dark); padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .credits-modal-title { font-size: 18px; font-weight: 800; color: #fff; }
+    .credits-modal-close {
+      background: none; border: none; color: rgba(255,255,255,.6);
+      font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1;
+    }
+    .credits-modal-close:hover { color: #fff; }
+    .credits-modal-body { padding: 24px; }
+
+    .credits-balance-card {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--rise-bg); border-radius: 12px; padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .credits-balance-icon { font-size: 32px; }
+    .credits-balance-num {
+      font-size: 36px; font-weight: 800; color: var(--rise-dark); line-height: 1;
+    }
+    .credits-balance-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+    .credits-balance-renewal { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    .credits-progress { margin-bottom: 20px; }
+    .credits-progress-bar-bg {
+      background: #e7e6f4; border-radius: 999px; height: 10px; overflow: hidden;
+    }
+    .credits-progress-bar {
+      height: 100%; border-radius: 999px; background: var(--rise-med);
+      transition: width .4s ease;
+    }
+    .credits-progress-labels {
+      display: flex; justify-content: space-between;
+      font-size: 10px; color: var(--muted); margin-top: 4px;
+    }
+
+    .credits-history { margin-bottom: 20px; }
+    .credits-history-title {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+    }
+    .credits-history-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid #f0eff8; font-size: 12px;
+    }
+    .credits-history-icon { font-size: 16px; width: 24px; text-align: center; }
+    .credits-history-desc { flex: 1; color: var(--rise-dark); }
+    .credits-history-date { color: var(--muted); font-size: 11px; }
+    .credits-history-amount { font-weight: 700; }
+    .credits-history-amount.neg { color: #A32D2D; }
+    .credits-history-amount.pos { color: #3B6D11; }
+
+    .credits-packages { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .credits-pkg {
+      border: 2px solid var(--rise-pale); border-radius: 12px; padding: 14px;
+      cursor: pointer; transition: all .15s; text-align: center; position: relative;
+    }
+    .credits-pkg:hover { border-color: var(--rise-med); background: var(--rise-bg); }
+    .credits-pkg.popular { border-color: var(--rise-med); background: var(--rise-bg); }
+    .credits-pkg-badge {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      background: var(--rise-dark); color: #fff; font-size: 9px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; letter-spacing: .5px; white-space: nowrap;
+    }
+    .credits-pkg-credits { font-size: 22px; font-weight: 800; color: var(--rise-dark); }
+    .credits-pkg-label   { font-size: 10px; color: var(--muted); margin: 2px 0 6px; }
+    .credits-pkg-price   { font-size: 15px; font-weight: 700; color: var(--rise-med); }
+    .credits-pkg-unit    { font-size: 10px; color: var(--muted); }
+
+    .credits-buy-btn {
+      width: 100%; padding: 14px; background: var(--rise-dark); color: #fff;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background .15s; font-family: 'Figtree', sans-serif;
+    }
+    .credits-buy-btn:hover { background: var(--rise-med); }
+    .credits-buy-btn:disabled { opacity:.5; cursor:default; }
+
+    .credits-banner {
+      background: #FCEBEB; border: 1px solid #A32D2D33;
+      border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px; font-size: 12px; color: #A32D2D;
+    }
+
+    /* Buscador: crédito badge */
+    .b-credit-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--rise-bg); border: 1px solid var(--rise-pale);
+      border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700;
+      color: var(--rise-med); cursor: pointer;
+    }
+    .b-credit-badge.low  { background: #FCEBEB; border-color: #A32D2D33; color: #A32D2D; }
+    .b-credit-badge.zero { background: #A32D2D; color: #fff; border-color: #A32D2D; }
+
   </style>
 </head>
 <body>
@@ -1421,9 +1543,10 @@
           <div class="page-title">Visão Geral</div>
           <div class="page-subtitle">Resumo da operação comercial SST</div>
         </div>
-        <div class="credit-pill">
-          <div class="credit-label">CRÉDITOS DIÁRIOS</div>
+        <div class="credit-pill" id="dash-credit-pill" onclick="creditsOpenModal()" title="Ver e comprar créditos">
+          <div class="credit-label">💎 CRÉDITOS</div>
           <div class="credit-val" id="dash-credits">–</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:1px" id="dash-credits-sub">carregando...</div>
         </div>
       </div>
 
@@ -1519,6 +1642,12 @@
 
         <!-- PANEL: BUSCA -->
         <div id="b-panel-busca">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:11px;color:var(--muted)">Cada busca consome <strong>1 crédito</strong></div>
+            <div class="b-credit-badge" id="b-credit-badge" onclick="creditsOpenModal()">
+              💎 <span id="b-credits-display">–</span> créditos
+            </div>
+          </div>
           <div class="search-box">
             <input type="text" id="b-query"
               placeholder="Ex: metalúrgicas em Campinas, construtoras SP, clínicas de saúde ocupacional..."
@@ -2355,6 +2484,11 @@
 
   async function bRunMore() {
     if (!bLastQuery) return;
+    // Consume credit for "+Mais" too
+    if (typeof creditsCheckAndConsume === 'function') {
+      const ok = creditsCheckAndConsume('+ Mais resultados: "' + bLastQuery.slice(0, 50) + '"');
+      if (!ok) return;
+    }
     const existing = bBatches.flatMap(b => b.empresas.map(e => e.cnpj)).filter(Boolean);
     await bDoFetch(bLastQuery, existing);
   }
@@ -2606,6 +2740,12 @@
     if (bEnrichCache[cardId]) {
       bShowEnrich(cardId, bEnrichCache[cardId]);
       return;
+    }
+
+    // Consume 1 credit for enrichment
+    if (typeof creditsCheckAndConsume === 'function') {
+      const ok = creditsCheckAndConsume('Enriquecimento: ' + (empresa.nome || empresa.cnpj || '').slice(0, 40));
+      if (!ok) return;
     }
 
     btn.disabled = true;
@@ -6371,6 +6511,284 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+
+// ════════════════════════════════════════════════════════════════
+//   RISE SST — SISTEMA DE CRÉDITOS
+//   25 créditos a cada 45 dias (renovação automática)
+//   Cada busca no Buscador = 1 crédito
+//   Enriquecimento (GMB/CNAE) = 1 crédito
+//   Compra de pacotes extras disponível
+// ════════════════════════════════════════════════════════════════
+
+const CREDITS_KEY     = 'rise_credits';
+const CREDITS_DEFAULT = 25;           // créditos grátis por período
+const CREDITS_DAYS    = 45;           // dias entre renovações
+const CREDITS_HISTORY_KEY = 'rise_credits_history';
+
+// ── Estrutura do objeto de créditos ──
+// {
+//   balance: 25,          créditos disponíveis
+//   total_granted: 25,    total concedido no período atual
+//   granted_at: timestamp,data da última concessão
+//   next_grant: timestamp,próxima renovação automática
+//   plan: 'Starter',      nome do plano
+//   purchased: 0,         créditos comprados (extra)
+// }
+
+function creditsLoad() {
+  try {
+    const raw = localStorage.getItem(CREDITS_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      // Check if renewal is due
+      if (d.next_grant && Date.now() >= d.next_grant) {
+        d.balance      = Math.max(d.balance, 0) + CREDITS_DEFAULT;
+        d.total_granted= CREDITS_DEFAULT;
+        d.granted_at   = Date.now();
+        d.next_grant   = Date.now() + CREDITS_DAYS * 24 * 60 * 60 * 1000;
+        creditsHistoryAdd('renew', CREDITS_DEFAULT, 'Renovação automática de créditos (' + CREDITS_DAYS + ' dias)');
+        creditsSave(d);
+      }
+      return d;
+    }
+  } catch(e) {}
+  // First time: grant initial credits
+  const now = Date.now();
+  const initial = {
+    balance:       CREDITS_DEFAULT,
+    total_granted: CREDITS_DEFAULT,
+    granted_at:    now,
+    next_grant:    now + CREDITS_DAYS * 24 * 60 * 60 * 1000,
+    plan:          'Starter',
+    purchased:     0,
+  };
+  creditsSave(initial);
+  creditsHistoryAdd('grant', CREDITS_DEFAULT, 'Créditos iniciais concedidos — bem-vindo ao RISE SST!');
+  return initial;
+}
+
+function creditsSave(data) {
+  try { localStorage.setItem(CREDITS_KEY, JSON.stringify(data)); } catch(e) {}
+  // Sync to DB
+  if (window._db) window._db.save('credits', data).catch(()=>{});
+}
+
+function creditsGet() {
+  return creditsLoad().balance || 0;
+}
+
+// ── Consumir crédito ──
+// returns true se OK, false se sem créditos
+function creditsConsume(amount, description) {
+  amount = amount || 1;
+  const d = creditsLoad();
+  if (d.balance < amount) return false;
+  d.balance -= amount;
+  creditsSave(d);
+  creditsHistoryAdd('use', -amount, description || 'Busca realizada');
+  creditsUpdUI();
+  return true;
+}
+
+// ── Adicionar créditos (compra) ──
+function creditsAdd(amount, description) {
+  const d = creditsLoad();
+  d.balance   += amount;
+  d.purchased += amount;
+  creditsSave(d);
+  creditsHistoryAdd('purchase', amount, description || 'Créditos comprados');
+  creditsUpdUI();
+}
+
+// ── Histórico ──
+function creditsHistoryAdd(type, amount, description) {
+  try {
+    const hist = JSON.parse(localStorage.getItem(CREDITS_HISTORY_KEY) || '[]');
+    hist.unshift({
+      type,        // 'use', 'purchase', 'grant', 'renew'
+      amount,
+      description,
+      ts: Date.now()
+    });
+    // Keep last 50
+    if (hist.length > 50) hist.splice(50);
+    localStorage.setItem(CREDITS_HISTORY_KEY, JSON.stringify(hist));
+  } catch(e) {}
+}
+
+function creditsHistoryGet() {
+  try { return JSON.parse(localStorage.getItem(CREDITS_HISTORY_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+// ── Update UI everywhere ──
+function creditsUpdUI() {
+  const d = creditsLoad();
+  const bal = d.balance;
+  const max = d.total_granted + (d.purchased || 0);
+  const pct = max > 0 ? Math.round(bal / max * 100) : 100;
+  const daysLeft = d.next_grant ? Math.ceil((d.next_grant - Date.now()) / 86400000) : 45;
+
+  // Dashboard pill
+  const pill = document.getElementById('dash-credit-pill');
+  const valEl = document.getElementById('dash-credits');
+  const subEl = document.getElementById('dash-credits-sub');
+  if (valEl) valEl.textContent = bal;
+  if (subEl) subEl.textContent = 'Renova em ' + daysLeft + ' dias';
+  if (pill) {
+    pill.classList.remove('low', 'zero');
+    if (bal === 0) pill.classList.add('zero');
+    else if (bal <= 5) pill.classList.add('low');
+  }
+
+  // Buscador badge
+  const badge = document.getElementById('b-credit-badge');
+  const bdisplay = document.getElementById('b-credits-display');
+  if (bdisplay) bdisplay.textContent = bal;
+  if (badge) {
+    badge.classList.remove('low', 'zero');
+    if (bal === 0) badge.classList.add('zero');
+    else if (bal <= 5) badge.classList.add('low');
+  }
+
+  // KPI buscadas — just refresh
+  if (typeof dashUpdKPIs === 'function') dashUpdKPIs();
+}
+
+// ── Open / Close modal ──
+function creditsOpenModal() {
+  const overlay = document.getElementById('credits-modal-overlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  creditsRenderModal();
+}
+window.creditsOpenModal = creditsOpenModal;
+
+function creditsCloseModal() {
+  const overlay = document.getElementById('credits-modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+  window._creditsPendingPkg = null;
+  const btn = document.getElementById('credits-buy-btn');
+  if (btn) btn.textContent = 'Entrar em contato para comprar créditos';
+}
+window.creditsCloseModal = creditsCloseModal;
+
+// ── Render modal content ──
+function creditsRenderModal() {
+  const d = creditsLoad();
+  const bal = d.balance;
+  const max = d.total_granted + (d.purchased || 0);
+  const pct = max > 0 ? Math.round(bal / max * 100) : 100;
+  const daysLeft = d.next_grant ? Math.ceil((d.next_grant - Date.now()) / 86400000) : 45;
+  const renewDate = d.next_grant ? new Date(d.next_grant).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+  const usados = max - bal;
+
+  // Balance
+  const numEl = document.getElementById('modal-credits-num');
+  if (numEl) numEl.textContent = bal;
+  numEl.style.color = bal === 0 ? '#A32D2D' : bal <= 5 ? '#854F0B' : 'var(--rise-dark)';
+
+  const ren = document.getElementById('modal-credits-renewal');
+  if (ren) ren.textContent = 'Próxima renovação: ' + renewDate + ' (' + daysLeft + ' dias)';
+
+  const planEl = document.getElementById('modal-credits-plan');
+  if (planEl) planEl.textContent = d.plan || 'Starter';
+
+  const usedEl = document.getElementById('modal-credits-used');
+  if (usedEl) usedEl.textContent = usados + ' usados neste período';
+
+  // Progress bar
+  const bar = document.getElementById('modal-credits-bar');
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = bal === 0 ? '#A32D2D' : bal <= 5 ? '#854F0B' : 'var(--rise-med)';
+  }
+  const pctEl = document.getElementById('modal-credits-pct');
+  if (pctEl) pctEl.textContent = pct + '% restante';
+  const totEl = document.getElementById('modal-credits-total-lbl');
+  if (totEl) totEl.textContent = 'de ' + max + ' créditos';
+
+  // Low banner
+  const banner = document.getElementById('credits-low-banner');
+  if (banner) banner.style.display = bal <= 5 && bal > 0 ? 'flex' : bal === 0 ? 'flex' : 'none';
+  if (banner && bal === 0) banner.innerHTML = '🚫 <strong>Créditos esgotados!</strong> Compre mais para continuar usando o Buscador.';
+
+  // History
+  const hist = creditsHistoryGet().slice(0, 8);
+  const histEl = document.getElementById('modal-credits-history');
+  if (histEl) {
+    if (!hist.length) {
+      histEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">Nenhuma atividade ainda</div>';
+    } else {
+      const icons = { use:'🔍', purchase:'💳', grant:'🎁', renew:'🔄' };
+      histEl.innerHTML = hist.map(h => `
+        <div class="credits-history-item">
+          <div class="credits-history-icon">${icons[h.type]||'•'}</div>
+          <div class="credits-history-desc">${h.description}</div>
+          <div class="credits-history-date">${new Date(h.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</div>
+          <div class="credits-history-amount ${h.amount > 0 ? 'pos' : 'neg'}">${h.amount > 0 ? '+' : ''}${h.amount}</div>
+        </div>`).join('');
+    }
+  }
+}
+
+// ── Package selection ──
+let _creditsPendingPkg = null;
+
+function creditsBuy(amount, price) {
+  _creditsPendingPkg = { amount, price };
+  const btn = document.getElementById('credits-buy-btn');
+  if (btn) {
+    btn.textContent = `Comprar ${amount} créditos por ${price} →`;
+    btn.style.background = 'var(--rise-med)';
+  }
+  // Highlight selected package
+  document.querySelectorAll('.credits-pkg').forEach(el => el.classList.remove('selected'));
+  event?.target?.closest('.credits-pkg')?.classList.add('selected');
+}
+window.creditsBuy = creditsBuy;
+
+function creditsConfirmBuy() {
+  if (!_creditsPendingPkg) {
+    // No package selected — open WhatsApp contact
+    const msg = encodeURIComponent('Olá! Gostaria de comprar créditos adicionais para o RISE SST.');
+    window.open('https://wa.me/5516000000000?text=' + msg, '_blank');
+    return;
+  }
+  const { amount, price } = _creditsPendingPkg;
+  // In production: integrate with payment gateway (Stripe, PagSeguro, Mercado Pago)
+  // For now: show instructions
+  const msg = encodeURIComponent(
+    `Olá! Quero comprar ${amount} créditos RISE SST por ${price}. ` +
+    `Meu email de cadastro: (informe seu email)`
+  );
+  window.open('https://wa.me/5516000000000?text=' + msg, '_blank');
+  creditsCloseModal();
+}
+window.creditsConfirmBuy = creditsConfirmBuy;
+
+// ── Check before search ──
+function creditsCheckAndConsume(description) {
+  const bal = creditsGet();
+  if (bal <= 0) {
+    creditsOpenModal();
+    return false;
+  }
+  return creditsConsume(1, description);
+}
+
+window.creditsLoad      = creditsLoad;
+window.creditsGet       = creditsGet;
+window.creditsConsume   = creditsConsume;
+window.creditsAdd       = creditsAdd;
+window.creditsUpdUI     = creditsUpdUI;
+window.creditsCheckAndConsume = creditsCheckAndConsume;
+
+// Init on load
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(creditsUpdUI, 600);
+});
+
 // ════════════════════════════════════════════
 //   RISE SST — PERSISTÊNCIA UNIVERSAL (Neon DB)
 //   Dados salvos no banco: sobrevivem a qualquer
@@ -7243,5 +7661,92 @@ if (document.getElementById('view-crm')?.style.display !== 'none') {
 })();
 
 </script>
+
+    <!-- ══ MODAL DE CRÉDITOS ══ -->
+    <div id="credits-modal-overlay" class="credits-modal-overlay" style="display:none" onclick="if(event.target===this)creditsCloseModal()">
+      <div class="credits-modal">
+        <div class="credits-modal-header">
+          <div class="credits-modal-title">💎 Meus Créditos</div>
+          <button class="credits-modal-close" onclick="creditsCloseModal()">×</button>
+        </div>
+        <div class="credits-modal-body">
+          <!-- Banner de créditos baixos (oculto por padrão) -->
+          <div id="credits-low-banner" class="credits-banner" style="display:none">
+            ⚠️ <strong>Créditos acabando!</strong> Compre mais para continuar usando o Buscador.
+          </div>
+
+          <!-- Saldo atual -->
+          <div class="credits-balance-card">
+            <div class="credits-balance-icon">💎</div>
+            <div>
+              <div class="credits-balance-num" id="modal-credits-num">–</div>
+              <div class="credits-balance-label">CRÉDITOS DISPONÍVEIS</div>
+              <div class="credits-balance-renewal" id="modal-credits-renewal">Renovação em: –</div>
+            </div>
+            <div style="margin-left:auto;text-align:right">
+              <div style="font-size:10px;color:var(--muted);font-weight:600">PLANO</div>
+              <div style="font-size:13px;font-weight:700;color:var(--rise-dark)" id="modal-credits-plan">–</div>
+              <div style="font-size:10px;color:var(--muted)" id="modal-credits-used">0 usados</div>
+            </div>
+          </div>
+
+          <!-- Barra de progresso -->
+          <div class="credits-progress">
+            <div class="credits-progress-bar-bg">
+              <div class="credits-progress-bar" id="modal-credits-bar" style="width:100%"></div>
+            </div>
+            <div class="credits-progress-labels">
+              <span id="modal-credits-pct">100% restante</span>
+              <span id="modal-credits-total-lbl">de 25 créditos</span>
+            </div>
+          </div>
+
+          <!-- Histórico de uso -->
+          <div class="credits-history">
+            <div class="credits-history-title">Histórico recente</div>
+            <div id="modal-credits-history">
+              <div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">Nenhuma atividade ainda</div>
+            </div>
+          </div>
+
+          <!-- Pacotes para comprar -->
+          <div class="credits-history-title">Comprar créditos extras</div>
+          <div class="credits-packages">
+            <div class="credits-pkg" onclick="creditsBuy(25, 'R$29')">
+              <div class="credits-pkg-credits">25</div>
+              <div class="credits-pkg-label">créditos</div>
+              <div class="credits-pkg-price">R$ 29</div>
+              <div class="credits-pkg-unit">R$1,16 / crédito</div>
+            </div>
+            <div class="credits-pkg popular" onclick="creditsBuy(60, 'R$59')">
+              <div class="credits-pkg-badge">✨ MAIS POPULAR</div>
+              <div class="credits-pkg-credits">60</div>
+              <div class="credits-pkg-label">créditos</div>
+              <div class="credits-pkg-price">R$ 59</div>
+              <div class="credits-pkg-unit">R$0,98 / crédito</div>
+            </div>
+            <div class="credits-pkg" onclick="creditsBuy(150, 'R$129')">
+              <div class="credits-pkg-credits">150</div>
+              <div class="credits-pkg-label">créditos</div>
+              <div class="credits-pkg-price">R$ 129</div>
+              <div class="credits-pkg-unit">R$0,86 / crédito</div>
+            </div>
+            <div class="credits-pkg" onclick="creditsBuy(400, 'R$299')">
+              <div class="credits-pkg-credits">400</div>
+              <div class="credits-pkg-label">créditos</div>
+              <div class="credits-pkg-price">R$ 299</div>
+              <div class="credits-pkg-unit">R$0,75 / crédito</div>
+            </div>
+          </div>
+          <button class="credits-buy-btn" id="credits-buy-btn" onclick="creditsConfirmBuy()">
+            Entrar em contato para comprar créditos
+          </button>
+          <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">
+            Pagamento via PIX ou cartão · Créditos adicionados em até 1h
+          </div>
+        </div>
+      </div>
+    </div>
+
 </body>
 </html>

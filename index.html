@@ -2427,12 +2427,20 @@
           : data.obs;
       }
 
+      const newEmpresas = Array.isArray(data.empresas) ? data.empresas : [];
       bBatches.push({
         query: data.query || q,
         ts: new Date(),
-        empresas: Array.isArray(data.empresas) ? data.empresas : [],
+        empresas: newEmpresas,
         error: data.error || null
       });
+
+      // ── SALVAR NO HISTÓRICO imediatamente ──
+      if (newEmpresas.length > 0) {
+        histAddBatch(q, newEmpresas);
+        histUpdCount();
+      }
+
     } catch (e) {
       const msg = e.message || 'Erro de conexão';
       statusText.textContent = '❌ ' + msg;
@@ -2945,7 +2953,9 @@
     const btn = document.getElementById(crmKey);
     if (btn) { btn.textContent = '✓ No CRM'; btn.classList.add('done'); }
   }
-  window.histAddToCRM = histAddToCRM;
+  window.histAddToCRM  = histAddToCRM;
+  window.histAddBatch  = histAddBatch;
+  window.histUpdCount  = histUpdCount;
 
   // ── Rebuscar ──
   function histRebuscar(query) {
@@ -2981,7 +2991,10 @@
     document.getElementById('b-tab-hist')?.classList.toggle('active', tab==='hist');
     document.getElementById('b-panel-busca').style.display = tab==='busca' ? '' : 'none';
     document.getElementById('b-panel-hist').style.display  = tab==='hist'  ? '' : 'none';
-    if (tab==='hist') histRender();
+    if (tab==='hist') {
+      histUpdCount();
+      histRender();
+    }
   }
   window.bSetTab = bSetTab;
 

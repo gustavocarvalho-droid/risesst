@@ -1423,7 +1423,7 @@
         </div>
         <div class="credit-pill">
           <div class="credit-label">CRÉDITOS DIÁRIOS</div>
-          <div class="credit-val">47</div>
+          <div class="credit-val" id="dash-credits">–</div>
         </div>
       </div>
 
@@ -1458,58 +1458,42 @@
             <div class="legend-item"><div class="legend-dot" style="background:#5B5BAA"></div> Proposta Enviada</div>
             <div class="legend-item"><div class="legend-dot" style="background:#7176b7"></div> Fechadas</div>
           </div>
-          <div class="bars-container">
-            <div class="bar-group"><div class="bar" style="height:65%;background:#1E1E5C"></div><div class="bar" style="height:45%;background:#5B5BAA"></div><div class="bar" style="height:20%;background:#7176b7"></div><div class="bar-month">Jan</div></div>
-            <div class="bar-group"><div class="bar" style="height:55%;background:#1E1E5C"></div><div class="bar" style="height:50%;background:#5B5BAA"></div><div class="bar" style="height:18%;background:#7176b7"></div><div class="bar-month">Fev</div></div>
-            <div class="bar-group"><div class="bar" style="height:80%;background:#1E1E5C"></div><div class="bar" style="height:60%;background:#5B5BAA"></div><div class="bar" style="height:25%;background:#7176b7"></div><div class="bar-month">Mar</div></div>
-            <div class="bar-group"><div class="bar" style="height:70%;background:#1E1E5C"></div><div class="bar" style="height:55%;background:#5B5BAA"></div><div class="bar" style="height:22%;background:#7176b7"></div><div class="bar-month">Abr</div></div>
-            <div class="bar-group"><div class="bar" style="height:90%;background:#1E1E5C"></div><div class="bar" style="height:70%;background:#5B5BAA"></div><div class="bar" style="height:30%;background:#7176b7"></div><div class="bar-month">Mai</div></div>
-            <div class="bar-group"><div class="bar" style="height:75%;background:#1E1E5C"></div><div class="bar" style="height:65%;background:#5B5BAA"></div><div class="bar" style="height:28%;background:#7176b7"></div><div class="bar-month">Jun</div></div>
+          <div class="bars-container" id="dash-bars">
+            <div class="bar-group"><div class="bar" id="bar-sem-0" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-0" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-0" style="height:0%;background:#7176b7"></div><div class="bar-month">Jan</div></div>
+            <div class="bar-group"><div class="bar" id="bar-sem-1" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-1" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-1" style="height:0%;background:#7176b7"></div><div class="bar-month">Fev</div></div>
+            <div class="bar-group"><div class="bar" id="bar-sem-2" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-2" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-2" style="height:0%;background:#7176b7"></div><div class="bar-month">Mar</div></div>
+            <div class="bar-group"><div class="bar" id="bar-sem-3" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-3" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-3" style="height:0%;background:#7176b7"></div><div class="bar-month">Abr</div></div>
           </div>
         </div>
 
         <div class="funnel-card">
           <div class="card-title">Funil de Conversão</div>
-          <div class="funnel-row"><div class="funnel-label"><span>Empresas localizadas</span><span style="color:var(--rise-dark);font-weight:800">1.284</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:#1E1E5C"></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Abordadas</span><span style="color:var(--rise-med);font-weight:800"><span id="dash-score">0</span></span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:66%;background:#3a4096"></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Proposta enviada</span><span style="color:var(--rise-mid);font-weight:800">342</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:27%;background:#5B5BAA"></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Em negociação</span><span style="color:var(--rise-light);font-weight:800">88</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:7%;background:#7176b7"></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Fechamentos</span><span style="color:var(--muted);font-weight:800">29</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:2.3%;background:#c2bfe0"></div></div></div>
+          <div class="funnel-row"><div class="funnel-label"><span>Empresas buscadas</span><span style="color:var(--rise-dark);font-weight:800" id="fn-buscadas">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:#1E1E5C" id="fn-bar-buscadas"></div></div></div>
+          <div class="funnel-row"><div class="funnel-label"><span>Leads no CRM</span><span style="color:var(--rise-med);font-weight:800" id="fn-leads">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#3a4096" id="fn-bar-leads""></div></div></div>
+          <div class="funnel-row"><div class="funnel-label"><span>Proposta enviada</span><span style="color:var(--rise-mid);font-weight:800" id="fn-prop">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#5B5BAA" id="fn-bar-prop""></div></div></div>
+          <div class="funnel-row"><div class="funnel-label"><span>Em negociação</span><span style="color:var(--rise-light);font-weight:800" id="fn-neg">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#7176b7" id="fn-bar-neg""></div></div></div>
+          <div class="funnel-row"><div class="funnel-label"><span>Fechamentos</span><span style="color:var(--muted);font-weight:800" id="fn-fechado">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#c2bfe0" id="fn-bar-fechado""></div></div></div>
           <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--rise-bg);">
             <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.5px">CONVERSÃO GERAL</div>
-            <div style="font-size:22px;font-weight:800;color:var(--rise-dark)">8,4%</div>
+            <div style="font-size:22px;font-weight:800;color:var(--rise-dark)"><span id="fn-conv">0%</span></div>
           </div>
         </div>
       </div>
 
       <div class="log-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="card-title" style="margin-bottom:0">Histórico de Leads</div>
+          <div class="card-title" style="margin-bottom:0">Atividade Recente</div>
           <div class="section-tabs">
-            <button class="tab active" onclick="switchTab(this)">Últimos Logs</button>
-            <button class="tab" onclick="switchTab(this)">Últimos Leads</button>
-            <button class="tab" onclick="switchTab(this)">Atividades</button>
+            <button class="tab active" id="dash-tab-leads" onclick="dashSetLogTab('leads',this)">Últimos Leads</button>
+            <button class="tab" id="dash-tab-buscados" onclick="dashSetLogTab('buscados',this)">Buscados</button>
           </div>
         </div>
-        <div class="log-row">
-          <div class="log-dot" style="background:#1E1E5C"></div>
-          <div class="log-content"><div class="log-company">Metalúrgica Souza Ltda</div><div class="log-action">Proposta enviada via WhatsApp — aguardando retorno</div></div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="log-badge badge-prop">Proposta</span><span class="log-time">há 12 min</span></div>
-        </div>
-        <div class="log-row">
-          <div class="log-dot" style="background:#3a4096"></div>
-          <div class="log-content"><div class="log-company">Construtora Alfa S/A</div><div class="log-action">Novo lead adicionado via buscador de empresas</div></div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="log-badge badge-lead">Lead</span><span class="log-time">há 35 min</span></div>
-        </div>
-        <div class="log-row">
-          <div class="log-dot" style="background:#7176b7"></div>
-          <div class="log-content"><div class="log-company">Indústria Beta Componentes</div><div class="log-action">Contrato fechado — R$ 4.800/mês · PGASO + LTCAT</div></div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="log-badge badge-close">Fechamento</span><span class="log-time">há 1h</span></div>
-        </div>
-        <div class="log-row">
-          <div class="log-dot" style="background:#c2bfe0"></div>
-          <div class="log-content"><div class="log-company">Transportes Rápido ME</div><div class="log-action">IA de Atendimento respondeu dúvida sobre PGR</div></div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="log-badge badge-lead">IA</span><span class="log-time">há 2h</span></div>
+        <div id="dash-log-content">
+          <div style="text-align:center;padding:32px;color:var(--muted)">
+            <div style="font-size:28px;margin-bottom:8px">📋</div>
+            <div style="font-size:13px;font-weight:600">Nenhuma atividade ainda</div>
+            <div style="font-size:12px;margin-top:4px">Adicione leads no CRM ou busque empresas</div>
+          </div>
         </div>
       </div>
     </div><!-- /view-dashboard -->
@@ -2339,7 +2323,7 @@
       });
       if (v === 'whatsapp') { waInitModule(); }
       if (v === 'crm') { if(typeof crmInit==='function') crmInit(); }
-      if (v === 'dashboard') { if(typeof dashUpdKPIs==='function') dashUpdKPIs(); }
+      if (v === 'dashboard') { if(typeof dashUpdKPIs==='function') { dashUpdKPIs(); dashRenderLog('leads'); } }
     });
   });
 
@@ -2497,11 +2481,14 @@
     container.innerHTML = filtered.map(bRenderCard).join('');
   }
 
-  function bRenderCard(e) {
+  function bRenderCard(e, fromHistory) {
     const porteMap = { MEI:'mei', ME:'me', EPP:'epp', Grande:'grande' };
     const porteCls = porteMap[e.porte] || 'nd';
     const sitCls   = e.situacao === 'Ativa' ? 'ativa' : (e.situacao ? 'inativ' : 'nd');
     const sitLabel = e.situacao || 'N/D';
+    // Check if already in CRM (for history view)
+    const crmKey   = 'hist_crm_' + (e.cnpj||'').replace(/\D/g,'');
+    const jaAdded  = fromHistory && localStorage.getItem(crmKey) === '1';
 
     return `
       <div class="emp-card">
@@ -2528,8 +2515,11 @@
               onclick="bEnrichar(this,'${bCardId(e)}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
               🔍 Enriquecer
             </button>
-            <button class="cp-btn" style="color:var(--rise-med);border-color:var(--rise-med);font-size:10px;padding:3px 10px"
-              onclick="bAddToCRMEnriched('${bCardId(e)}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">+ CRM</button>
+            <button class="cp-btn${jaAdded?' done':''}" id="hist-crm-btn-${(e.cnpj||'').replace(/\D/g,'')}"
+              style="color:${jaAdded?'#3B6D11':'var(--rise-med)'};border-color:${jaAdded?'#3B6D11':'var(--rise-med)'};font-size:10px;padding:3px 10px;background:${jaAdded?'#eaf3de':'transparent'}"
+              onclick="bAddToCRMEnrichedHist('${bCardId(e)}','${(e.cnpj||'').replace(/\D/g,'')}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
+              ${jaAdded?'✓ No CRM':'+ CRM'}
+            </button>
           </div>
         </div>
       </div>`;
@@ -2720,6 +2710,22 @@
     wrap.style.display = 'block';
   }
 
+  // ── Adicionar ao CRM (versão com marcação para histórico) ──
+  function bAddToCRMEnrichedHist(cardId, cnpjDigits, empresa) {
+    bAddToCRMEnriched(cardId, empresa);
+    // Mark as added in localStorage
+    if (cnpjDigits) {
+      localStorage.setItem('hist_crm_' + cnpjDigits, '1');
+      const btn = document.getElementById('hist-crm-btn-' + cnpjDigits);
+      if (btn) {
+        btn.textContent = '✓ No CRM';
+        btn.style.color = '#3B6D11';
+        btn.style.borderColor = '#3B6D11';
+        btn.style.background = '#eaf3de';
+      }
+    }
+  }
+
   // ── Adicionar ao CRM com dados enriquecidos ──
   function bAddToCRMEnriched(cardId, empresa) {
     const enriched = bEnrichCache[cardId] || empresa;
@@ -2905,20 +2911,7 @@
     // Groups
     content.innerHTML = hist.map(h => {
       const dt = new Date(h.createdAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-      const cards = h.empresas.map(e => {
-        const crmKey = 'hist_crm_' + (e.cnpj||'').replace(/\D/g,'');
-        const jaAdded = localStorage.getItem(crmKey) === '1';
-        return `<div class="hist-empresa-row">
-          <div class="hist-emp-name">${bEsc(e.nome||e.nome_fantasia||'Empresa')}</div>
-          ${e.porte?`<span class="hist-emp-porte">${bEsc(e.porte)}</span>`:''}
-          <div class="hist-emp-cnpj">${bEsc(e.cnpj||'')}</div>
-          <div class="hist-emp-cidade">${bEsc(e.municipio||'')}</div>
-          <button class="hist-emp-crm${jaAdded?' done':''}" id="${crmKey}"
-            onclick="histAddToCRM('${bCardId(e)}',${JSON.stringify(e).replace(/'/g,"&#39;").replace(/"/g,"&quot;")})">
-            ${jaAdded?'✓ No CRM':'+ CRM'}
-          </button>
-        </div>`;
-      }).join('');
+      const cards = h.empresas.map(e => bRenderCard(e, true)).join('');
 
       return `<div class="hist-search-group">
         <div class="hist-search-header">
@@ -6236,49 +6229,138 @@ window.waBootApp = function() {
 // ── Dashboard KPI updater — reads from CRM real data ──
 function dashUpdKPIs() {
   try {
-    // Read CRM data from all tabs
-    const crmB = JSON.parse(localStorage.getItem('rise_crm_buscador') || '[]');
-    const crmZ = JSON.parse(localStorage.getItem('rise_crm_zap') || '[]');
-    const crmE = JSON.parse(localStorage.getItem('rise_crm_empresa') || '[]');
-    const all  = [...crmB, ...crmZ, ...crmE];
-
-    const total   = all.length;
-    const prop    = all.filter(l => l.status === 'proposta').length;
-    const fechado = all.filter(l => l.status === 'fechado').length;
-    const conv    = total ? Math.round(fechado / total * 100) : 0;
-
     function safeUpd(id, val) {
       const el = document.getElementById(id);
       if (el) el.textContent = val;
     }
+    function safeWidth(id, pct) {
+      const el = document.getElementById(id);
+      if (el) el.style.width = Math.min(100, Math.max(0, pct)) + '%';
+    }
 
-    safeUpd('dash-kpi-leads',       total);
-    safeUpd('dash-kpi-leads-sub',   total === 1 ? '1 lead no CRM' : total + ' leads no CRM');
-    safeUpd('dash-kpi-prop',        prop);
-    safeUpd('dash-kpi-prop-sub',    'no pipeline');
-    safeUpd('dash-kpi-fechado',     fechado);
-    safeUpd('dash-kpi-fechado-sub', fechado === 1 ? '1 contrato' : fechado + ' contratos');
-    safeUpd('dash-kpi-conv',        conv + '%');
-    safeUpd('dash-kpi-conv-sub',    'taxa de conversão');
-    safeUpd('dash-score',           total);
+    // ── CRM data ──
+    const crmB = JSON.parse(localStorage.getItem('rise_crm_buscador') || '[]');
+    const crmZ = JSON.parse(localStorage.getItem('rise_crm_zap') || '[]');
+    const crmE = JSON.parse(localStorage.getItem('rise_crm_empresa') || '[]');
+    const all  = [...crmB, ...crmZ, ...crmE];
+    const total    = all.length;
+    const prop     = all.filter(l => l.status === 'proposta').length;
+    const neg      = all.filter(l => l.status === 'negociacao').length;
+    const fechado  = all.filter(l => l.status === 'fechado').length;
+    const conv     = total ? Math.round(fechado / total * 100) : 0;
 
-    // WA stats
-    const waC = JSON.parse(localStorage.getItem('rise_wa_contacts') || '[]');
-    const env  = waC.filter ? waC.filter(c => c.status === 'enviado').length : 0;
+    // ── Histórico do buscador ──
+    let buscadas = 0;
+    try {
+      const hist = JSON.parse(localStorage.getItem('rise_buscador_historico') || '[]');
+      buscadas = hist.reduce((a, h) => a + (h.empresas?.length || 0), 0);
+    } catch(e) {}
+
+    // ── KPI cards ──
+    safeUpd('dash-kpi-buscadas',     buscadas);
+    safeUpd('dash-kpi-buscadas-sub', buscadas === 1 ? '1 empresa' : buscadas + ' empresas');
+    safeUpd('dash-kpi-leads',        total);
+    safeUpd('dash-kpi-leads-sub',    total + ' leads no CRM');
+    safeUpd('dash-kpi-prop',         prop);
+    safeUpd('dash-kpi-prop-sub',     'no pipeline');
+    safeUpd('dash-kpi-fechado',      fechado);
+    safeUpd('dash-kpi-fechado-sub',  fechado + ' contratos');
+    safeUpd('dash-kpi-conv',         conv + '%');
+    safeUpd('dash-kpi-conv-sub',     'taxa de conversão');
+
+    // ── Funnel ──
+    const base = Math.max(buscadas, total, 1);
+    safeUpd('fn-buscadas', buscadas);
+    safeUpd('fn-leads',    total);
+    safeUpd('fn-prop',     prop);
+    safeUpd('fn-neg',      neg);
+    safeUpd('fn-fechado',  fechado);
+    safeUpd('fn-conv',     conv + '%');
+    safeWidth('fn-bar-buscadas', 100);
+    safeWidth('fn-bar-leads',    buscadas ? total/buscadas*100 : 0);
+    safeWidth('fn-bar-prop',     total ? prop/total*100 : 0);
+    safeWidth('fn-bar-neg',      total ? neg/total*100 : 0);
+    safeWidth('fn-bar-fechado',  total ? fechado/total*100 : 0);
+
+    // ── WA stats ──
+    const waC = (() => { try { return JSON.parse(localStorage.getItem('rise_wa_contacts')||'[]'); } catch(e){return [];} })();
+    const env = waC.filter ? waC.filter(c => c.status==='enviado').length : 0;
     safeUpd('s-total', waC.length || 0);
     safeUpd('s-ok',    env);
 
-    // Update username from WA session
-    try {
-      const sess = JSON.parse(localStorage.getItem('rise_wa_session') || '{}');
-      if (sess.key) {
-        const cfg = JSON.parse(localStorage.getItem('rise_wa_config_' + sess.key) || '{}');
-        if (cfg.nome) safeUpd('dash-username', cfg.nome);
-      }
-    } catch(e) {}
+    // ── Activity log: últimos leads do CRM ──
+    dashRenderLog('leads');
 
   } catch(e) { console.warn('dashUpdKPIs:', e); }
 }
+
+function dashSetLogTab(tab, btn) {
+  document.querySelectorAll('.section-tabs .tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  dashRenderLog(tab);
+}
+
+function dashRenderLog(tab) {
+  const wrap = document.getElementById('dash-log-content');
+  if (!wrap) return;
+
+  if (tab === 'buscados') {
+    // Show recent buscador history
+    try {
+      const hist = JSON.parse(localStorage.getItem('rise_buscador_historico') || '[]');
+      const recent = hist.flatMap(h => h.empresas.map(e => ({ ...e, _query: h.query, _ts: h.createdAt }))).slice(0, 8);
+      if (!recent.length) {
+        wrap.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)"><div style="font-size:24px">🔍</div><div style="margin-top:6px;font-size:13px">Nenhuma empresa buscada ainda</div></div>';
+        return;
+      }
+      wrap.innerHTML = recent.map(e => `
+        <div class="log-row">
+          <div class="log-dot" style="background:#3a4096"></div>
+          <div class="log-content">
+            <div class="log-company">${e.nome || e.nome_fantasia || 'Empresa'}</div>
+            <div class="log-action">${e.municipio || ''} ${e.cnpj ? '· CNPJ: ' + e.cnpj : ''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <span class="log-badge badge-lead">Buscador</span>
+            <span class="log-time">${e._ts ? new Date(e._ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : ''}</span>
+          </div>
+        </div>`).join('');
+    } catch(e) {
+      wrap.innerHTML = '';
+    }
+    return;
+  }
+
+  // Default: leads do CRM
+  const crmB = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_buscador')||'[]'); } catch(e){return [];} })();
+  const crmZ = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_zap')||'[]'); } catch(e){return [];} })();
+  const crmE = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_empresa')||'[]'); } catch(e){return [];} })();
+  const all  = [...crmB,...crmZ,...crmE].sort((a,b)=>(b.criadoEm||0)-(a.criadoEm||0)).slice(0,6);
+
+  if (!all.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)"><div style="font-size:24px">📋</div><div style="margin-top:6px;font-size:13px">Nenhum lead ainda — adicione pelo Buscador ou CRM</div></div>';
+    return;
+  }
+
+  const statusColors = { novo:'#1E1E5C', contato:'#3a4096', proposta:'#5B5BAA', negociacao:'#854F0B', fechado:'#3B6D11', perdido:'#A32D2D' };
+  const statusBadge  = { novo:'badge-lead', contato:'badge-lead', proposta:'badge-prop', negociacao:'badge-prop', fechado:'badge-close', perdido:'badge-lead' };
+  const statusLabel  = { novo:'Lead', contato:'Contato', proposta:'Proposta', negociacao:'Negociação', fechado:'Fechamento', perdido:'Perdido' };
+
+  wrap.innerHTML = all.map(l => `
+    <div class="log-row">
+      <div class="log-dot" style="background:${statusColors[l.status]||'#1E1E5C'}"></div>
+      <div class="log-content">
+        <div class="log-company">${l.empresa || l.nome || 'Lead'}</div>
+        <div class="log-action">${l.cidade || l.segmento || (l.servicos?.join(', ')) || 'Lead adicionado'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="log-badge ${statusBadge[l.status]||'badge-lead'}">${statusLabel[l.status]||'Lead'}</span>
+        <span class="log-time">${l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : ''}</span>
+      </div>
+    </div>`).join('');
+}
+
+window.dashSetLogTab = dashSetLogTab;
 
 // Run on load and when switching to dashboard
 window.dashUpdKPIs = dashUpdKPIs;

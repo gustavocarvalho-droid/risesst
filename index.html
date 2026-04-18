@@ -1244,6 +1244,98 @@
     .enrich-val.ok { color: #3B6D11; font-weight: 600; }
     .enrich-loading { color: var(--muted); font-style: italic; font-size: 11px; }
 
+  
+    /* ── Buscador Tabs ── */
+    .b-tabs {
+      display: flex; gap: 0; border-bottom: 2px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .b-tab {
+      padding: 10px 20px; font-size: 13px; font-weight: 600;
+      color: var(--muted); cursor: pointer; border: none; background: none;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: all .15s; font-family: 'Figtree', sans-serif;
+    }
+    .b-tab:hover { color: var(--rise-dark); }
+    .b-tab.active { color: var(--rise-dark); border-bottom-color: var(--rise-med); }
+    .b-tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--rise-bg); color: var(--rise-med);
+      border-radius: 999px; font-size: 10px; font-weight: 700;
+      padding: 1px 7px; margin-left: 6px;
+    }
+    .b-tab.active .b-tab-count { background: var(--rise-dark); color: #fff; }
+
+    /* ── History ── */
+    .hist-empty { text-align:center; padding: 40px 20px; color: var(--muted); }
+    .hist-empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+    .hist-search-group { margin-bottom: 20px; }
+    .hist-search-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; background: var(--rise-bg); border-radius: 8px;
+      margin-bottom: 8px; cursor: pointer; gap: 10px;
+    }
+    .hist-search-header:hover { background: var(--rise-pale); }
+    .hist-query-text {
+      font-size: 13px; font-weight: 700; color: var(--rise-dark); flex: 1;
+    }
+    .hist-query-meta {
+      font-size: 11px; color: var(--muted); white-space: nowrap;
+    }
+    .hist-query-count {
+      background: var(--rise-med); color: #fff;
+      border-radius: 999px; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; white-space: nowrap;
+    }
+    .hist-btn-rebuscar {
+      font-size: 10px; font-weight: 700; padding: 3px 10px;
+      background: var(--rise-bg); border: 1px solid var(--rise-pale);
+      border-radius: 6px; color: var(--rise-med); cursor: pointer;
+      transition: all .15s; white-space: nowrap;
+    }
+    .hist-btn-rebuscar:hover { background: var(--rise-med); color: #fff; }
+    .hist-btn-del {
+      font-size: 12px; background: none; border: none;
+      color: var(--muted); cursor: pointer; padding: 2px 6px;
+      border-radius: 4px; transition: color .15s;
+    }
+    .hist-btn-del:hover { color: #A32D2D; }
+    .hist-cards { display: flex; flex-direction: column; gap: 8px; padding-left: 8px; }
+    .hist-empresa-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; background: #fff;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 12px; cursor: pointer; transition: all .15s;
+    }
+    .hist-empresa-row:hover { border-color: var(--rise-pale); background: #f8f7fc; }
+    .hist-emp-name { font-weight: 700; color: var(--rise-dark); flex: 1; }
+    .hist-emp-cnpj { color: var(--muted); font-size: 11px; }
+    .hist-emp-cidade { color: var(--muted); font-size: 11px; }
+    .hist-emp-porte { 
+      font-size: 9px; font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; background: var(--rise-bg); color: var(--rise-med);
+    }
+    .hist-emp-crm {
+      font-size: 10px; font-weight: 700; padding: 2px 8px;
+      background: #f0eff8; border: 1px solid var(--rise-pale);
+      color: var(--rise-med); border-radius: 4px; cursor: pointer;
+      transition: all .15s; white-space: nowrap;
+    }
+    .hist-emp-crm:hover { background: var(--rise-med); color: #fff; }
+    .hist-emp-crm.done { background: #eaf3de; color: #3B6D11; border-color: #3B6D11; }
+
+    .hist-summary-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; background: #fff;
+      border: 1px solid var(--border); border-radius: 8px;
+      margin-bottom: 16px; font-size: 12px; flex-wrap: wrap;
+    }
+    .hist-summary-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .hist-summary-num { font-size: 18px; font-weight: 800; color: var(--rise-med); }
+    .hist-summary-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .hist-summary-sep { width: 1px; height: 32px; background: var(--border); }
+
   </style>
 </head>
 <body>
@@ -1430,64 +1522,85 @@
           <p>Pesquise por setor, tipo de negócio ou localidade — o agente retorna apenas empresas com <strong style="color:var(--rise-med)">CNPJ confirmado</strong>.</p>
         </div>
 
-        <div class="search-box">
-          <input type="text" id="b-query"
-            placeholder="Ex: metalúrgicas em Campinas, construtoras SP, clínicas de saúde ocupacional..."
-            autocomplete="off" />
-          <button id="searchBtn" onclick="bRunSearch()">BUSCAR →</button>
-          <button id="moreBtn" onclick="bRunMore()" style="display:none">+ MAIS</button>
+        <!-- TABS -->
+        <div class="b-tabs">
+          <button class="b-tab active" id="b-tab-busca" onclick="bSetTab('busca')">
+            🔍 Buscar
+          </button>
+          <button class="b-tab" id="b-tab-hist" onclick="bSetTab('hist')">
+            📋 Histórico
+            <span class="b-tab-count" id="b-hist-count">0</span>
+          </button>
         </div>
 
-        <div class="opts">
-          <div class="opt-group">
-            <label>RESULTADOS</label>
-            <input type="number" id="b-qtd" value="5" min="1" max="15" />
+        <!-- PANEL: BUSCA -->
+        <div id="b-panel-busca">
+          <div class="search-box">
+            <input type="text" id="b-query"
+              placeholder="Ex: metalúrgicas em Campinas, construtoras SP, clínicas de saúde ocupacional..."
+              autocomplete="off" />
+            <button id="searchBtn" onclick="bRunSearch()">BUSCAR →</button>
+            <button id="moreBtn" onclick="bRunMore()" style="display:none">+ MAIS</button>
           </div>
-          <div class="opt-group">
-            <label>FILTRO</label>
-            <select id="b-filtro">
-              <option value="todos">Todos</option>
-              <option value="ativa">Somente Ativas</option>
-              <option value="mei">MEI</option>
-              <option value="epp">ME / EPP</option>
-            </select>
+
+          <div class="opts">
+            <div class="opt-group">
+              <label>RESULTADOS</label>
+              <input type="number" id="b-qtd" value="5" min="1" max="15" />
+            </div>
+            <div class="opt-group">
+              <label>FILTRO</label>
+              <select id="b-filtro">
+                <option value="todos">Todos</option>
+                <option value="ativa">Somente Ativas</option>
+                <option value="mei">MEI</option>
+                <option value="epp">ME / EPP</option>
+              </select>
+            </div>
+            <div class="opt-group">
+              <label>ORDENAR</label>
+              <select id="b-ordem">
+                <option value="relevancia">Relevância</option>
+                <option value="az">A – Z</option>
+                <option value="porte">Por Porte</option>
+              </select>
+            </div>
           </div>
-          <div class="opt-group">
-            <label>ORDENAR</label>
-            <select id="b-ordem">
-              <option value="relevancia">Relevância</option>
-              <option value="az">A – Z</option>
-              <option value="porte">Por Porte</option>
-            </select>
+
+          <div class="status-bar" id="b-status">
+            <div class="dot-anim"></div>
+            <span id="b-status-text">Agente pesquisando na web...</span>
+            <span class="progress-txt" id="b-progress"></span>
+          </div>
+
+          <div class="b-toolbar" id="b-toolbar">
+            <div class="b-toolbar-left"><span id="b-total">0</span> empresas encontradas</div>
+            <div class="filter-btns">
+              <button class="fbtn active" id="fbAll"   onclick="bApplyFilter('todos')">Todos</button>
+              <button class="fbtn"        id="fbAtiva" onclick="bApplyFilter('ativa')">Somente Ativas</button>
+            </div>
+          </div>
+
+          <div class="b-results" id="b-results">
+            <div class="b-empty">
+              <div class="b-empty-icon">◎</div>
+              <p>Nenhuma busca ainda.</p>
+              <code>Ex: "empresas de construção civil em São Paulo"</code>
+            </div>
+          </div>
+
+          <div class="export-bar" id="b-export">
+            <button class="export-btn" onclick="bExportJSON()">↓ JSON</button>
+            <button class="export-btn" onclick="bExportCSV()">↓ CSV</button>
           </div>
         </div>
 
-        <div class="status-bar" id="b-status">
-          <div class="dot-anim"></div>
-          <span id="b-status-text">Agente pesquisando na web...</span>
-          <span class="progress-txt" id="b-progress"></span>
+        <!-- PANEL: HISTÓRICO -->
+        <div id="b-panel-hist" style="display:none">
+          <div class="hist-summary-bar" id="hist-summary-bar" style="display:none"></div>
+          <div id="hist-content"></div>
         </div>
 
-        <div class="b-toolbar" id="b-toolbar">
-          <div class="b-toolbar-left"><span id="b-total">0</span> empresas encontradas</div>
-          <div class="filter-btns">
-            <button class="fbtn active" id="fbAll"   onclick="bApplyFilter('todos')">Todos</button>
-            <button class="fbtn"        id="fbAtiva" onclick="bApplyFilter('ativa')">Somente Ativas</button>
-          </div>
-        </div>
-
-        <div class="b-results" id="b-results">
-          <div class="b-empty">
-            <div class="b-empty-icon">◎</div>
-            <p>Nenhuma busca ainda.</p>
-            <code>Ex: "empresas de construção civil em São Paulo"</code>
-          </div>
-        </div>
-
-        <div class="export-bar" id="b-export">
-          <button class="export-btn" onclick="bExportJSON()">↓ JSON</button>
-          <button class="export-btn" onclick="bExportCSV()">↓ CSV</button>
-        </div>
       </div>
     </div><!-- /view-buscador -->
 
@@ -2473,6 +2586,16 @@
   }
 
   // ── ID único por card ──
+  function bFmtWA(num) {
+    const d = String(num||'').replace(/\D/g,'');
+    if (d.length >= 12) {
+      // 5511999999999 → +55 (11) 99999-9999
+      const cc = d.slice(0,2), ddd = d.slice(2,4), rest = d.slice(4);
+      return `+${cc} (${ddd}) ${rest.slice(0,5)}-${rest.slice(5)}`;
+    }
+    return num;
+  }
+
   function bCardId(e) {
     return (e.cnpj || e.nome || '').replace(/[^a-z0-9]/gi, '').slice(0, 20) || Math.random().toString(36).slice(2,8);
   }
@@ -2523,27 +2646,69 @@
   function bShowEnrich(cardId, data) {
     const wrap = document.getElementById('enrich-' + cardId);
     if (!wrap) return;
-    const fields = [
-      { lbl: 'Nome GMB',  val: data.gmb_nome,     ok: true },
-      { lbl: 'Telefone',  val: data.gmb_telefone || data.telefone, ok: !!data.gmb_telefone },
-      { lbl: 'Endereço',  val: data.gmb_endereco,  ok: false },
-      { lbl: 'Cidade',    val: data.gmb_cidade || data.municipio, ok: false },
-      { lbl: 'Email',     val: data.gmb_email || data.email, ok: !!(data.gmb_email || data.email) },
-      { lbl: 'Site',      val: data.gmb_site || data.site, ok: !!(data.gmb_site || data.site) },
-      { lbl: 'Avaliação', val: data.gmb_rating ? data.gmb_rating + ' ⭐ (' + (data.gmb_reviews||0) + ' avaliações)' : null, ok: false },
-      { lbl: 'Horário',   val: data.gmb_horario,   ok: false },
-      { lbl: 'Categoria', val: data.gmb_categoria, ok: false },
+
+    // ── CNAE / Grau de Risco block ──
+    const riscoCores = {1:'#3B6D11',2:'#854F0B',3:'#C05621',4:'#A32D2D'};
+    const riscoBgs   = {1:'#eaf3de',2:'#fef3e2',3:'#fff0e6',4:'#fcebeb'};
+    const riscoIcons = {1:'🟢',2:'🟡',3:'🟠',4:'🔴'};
+    const grau = data.cnae_grau_risco;
+
+    let cnaeBlock = '';
+    if (grau) {
+      const cor = riscoCores[grau];
+      const bg  = riscoBgs[grau];
+      const ico = riscoIcons[grau];
+      const servs = (data.cnae_servicos_sst||[]).map(s =>
+        `<span style="background:#f0eff8;border:1px solid #c2bfe0;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:#3a4096;margin:2px">${s}</span>`
+      ).join('');
+      cnaeBlock = `
+        <div style="background:${bg};border:1px solid ${cor}33;border-radius:8px;padding:10px 12px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:18px">${ico}</span>
+            <div>
+              <div style="font-weight:800;color:${cor};font-size:13px">${data.cnae_grau_label||''}</div>
+              ${data.cnae_codigo ? `<div style="font-size:10px;color:#7878A8">CNAE ${data.cnae_codigo}${data.cnae_descricao?' — '+data.cnae_descricao:''}</div>` : ''}
+            </div>
+          </div>
+          ${servs ? `<div style="margin-top:6px"><div style="font-size:10px;font-weight:700;color:#7878A8;margin-bottom:4px">SERVIÇOS SST RECOMENDADOS</div><div style="display:flex;flex-wrap:wrap;gap:3px">${servs}</div></div>` : ''}
+          ${data.cnaes_secundarios ? `<div style="font-size:10px;color:#7878A8;margin-top:6px">Secundários: ${bEsc(data.cnaes_secundarios)}</div>` : ''}
+        </div>`;
+    }
+
+    // ── Receita Federal block ──
+    const receitaFields = [
+      { lbl: '🏢 Razão Social', val: data.receita_razao_social },
+      { lbl: '📋 Situação',     val: data.receita_situacao },
+      { lbl: '🏭 Porte',        val: data.receita_porte },
+      { lbl: '📅 Abertura',     val: data.receita_abertura },
+      { lbl: '💰 Capital',      val: data.receita_capital ? 'R$ ' + Number(data.receita_capital).toLocaleString('pt-BR') : null },
+      { lbl: '📍 Endereço',     val: data.receita_logradouro },
+      { lbl: '📞 Telefone',     val: data.receita_telefone || data.gmb_telefone },
+      { lbl: '✉️ Email',        val: data.receita_email || data.gmb_email },
     ];
-    const rows = fields
-      .filter(f => f.val)
-      .map(f => `<div class="enrich-item">
-        <span class="enrich-lbl">${f.lbl}</span>
-        <span class="enrich-val${f.ok?' ok':''}">${bEsc(String(f.val))}</span>
-      </div>`).join('');
+    const receitaRows = receitaFields.filter(f=>f.val).map(f =>
+      `<div class="enrich-item"><span class="enrich-lbl" style="min-width:90px">${f.lbl}</span><span class="enrich-val">${bEsc(String(f.val))}</span></div>`
+    ).join('');
+
+    // ── GMB block ──
+    const gmbFields = [
+      { lbl: '📱 WhatsApp', val: data.gmb_whatsapp ? bFmtWA(data.gmb_whatsapp) : null, wa: data.gmb_whatsapp },
+      { lbl: '⭐ Avaliação', val: data.gmb_rating ? data.gmb_rating + ' (' + (data.gmb_reviews||0) + ' avaliações)' : null },
+      { lbl: '🕐 Horário',  val: data.gmb_horario },
+      { lbl: '🏷 Categoria',val: data.gmb_categoria },
+      { lbl: '🌐 Site',     val: data.gmb_site || data.site },
+    ];
+    const gmbRows = gmbFields.filter(f=>f.val).map(f => {
+      const extra = f.wa ? `<a href="https://wa.me/${f.wa}" target="_blank" style="margin-left:8px;font-size:10px;color:#25D366;font-weight:700;text-decoration:none">Abrir ↗</a>` : '';
+      return `<div class="enrich-item"><span class="enrich-lbl" style="min-width:90px">${f.lbl}</span><span class="enrich-val">${bEsc(String(f.val))}${extra}</span></div>`;
+    }).join('');
 
     wrap.innerHTML = `
-      <div class="enrich-title">🏢 Google Meu Negócio</div>
-      ${rows || '<div class="enrich-loading">Nenhum dado adicional encontrado</div>'}`;
+      ${cnaeBlock}
+      ${receitaRows ? `<div class="enrich-title" style="margin-top:4px">🏦 Receita Federal</div>${receitaRows}` : ''}
+      ${gmbRows ? `<div class="enrich-title" style="margin-top:10px">📍 Google Meu Negócio</div>${gmbRows}` : ''}
+      ${!cnaeBlock && !receitaRows && !gmbRows ? '<div class="enrich-loading">Nenhum dado adicional encontrado</div>' : ''}
+    `;
     wrap.style.display = 'block';
   }
 
@@ -2554,20 +2719,38 @@
       alert('CRM ainda carregando, tente novamente.');
       return;
     }
+    const grau = enriched.cnae_grau_risco;
+    const riscoLabel = {1:'Grau 1 - Baixo',2:'Grau 2 - Médio',3:'Grau 3 - Alto',4:'Grau 4 - Muito Alto'};
+    const obsparts = [];
+    if (enriched.receita_logradouro) obsparts.push('End: ' + enriched.receita_logradouro);
+    if (grau) obsparts.push('Risco: ' + (riscoLabel[grau]||grau));
+    if (enriched.cnae_codigo) obsparts.push('CNAE: ' + enriched.cnae_codigo + (enriched.cnae_descricao?' - '+enriched.cnae_descricao:''));
+    if (enriched.receita_capital) obsparts.push('Capital: R$ ' + Number(enriched.receita_capital).toLocaleString('pt-BR'));
+
     window.crmAddLeadFromSource('buscador', {
-      empresa:    enriched.gmb_nome    || enriched.nome || enriched.nome_fantasia || '',
-      nome:       enriched.nome_fantasia || '',
+      empresa:    enriched.receita_razao_social || enriched.gmb_nome || enriched.nome || enriched.nome_fantasia || '',
+      nome:       enriched.receita_nome_fantasia || enriched.nome_fantasia || '',
       cnpj:       enriched.cnpj        || '',
-      tel:        enriched.gmb_telefone || enriched.telefone || '',
-      email:      enriched.gmb_email   || enriched.email || '',
+      tel:        enriched.gmb_whatsapp || enriched.receita_telefone || enriched.gmb_telefone || enriched.telefone || '',
+      email:      enriched.receita_email   || enriched.gmb_email   || enriched.email    || '',
       cidade:     enriched.gmb_cidade  || enriched.municipio || '',
-      segmento:   enriched.gmb_categoria || enriched.atividade || '',
+      segmento:   enriched.gmb_categoria || enriched.cnae_descricao || enriched.atividade || '',
       site:       enriched.gmb_site    || enriched.site || '',
       status:     'novo',
-      prioridade: 'baixa',
-      obs:        enriched.gmb_endereco ? 'End: ' + enriched.gmb_endereco : '',
+      prioridade: grau >= 3 ? 'alta' : grau === 2 ? 'media' : 'baixa',
+      obs:        obsparts.join(' | '),
+      cnae_grau:  grau || null,
+      cnae_codigo: enriched.cnae_codigo || null,
+      servicos:   enriched.cnae_servicos_sst || [],
     });
+
+    // Visual feedback
+    const btn = event?.target;
+    if (btn) { btn.textContent = '✓ Adicionado!'; btn.style.background='#eaf3de'; btn.style.color='#3B6D11'; }
   }
+
+  // ── Init history count ──
+  setTimeout(histUpdCount, 500);
 
   // ── Buscador → CRM Buscador ──
   function bAddToCRM(empresa) {
@@ -2591,9 +2774,205 @@
     });
   }
 
+
+  // ════════════════════════════════════════════
+  //   BUSCADOR — HISTÓRICO + TABS + WHATSAPP
+  // ════════════════════════════════════════════
+
+  const HIST_KEY = 'rise_buscador_historico';
+  let bActiveTab = 'busca';
+
+  // ── Load / Save history ──
+  function histLoad() {
+    try { return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+    catch(e) { return []; }
+  }
+  function histSave(data) {
+    try { localStorage.setItem(HIST_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  // ── Add batch to history (deduplicate by CNPJ) ──
+  function histAddBatch(query, empresas) {
+    if (!empresas || !empresas.length) return;
+    const hist = histLoad();
+
+    // Find existing entry for same query (case-insensitive)
+    const queryNorm = query.trim().toLowerCase();
+    let existing = hist.find(h => h.query.toLowerCase() === queryNorm);
+
+    // All CNPJs already in history (any query)
+    const allCNPJs = new Set(hist.flatMap(h => h.empresas.map(e => e.cnpj?.replace(/\D/g,''))).filter(Boolean));
+
+    // Filter: only add truly new companies
+    const novas = empresas.filter(e => {
+      const d = e.cnpj?.replace(/\D/g,'');
+      if (!d || d.length < 14) return false;
+      if (allCNPJs.has(d)) return false;
+      allCNPJs.add(d);
+      return true;
+    });
+
+    if (!novas.length) return;
+
+    if (existing) {
+      existing.empresas.push(...novas);
+      existing.updatedAt = Date.now();
+      existing.count = existing.empresas.length;
+    } else {
+      hist.unshift({
+        id: Date.now().toString(36),
+        query: query.trim(),
+        empresas: novas,
+        count: novas.length,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+    }
+
+    // Keep max 50 search groups
+    if (hist.length > 50) hist.splice(50);
+    histSave(hist);
+    histUpdCount();
+  }
+
+  // ── Update history tab badge ──
+  function histUpdCount() {
+    const hist = histLoad();
+    const total = hist.reduce((a, h) => a + h.empresas.length, 0);
+    const badge = document.getElementById('b-hist-count');
+    if (badge) badge.textContent = total;
+  }
+
+  // ── Render history panel ──
+  function histRender() {
+    const hist = histLoad();
+    const content = document.getElementById('hist-content');
+    const summBar = document.getElementById('hist-summary-bar');
+    if (!content) return;
+
+    if (!hist.length) {
+      content.innerHTML = `<div class="hist-empty">
+        <div class="hist-empty-icon">📋</div>
+        <p style="font-weight:700;color:var(--rise-dark)">Nenhuma busca no histórico</p>
+        <p style="color:var(--muted);font-size:13px">Faça uma busca na aba Buscar para registrar aqui.</p>
+      </div>`;
+      if (summBar) summBar.style.display = 'none';
+      return;
+    }
+
+    // Summary bar
+    const totalEmpresas = hist.reduce((a,h) => a+h.empresas.length, 0);
+    const totalBuscas   = hist.length;
+    const totalCidades  = new Set(hist.flatMap(h => h.empresas.map(e => e.municipio)).filter(Boolean)).size;
+    if (summBar) {
+      summBar.style.display = 'flex';
+      summBar.innerHTML = `
+        <div class="hist-summary-item"><div class="hist-summary-num">${totalEmpresas}</div><div class="hist-summary-lbl">Empresas</div></div>
+        <div class="hist-summary-sep"></div>
+        <div class="hist-summary-item"><div class="hist-summary-num">${totalBuscas}</div><div class="hist-summary-lbl">Buscas</div></div>
+        <div class="hist-summary-sep"></div>
+        <div class="hist-summary-item"><div class="hist-summary-num">${totalCidades}</div><div class="hist-summary-lbl">Cidades</div></div>
+        <div style="flex:1"></div>
+        <button onclick="histClearAll()" style="font-size:11px;color:#A32D2D;background:none;border:1px solid #A32D2D33;border-radius:6px;padding:4px 10px;cursor:pointer">🗑 Limpar tudo</button>
+      `;
+    }
+
+    // Groups
+    content.innerHTML = hist.map(h => {
+      const dt = new Date(h.createdAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const cards = h.empresas.map(e => {
+        const crmKey = 'hist_crm_' + (e.cnpj||'').replace(/\D/g,'');
+        const jaAdded = localStorage.getItem(crmKey) === '1';
+        return `<div class="hist-empresa-row">
+          <div class="hist-emp-name">${bEsc(e.nome||e.nome_fantasia||'Empresa')}</div>
+          ${e.porte?`<span class="hist-emp-porte">${bEsc(e.porte)}</span>`:''}
+          <div class="hist-emp-cnpj">${bEsc(e.cnpj||'')}</div>
+          <div class="hist-emp-cidade">${bEsc(e.municipio||'')}</div>
+          <button class="hist-emp-crm${jaAdded?' done':''}" id="${crmKey}"
+            onclick="histAddToCRM('${bCardId(e)}',${JSON.stringify(e).replace(/'/g,"&#39;").replace(/"/g,"&quot;")})">
+            ${jaAdded?'✓ No CRM':'+ CRM'}
+          </button>
+        </div>`;
+      }).join('');
+
+      return `<div class="hist-search-group">
+        <div class="hist-search-header">
+          <span class="hist-query-text">🔍 ${bEsc(h.query)}</span>
+          <span class="hist-query-meta">${dt}</span>
+          <span class="hist-query-count">${h.empresas.length} empresa${h.empresas.length!==1?'s':''}</span>
+          <button class="hist-btn-rebuscar" onclick="histRebuscar('${bEsc(h.query)}')">↺ Rebuscar</button>
+          <button class="hist-btn-del" onclick="histDelGroup('${h.id}')" title="Remover este grupo">✕</button>
+        </div>
+        <div class="hist-cards">${cards}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Add from history to CRM ──
+  function histAddToCRM(cardId, empresa) {
+    const enriched = bEnrichCache[cardId] || empresa;
+    if (typeof window.crmAddLeadFromSource !== 'function') return;
+    window.crmAddLeadFromSource('buscador', {
+      empresa:  enriched.receita_razao_social || enriched.nome || enriched.nome_fantasia || '',
+      nome:     enriched.nome_fantasia || '',
+      cnpj:     enriched.cnpj || '',
+      tel:      enriched.receita_telefone || enriched.gmb_telefone || enriched.telefone || '',
+      email:    enriched.receita_email || enriched.gmb_email || enriched.email || '',
+      cidade:   enriched.gmb_cidade || enriched.municipio || '',
+      segmento: enriched.cnae_descricao || enriched.atividade || '',
+      status:   'novo', prioridade: 'baixa',
+    });
+    // Mark as added
+    const crmKey = 'hist_crm_' + (empresa.cnpj||'').replace(/\D/g,'');
+    localStorage.setItem(crmKey, '1');
+    const btn = document.getElementById(crmKey);
+    if (btn) { btn.textContent = '✓ No CRM'; btn.classList.add('done'); }
+  }
+  window.histAddToCRM = histAddToCRM;
+
+  // ── Rebuscar ──
+  function histRebuscar(query) {
+    bSetTab('busca');
+    const inp = document.getElementById('b-query');
+    if (inp) inp.value = query;
+    bRunSearch();
+  }
+  window.histRebuscar = histRebuscar;
+
+  // ── Delete group ──
+  function histDelGroup(id) {
+    const hist = histLoad().filter(h => h.id !== id);
+    histSave(hist);
+    histRender();
+    histUpdCount();
+  }
+  window.histDelGroup = histDelGroup;
+
+  // ── Clear all history ──
+  function histClearAll() {
+    if (!confirm('Apagar todo o histórico?')) return;
+    histSave([]);
+    histRender();
+    histUpdCount();
+  }
+  window.histClearAll = histClearAll;
+
+  // ── Tab switching ──
+  function bSetTab(tab) {
+    bActiveTab = tab;
+    document.getElementById('b-tab-busca')?.classList.toggle('active', tab==='busca');
+    document.getElementById('b-tab-hist')?.classList.toggle('active', tab==='hist');
+    document.getElementById('b-panel-busca').style.display = tab==='busca' ? '' : 'none';
+    document.getElementById('b-panel-hist').style.display  = tab==='hist'  ? '' : 'none';
+    if (tab==='hist') histRender();
+  }
+  window.bSetTab = bSetTab;
+
   // Auto-push all search results to CRM Buscador when a search completes
   function bAutoAddBatchToCRM(empresas) {
     if (!Array.isArray(empresas) || !empresas.length) return;
+    // Save to history (deduplicated)
+    if (bLastQuery) histAddBatch(bLastQuery, empresas);
     if (typeof window.crmAddLeadFromSource !== 'function') return;
     empresas.forEach(e => {
       window.crmAddLeadFromSource('buscador', {

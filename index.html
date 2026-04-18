@@ -2749,8 +2749,11 @@
     if (btn) { btn.textContent = '✓ Adicionado!'; btn.style.background='#eaf3de'; btn.style.color='#3B6D11'; }
   }
 
-  // ── Init history count ──
-  setTimeout(histUpdCount, 500);
+  // ── Init history count + load from DB ──
+  setTimeout(() => {
+    histUpdCount();
+    histLoadFromDB();
+  }, 800);
 
   // ── Buscador → CRM Buscador ──
   function bAddToCRM(empresa) {
@@ -2789,6 +2792,20 @@
   }
   function histSave(data) {
     try { localStorage.setItem(HIST_KEY, JSON.stringify(data)); } catch(e) {}
+    // Sync to DB asynchronously
+    if (window._db) window._db.histSaveDB(data).catch(()=>{});
+  }
+  // Load from DB on init (overrides localStorage if DB has newer data)
+  async function histLoadFromDB() {
+    if (!window._db) return;
+    try {
+      const data = await window._db.histLoadDB();
+      if (data && data.length > 0) {
+        localStorage.setItem(HIST_KEY, JSON.stringify(data));
+        histUpdCount();
+        if (bActiveTab === 'hist') histRender();
+      }
+    } catch(e) {}
   }
 
   // ── Add batch to history (deduplicate by CNPJ) ──
@@ -3414,6 +3431,24 @@ async function _saveNeon() {
   }
 }
 async function carregarDados() {
+  // Try loading from Neon DB first
+  if (window._db) {
+    try {
+      const db = await window._db.waLoadDB();
+      if (db && (db.contacts?.length || db.listas?.length)) {
+        wa_contacts    = db.contacts    || [];
+        wa_listas      = db.listas      || [];
+        wa_logs        = db.logs        || [];
+        wa_crmData     = db.crm         || [];
+        wa_fila        = db.fila        || [];
+        wa_agendamentos= db.agendamentos|| [];
+        wa_savedMsg    = db.savedmsg    || '';
+        wa_tpls        = db.config?.tpls || [];
+        return; // loaded from DB, skip localStorage
+      }
+    } catch(e) {}
+  }
+
   try {
     const res = await fetch('/api/dados', {
       headers:{'x-user-key':'shared'}
@@ -6240,6 +6275,104 @@ document.addEventListener('DOMContentLoaded', function() {
   setInterval(dashUpdKPIs, 30000);
 });
 
+
+// ════════════════════════════════════════════
+//   RISE SST — PERSISTÊNCIA UNIVERSAL (Neon DB)
+//   Dados salvos no banco: sobrevivem a qualquer
+//   troca de navegador, celular, computador.
+// ════════════════════════════════════════════
+
+const DB_USER_KEY = 'rise_user';
+
+// ── Sync: salva no localStorage E no banco ──
+async function dbSave(storeKey, data) {
+  // 1. localStorage imediato (UX rápida)
+  try { localStorage.setItem('rise_db_' + storeKey, JSON.stringify(data)); } catch(e) {}
+
+  // 2. Banco em background
+  try {
+    await fetch('/api/dados', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-key':  DB_USER_KEY,
+        'x-store-key': storeKey,
+      },
+      body: JSON.stringify(data),
+    });
+  } catch(e) { console.warn('[DB] Falha ao salvar', storeKey, e.message); }
+}
+
+// ── Load: tenta banco primeiro, fallback localStorage ──
+async function dbLoad(storeKey) {
+  try {
+    const r = await fetch('/api/dados', {
+      headers: { 'x-user-key': DB_USER_KEY, 'x-store-key': storeKey }
+    });
+    if (r.ok) {
+      const data = await r.json();
+      // Atualiza localStorage com dados do banco
+      try { localStorage.setItem('rise_db_' + storeKey, JSON.stringify(data)); } catch(e) {}
+      return data;
+    }
+  } catch(e) { console.warn('[DB] Usando localStorage fallback para', storeKey); }
+
+  // Fallback localStorage
+  try {
+    const local = localStorage.getItem('rise_db_' + storeKey)
+               || localStorage.getItem(storeKey); // legacy keys
+    return local ? JSON.parse(local) : null;
+  } catch(e) { return null; }
+}
+
+// ── Histórico do Buscador: save/load via banco ──
+async function histSaveDB(data) {
+  try { localStorage.setItem('rise_buscador_historico', JSON.stringify(data)); } catch(e) {}
+  await dbSave('historico', { buscas: data });
+}
+
+async function histLoadDB() {
+  // Try DB first
+  const db = await dbLoad('historico');
+  if (db && Array.isArray(db.buscas) && db.buscas.length > 0) return db.buscas;
+  // Fallback localStorage
+  try {
+    const local = localStorage.getItem('rise_buscador_historico');
+    return local ? JSON.parse(local) : [];
+  } catch(e) { return []; }
+}
+
+// ── CRM: save/load via banco ──
+async function crmSaveDB(crmData, crmCols, empresaName) {
+  await dbSave('crm', { buscador: crmData.buscador||[], zap: crmData.zap||[], empresa: crmData.empresa||[], cols: crmCols||[], empresaName: empresaName||'Minha Empresa' });
+}
+
+async function crmLoadDB() {
+  const db = await dbLoad('crm');
+  if (db && (db.buscador||db.zap||db.empresa)) return db;
+  // Fallback: old localStorage keys
+  const fallback = { buscador:[], zap:[], empresa:[], cols:[], empresaName:'Minha Empresa' };
+  ['buscador','zap','empresa'].forEach(t => {
+    try {
+      const d = localStorage.getItem('rise_crm_'+t);
+      if (d) fallback[t] = JSON.parse(d);
+    } catch(e) {}
+  });
+  return fallback;
+}
+
+// ── WA: save/load via banco ──
+async function waSaveDB(data) {
+  await dbSave('wa', data);
+}
+
+async function waLoadDB() {
+  const db = await dbLoad('wa');
+  return db || { contacts:[], listas:[], logs:[], crm:[], fila:[], agendamentos:[], savedmsg:'', config:{} };
+}
+
+window._db = { save: dbSave, load: dbLoad, histSaveDB, histLoadDB, crmSaveDB, crmLoadDB, waSaveDB, waLoadDB };
+
 // ════════════════════════════════════════════
 //   RISE SST — CRM COM ABAS (v2)
 // ════════════════════════════════════════════
@@ -6286,9 +6419,15 @@ function crmSave() {
   TABS.forEach(t => localStorage.setItem(KEYS[t], JSON.stringify(crmData[t])));
   localStorage.setItem(KEYS.cols, JSON.stringify(crmCols));
   localStorage.setItem(KEYS.empName, empresaName);
-  // Async server sync (non-blocking)
+  // Sync to Neon DB
   clearTimeout(window._crmSyncTimer);
-  window._crmSyncTimer = setTimeout(crmServerSync, 2000);
+  window._crmSyncTimer = setTimeout(() => {
+    if (window._db) {
+      window._db.crmSaveDB(crmData, crmCols, empresaName).catch(()=>{});
+    } else {
+      crmServerSync();
+    }
+  }, 2000);
 }
 
 async function crmServerSync() {
@@ -6957,6 +7096,24 @@ window.crmAddLeadFromSource = function(tab, data) {
 
 // ── Init ──
 window.crmInit = async function() {
+  // Load from DB first (overrides localStorage)
+  if (window._db) {
+    window._db.crmLoadDB().then(dbData => {
+      if (dbData) {
+        TABS.forEach(t => {
+          if (Array.isArray(dbData[t]) && dbData[t].length >= (crmData[t]||[]).length) {
+            crmData[t] = dbData[t];
+            localStorage.setItem(KEYS[t], JSON.stringify(crmData[t]));
+          }
+        });
+        if (dbData.cols?.length) { crmCols = dbData.cols; localStorage.setItem(KEYS.cols, JSON.stringify(crmCols)); }
+        if (dbData.empresaName)  { empresaName = dbData.empresaName; localStorage.setItem(KEYS.empName, empresaName); }
+        TABS.forEach(t => crmUpdKPIs(t));
+        if (document.getElementById('crm-panel-buscador')?.classList.contains('active')) crmRenderTab('buscador');
+      }
+    }).catch(()=>{});
+  }
+
   // Clear any old demo/test data on version upgrade
   const CRM_VERSION = '2.0';
   if (localStorage.getItem('rise_crm_version') !== CRM_VERSION) {

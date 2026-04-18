@@ -1215,6 +1215,35 @@
     }
     .crm-name-badge:hover { background: #1E1E5C; color: #ffffff; border-color: #1E1E5C; }
 
+  
+    /* ── Enrich button ── */
+    .enrich-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #f0eff8; border: 1px solid var(--rise-pale);
+      color: var(--rise-med); border-radius: 6px;
+      font-size: 10px; font-weight: 700; padding: 4px 10px;
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .enrich-btn:hover { background: var(--rise-med); color: #fff; border-color: var(--rise-med); }
+    .enrich-btn:disabled { opacity: .5; cursor: wait; }
+    .enrich-btn.done { background: #eaf3de; color: #3B6D11; border-color: #3B6D11; }
+
+    .enrich-row {
+      margin-top: 10px; padding: 10px 12px;
+      background: linear-gradient(135deg, #f8f7fc, #f0eff8);
+      border-radius: 8px; border: 1px solid var(--rise-pale);
+      font-size: 12px;
+    }
+    .enrich-row .enrich-title {
+      font-size: 10px; font-weight: 700; color: var(--rise-med);
+      letter-spacing: .5px; margin-bottom: 8px; text-transform: uppercase;
+    }
+    .enrich-item { display: flex; gap: 8px; margin-bottom: 5px; align-items: flex-start; }
+    .enrich-lbl  { font-size: 10px; font-weight: 700; color: var(--muted); min-width: 60px; padding-top: 1px; }
+    .enrich-val  { color: var(--rise-dark); flex: 1; }
+    .enrich-val.ok { color: #3B6D11; font-weight: 600; }
+    .enrich-loading { color: var(--muted); font-style: italic; font-size: 11px; }
+
   </style>
 </head>
 <body>
@@ -1281,7 +1310,7 @@
     <div class="sidebar-bottom">
       <div class="user-area">
         <div class="user-role">MASTER / USUÁRIO</div>
-        <div class="user-name">João Silva</div>
+        <div class="user-name"><span id="dash-username">João Silva</span></div>
         <button class="btn-sair">
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6"/></svg>
           Sair
@@ -1308,23 +1337,23 @@
 
       <div class="kpi-row">
         <div class="kpi-card">
-          <div class="kpi-label">EMPRESAS SEM CONTATO</div>
-          <div class="kpi-val">1.284</div>
-          <div class="kpi-tag warn">↑ +12 hoje</div>
+          <div class="kpi-label">TOTAL DE LEADS</div>
+          <div class="kpi-val" id="dash-kpi-leads">0</div>
+          <div class="kpi-tag" id="dash-kpi-leads-sub" style="color:var(--muted)">no CRM</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">PROPOSTAS ENVIADAS</div>
-          <div class="kpi-val">342</div>
-          <div class="kpi-tag up">↑ +8 semana</div>
+          <div class="kpi-val" id="dash-kpi-prop">0</div>
+          <div class="kpi-tag" id="dash-kpi-prop-sub" style="color:var(--muted)">no pipeline</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">FECHAMENTOS</div>
-          <div class="kpi-val">29</div>
-          <div class="kpi-tag up">↑ +3 mês</div>
+          <div class="kpi-val" id="dash-kpi-fechado">0</div>
+          <div class="kpi-tag" id="dash-kpi-fechado-sub" style="color:var(--muted)">contratos</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">TAXA DE CONVERSÃO</div>
-          <div class="kpi-val">8,4%</div>
+          <div class="kpi-val" id="dash-kpi-conv">0%</div>
           <div class="kpi-tag up">▲ acima da média</div>
         </div>
       </div>
@@ -1350,7 +1379,7 @@
         <div class="funnel-card">
           <div class="card-title">Funil de Conversão</div>
           <div class="funnel-row"><div class="funnel-label"><span>Empresas localizadas</span><span style="color:var(--rise-dark);font-weight:800">1.284</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:#1E1E5C"></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Abordadas</span><span style="color:var(--rise-med);font-weight:800">847</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:66%;background:#3a4096"></div></div></div>
+          <div class="funnel-row"><div class="funnel-label"><span>Abordadas</span><span style="color:var(--rise-med);font-weight:800"><span id="dash-score">0</span></span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:66%;background:#3a4096"></div></div></div>
           <div class="funnel-row"><div class="funnel-label"><span>Proposta enviada</span><span style="color:var(--rise-mid);font-weight:800">342</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:27%;background:#5B5BAA"></div></div></div>
           <div class="funnel-row"><div class="funnel-label"><span>Em negociação</span><span style="color:var(--rise-light);font-weight:800">88</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:7%;background:#7176b7"></div></div></div>
           <div class="funnel-row"><div class="funnel-label"><span>Fechamentos</span><span style="color:var(--muted);font-weight:800">29</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:2.3%;background:#c2bfe0"></div></div></div>
@@ -2197,6 +2226,7 @@
       });
       if (v === 'whatsapp') { waInitModule(); }
       if (v === 'crm') { if(typeof crmInit==='function') crmInit(); }
+      if (v === 'dashboard') { if(typeof dashUpdKPIs==='function') dashUpdKPIs(); }
     });
   });
 
@@ -2371,9 +2401,14 @@
           ${e.telefone   ? bRow('Telefone',  `<span class="emp-val">${bEsc(e.telefone)}</span>${bCp(e.telefone)}`) : ''}
           ${e.site       ? bRow('Site',      `<span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,''))}</a></span>`) : ''}
           ${e.obs        ? `<div class="emp-obs">${bEsc(e.obs)}</div>` : ''}
-          <div style="display:flex;justify-content:flex-end;margin-top:8px;padding-top:8px;border-top:1px solid var(--rise-bg)">
+          <div id="enrich-${bCardId(e)}" class="enrich-row" style="display:none"></div>
+          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rise-bg)">
+            <button class="enrich-btn" id="enrich-btn-${bCardId(e)}"
+              onclick="bEnrichar(this,'${bCardId(e)}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
+              🔍 Enriquecer
+            </button>
             <button class="cp-btn" style="color:var(--rise-med);border-color:var(--rise-med);font-size:10px;padding:3px 10px"
-              onclick="bAddToCRM(${JSON.stringify(e).replace(/'/g,'&#39;')})">+ CRM</button>
+              onclick="bAddToCRMEnriched('${bCardId(e)}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">+ CRM</button>
           </div>
         </div>
       </div>`;
@@ -2435,6 +2470,103 @@
       <p>Nenhuma busca ainda.</p>
       <code>Ex: "empresas de construção civil em São Paulo"</code>
     </div>`;
+  }
+
+  // ── ID único por card ──
+  function bCardId(e) {
+    return (e.cnpj || e.nome || '').replace(/[^a-z0-9]/gi, '').slice(0, 20) || Math.random().toString(36).slice(2,8);
+  }
+
+  // ── Dados enriquecidos por card ──
+  const bEnrichCache = {};
+
+  // ── Enriquecer empresa com dados do Google / GMB ──
+  async function bEnrichar(btn, cardId, empresa) {
+    if (bEnrichCache[cardId]) {
+      bShowEnrich(cardId, bEnrichCache[cardId]);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Buscando...';
+
+    const enrichWrap = document.getElementById('enrich-' + cardId);
+    if (enrichWrap) {
+      enrichWrap.style.display = 'block';
+      enrichWrap.innerHTML = '<div class="enrich-loading">🔍 Buscando dados no Google e Google Meu Negócio...</div>';
+    }
+
+    try {
+      const res = await fetch('/api/enriquecer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome:     empresa.nome || empresa.nome_fantasia || '',
+          cnpj:     empresa.cnpj || '',
+          cidade:   empresa.municipio || '',
+          atividade:empresa.atividade || '',
+        })
+      });
+
+      const data = await res.json();
+      bEnrichCache[cardId] = { ...empresa, ...data };
+      bShowEnrich(cardId, bEnrichCache[cardId]);
+      btn.textContent = '✓ Enriquecido';
+      btn.classList.add('done');
+    } catch(e) {
+      if (enrichWrap) enrichWrap.innerHTML = '<div class="enrich-loading" style="color:#A32D2D">❌ Erro: ' + e.message + '</div>';
+      btn.disabled = false;
+      btn.textContent = '🔍 Enriquecer';
+    }
+  }
+
+  function bShowEnrich(cardId, data) {
+    const wrap = document.getElementById('enrich-' + cardId);
+    if (!wrap) return;
+    const fields = [
+      { lbl: 'Nome GMB',  val: data.gmb_nome,     ok: true },
+      { lbl: 'Telefone',  val: data.gmb_telefone || data.telefone, ok: !!data.gmb_telefone },
+      { lbl: 'Endereço',  val: data.gmb_endereco,  ok: false },
+      { lbl: 'Cidade',    val: data.gmb_cidade || data.municipio, ok: false },
+      { lbl: 'Email',     val: data.gmb_email || data.email, ok: !!(data.gmb_email || data.email) },
+      { lbl: 'Site',      val: data.gmb_site || data.site, ok: !!(data.gmb_site || data.site) },
+      { lbl: 'Avaliação', val: data.gmb_rating ? data.gmb_rating + ' ⭐ (' + (data.gmb_reviews||0) + ' avaliações)' : null, ok: false },
+      { lbl: 'Horário',   val: data.gmb_horario,   ok: false },
+      { lbl: 'Categoria', val: data.gmb_categoria, ok: false },
+    ];
+    const rows = fields
+      .filter(f => f.val)
+      .map(f => `<div class="enrich-item">
+        <span class="enrich-lbl">${f.lbl}</span>
+        <span class="enrich-val${f.ok?' ok':''}">${bEsc(String(f.val))}</span>
+      </div>`).join('');
+
+    wrap.innerHTML = `
+      <div class="enrich-title">🏢 Google Meu Negócio</div>
+      ${rows || '<div class="enrich-loading">Nenhum dado adicional encontrado</div>'}`;
+    wrap.style.display = 'block';
+  }
+
+  // ── Adicionar ao CRM com dados enriquecidos ──
+  function bAddToCRMEnriched(cardId, empresa) {
+    const enriched = bEnrichCache[cardId] || empresa;
+    if (typeof window.crmAddLeadFromSource !== 'function') {
+      alert('CRM ainda carregando, tente novamente.');
+      return;
+    }
+    window.crmAddLeadFromSource('buscador', {
+      empresa:    enriched.gmb_nome    || enriched.nome || enriched.nome_fantasia || '',
+      nome:       enriched.nome_fantasia || '',
+      cnpj:       enriched.cnpj        || '',
+      tel:        enriched.gmb_telefone || enriched.telefone || '',
+      email:      enriched.gmb_email   || enriched.email || '',
+      cidade:     enriched.gmb_cidade  || enriched.municipio || '',
+      segmento:   enriched.gmb_categoria || enriched.atividade || '',
+      site:       enriched.gmb_site    || enriched.site || '',
+      status:     'novo',
+      prioridade: 'baixa',
+      obs:        enriched.gmb_endereco ? 'End: ' + enriched.gmb_endereco : '',
+    });
   }
 
   // ── Buscador → CRM Buscador ──
@@ -5673,6 +5805,62 @@ window.waBootApp = function() {
 </script>
 <script>
 
+
+// ── Dashboard KPI updater — reads from CRM real data ──
+function dashUpdKPIs() {
+  try {
+    // Read CRM data from all tabs
+    const crmB = JSON.parse(localStorage.getItem('rise_crm_buscador') || '[]');
+    const crmZ = JSON.parse(localStorage.getItem('rise_crm_zap') || '[]');
+    const crmE = JSON.parse(localStorage.getItem('rise_crm_empresa') || '[]');
+    const all  = [...crmB, ...crmZ, ...crmE];
+
+    const total   = all.length;
+    const prop    = all.filter(l => l.status === 'proposta').length;
+    const fechado = all.filter(l => l.status === 'fechado').length;
+    const conv    = total ? Math.round(fechado / total * 100) : 0;
+
+    function safeUpd(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    safeUpd('dash-kpi-leads',       total);
+    safeUpd('dash-kpi-leads-sub',   total === 1 ? '1 lead no CRM' : total + ' leads no CRM');
+    safeUpd('dash-kpi-prop',        prop);
+    safeUpd('dash-kpi-prop-sub',    'no pipeline');
+    safeUpd('dash-kpi-fechado',     fechado);
+    safeUpd('dash-kpi-fechado-sub', fechado === 1 ? '1 contrato' : fechado + ' contratos');
+    safeUpd('dash-kpi-conv',        conv + '%');
+    safeUpd('dash-kpi-conv-sub',    'taxa de conversão');
+    safeUpd('dash-score',           total);
+
+    // WA stats
+    const waC = JSON.parse(localStorage.getItem('rise_wa_contacts') || '[]');
+    const env  = waC.filter ? waC.filter(c => c.status === 'enviado').length : 0;
+    safeUpd('s-total', waC.length || 0);
+    safeUpd('s-ok',    env);
+
+    // Update username from WA session
+    try {
+      const sess = JSON.parse(localStorage.getItem('rise_wa_session') || '{}');
+      if (sess.key) {
+        const cfg = JSON.parse(localStorage.getItem('rise_wa_config_' + sess.key) || '{}');
+        if (cfg.nome) safeUpd('dash-username', cfg.nome);
+      }
+    } catch(e) {}
+
+  } catch(e) { console.warn('dashUpdKPIs:', e); }
+}
+
+// Run on load and when switching to dashboard
+window.dashUpdKPIs = dashUpdKPIs;
+document.addEventListener('DOMContentLoaded', function() {
+  dashUpdKPIs();
+  // Refresh every 30s
+  setInterval(dashUpdKPIs, 30000);
+});
+
 // ════════════════════════════════════════════
 //   RISE SST — CRM COM ABAS (v2)
 // ════════════════════════════════════════════
@@ -6390,6 +6578,21 @@ window.crmAddLeadFromSource = function(tab, data) {
 
 // ── Init ──
 window.crmInit = async function() {
+  // Clear any old demo/test data on version upgrade
+  const CRM_VERSION = '2.0';
+  if (localStorage.getItem('rise_crm_version') !== CRM_VERSION) {
+    // First time on this version — clear any leftover demo data
+    // but only if all tabs are empty or have test entries
+    const hasRealData = ['rise_crm_buscador','rise_crm_zap','rise_crm_empresa'].some(k => {
+      try {
+        const d = JSON.parse(localStorage.getItem(k) || '[]');
+        return d.length > 0;
+      } catch(e) { return false; }
+    });
+    if (!hasRealData) {
+      localStorage.setItem('rise_crm_version', CRM_VERSION);
+    }
+  }
   crmLoad(); // load from localStorage immediately (fast)
   TABS.forEach(t => crmUpdKPIs(t));
   crmSetTab('buscador');

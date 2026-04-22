@@ -78,7 +78,7 @@
     .btn-export:hover { background: var(--rise-mid); }
 
     /* ── LAYOUT ── */
-    .main-layout { display: flex; flex: 1; }
+    .main-layout { display: flex; flex: 1; min-height: 100vh; }
 
     /* ── SIDEBAR ── */
     .sidebar {
@@ -1684,18 +1684,6 @@
 
 
 <!-- ── TOP BAR ── -->
-<div class="topbar">
-  <div class="logo-area">
-    <img src="data:image/png;base64,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" alt="RISE SST" style="width:34px;height:34px;object-fit:contain;border-radius:0;flex-shrink:0">
-    <span class="logo-text">RISE</span>
-    <span class="logo-badge">SST</span>
-  </div>
-  <div class="topbar-right">
-    <span class="topbar-date" id="topbar-date"></span>
-    <button class="btn-export">↓ Exportar Relatórios</button>
-  </div>
-</div>
-
 <div class="main-layout">
 
   <!-- ── SIDEBAR ── -->
@@ -1730,9 +1718,9 @@
       </div>
 
       <div class="sidebar-section-label" style="margin-top:20px;">INTELIGÊNCIA</div>
-      <div class="nav-item" data-view="ia">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a5 5 0 100 10A5 5 0 008 2z"/><path d="M8 5v3l2 1"/></svg>
-        IA de Atendimento
+      <div class="nav-item" data-view="ia-sst">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
+        RISE IA
       </div>
 
       <div class="sidebar-section-label" style="margin-top:20px;">ANÁLISE</div>
@@ -2618,16 +2606,71 @@
 
 
     <!-- VIEW: IA -->
-    <div id="view-ia" style="display:none;">
-      <div class="placeholder-screen">
-        <div class="placeholder-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5B5BAA" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>
+    <div id="view-ia-sst" style="display:none;">
+  <div style="height:100%;display:flex;flex-direction:column;background:#F8F7FC">
+
+    <!-- IA Header -->
+    <div style="background:#1E1E5C;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00C47C" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="#00C47C"/><circle cx="12" cy="10" r="1" fill="#00C47C"/><circle cx="15" cy="10" r="1" fill="#00C47C"/></svg>
         </div>
-        <h3>IA de Atendimento</h3>
-        <p>Responda dúvidas de clientes sobre SST automaticamente com inteligência artificial.</p>
-        <div class="badge-em-breve">EM BREVE</div>
+        <div>
+          <div style="font-size:17px;font-weight:800;color:#fff;line-height:1">RISE IA</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">Inteligência Artificial especializada em SST</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="ia-btn-limpar" onclick="iaLimparChat()" style="padding:6px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:7px;color:rgba(255,255,255,.6);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">
+          🗑 Limpar
+        </button>
+        <select id="ia-modo" onchange="iaTrocarModo(this.value)" style="padding:6px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;outline:none">
+          <option value="comercial">💼 Assistente Comercial</option>
+          <option value="diagnostico">🔍 Diagnóstico Empresarial</option>
+          <option value="objecoes">🛡 Responder Objeções</option>
+          <option value="proposta">📄 Gerar Proposta</option>
+          <option value="script">📞 Script de Atendimento</option>
+          <option value="followup">🔄 Follow-up</option>
+          <option value="conhecimento">📚 Base de Conhecimento SST</option>
+        </select>
       </div>
     </div>
+
+    <!-- Mode description bar -->
+    <div id="ia-modo-desc" style="background:#252578;padding:8px 24px;font-size:11px;color:rgba(255,255,255,.55);flex-shrink:0">
+      💼 Modo Assistente Comercial — Gere scripts, argumente objeções, sugira upsell e crie propostas para serviços SST
+    </div>
+
+    <!-- Chat area -->
+    <div id="ia-chat" style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;min-height:0">
+      <!-- Welcome message injected by JS -->
+    </div>
+
+    <!-- Quick action chips -->
+    <div id="ia-chips" style="padding:8px 24px 4px;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;background:#fff;border-top:1px solid #E7E6F4">
+    </div>
+
+    <!-- Input area -->
+    <div style="padding:12px 24px 16px;background:#fff;border-top:1px solid #E7E6F4;flex-shrink:0">
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <textarea id="ia-input" placeholder="Digite sua pergunta sobre SST, vendas, objeções ou diagnóstico..."
+          style="flex:1;padding:12px 14px;border:1.5px solid #E7E6F4;border-radius:10px;font-size:13px;font-family:inherit;resize:none;min-height:44px;max-height:120px;outline:none;line-height:1.5;color:#1E1E5C;background:#F8F7FC;transition:border-color .15s"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();iaEnviar()}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
+          onfocus="this.style.borderColor='#3a4096'"
+          onblur="this.style.borderColor='#E7E6F4'"></textarea>
+        <button onclick="iaEnviar()" id="ia-send-btn"
+          style="width:44px;height:44px;border-radius:10px;background:#1E1E5C;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s"
+          onmouseover="this.style.background='#3a4096'" onmouseout="this.style.background='#1E1E5C'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="white"/></svg>
+        </button>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:#A0A8C0;text-align:center">
+        RISE IA usa Claude Sonnet · Especializada em SST, vendas e diagnóstico empresarial · <span id="ia-creditos-bar">–</span> créditos
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- VIEW: HISTÓRICO -->
     <div id="view-historico" style="display:none;">
@@ -2659,7 +2702,7 @@
 <script>
   /* ─── TOPBAR DATE ─── */
   const d = new Date();
-  document.getElementById('topbar-date').textContent =
+  if(document.getElementById('topbar-date')) document.getElementById('topbar-date').textContent =
     d.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 
   /* ─── NAVIGATION ─── */
@@ -8180,6 +8223,338 @@ function loginLogout() {
   localStorage.removeItem(LOGIN_SESSION_KEY); location.reload();
 }
 window.loginLogout = loginLogout;
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   RISE IA — Inteligência Artificial Especializada em SST
+//   Módulos: Comercial, Diagnóstico, Objeções, Proposta, Script,
+//            Follow-up, Base de Conhecimento
+// ═══════════════════════════════════════════════════════════════
+
+const IA_HISTORY_KEY = 'rise_ia_historico';
+let iaMessages = []; // {role, content, ts}
+let iaModoAtual = 'comercial';
+
+const IA_MODOS = {
+  comercial:    { label:'💼 Assistente Comercial',    desc:'Gere scripts, argumente objeções, sugira upsell e crie propostas para serviços SST', cor:'#1E1E5C' },
+  diagnostico:  { label:'🔍 Diagnóstico Empresarial',  desc:'Analise dados da empresa, identifique gargalos e receba recomendações priorizadas',   cor:'#854F0B' },
+  objecoes:     { label:'🛡 Responder Objeções',        desc:'Respostas consultivas para: está caro, já tenho fornecedor, depois eu vejo, e mais',   cor:'#3a4096' },
+  proposta:     { label:'📄 Gerar Proposta',            desc:'Crie propostas comerciais persuasivas e personalizadas por segmento de cliente',        cor:'#3B6D11' },
+  script:       { label:'📞 Script de Atendimento',     desc:'Scripts estruturados para abordagem, diagnóstico e fechamento de clientes SST',         cor:'#5B5BAA' },
+  followup:     { label:'🔄 Follow-up',                 desc:'Mensagens e e-mails de follow-up para reativar leads e fechar contratos pendentes',      cor:'#C05621' },
+  conhecimento: { label:'📚 Base de Conhecimento SST', desc:'Consulte normas, serviços SST, perfis de clientes e diferenciais competitivos',          cor:'#065A82' },
+};
+
+const IA_CHIPS = {
+  comercial:    ['Abordagem para indústria', 'Script para construtora', 'Como vender PGR?', 'Upsell após PCMSO', 'Perguntas de diagnóstico'],
+  diagnostico:  ['Analisar minha empresa', 'Gargalos comerciais', 'Diagnóstico operacional', 'Plano de ação 5W2H', 'Indicadores SST'],
+  objecoes:     ['"Está caro"', '"Já tenho fornecedor"', '"Depois eu vejo"', '"Só preciso do básico"', '"Vou pensar"'],
+  proposta:     ['Proposta PGR + PCMSO', 'Proposta completa SST', 'Para indústria pequena', 'Para transportadora', 'Renovação de contrato'],
+  script:       ['Script de primeiro contato', 'Script WhatsApp', 'Perguntas de diagnóstico', 'Fechamento consultivo', 'Reativação de lead'],
+  followup:     ['Follow-up 3 dias', 'Follow-up proposta enviada', 'Reativação 30 dias', 'Pós-fechamento', 'Upsell cliente ativo'],
+  conhecimento: ['O que é PGR?', 'Diferença PCMSO x LTCAT', 'Grau de risco NR-4', 'eSocial SST obrigações', 'Treinamentos NR obrigatórios'],
+};
+
+const SYSTEM_PROMPT = `Você é a RISE IA — uma inteligência artificial especializada em Saúde e Segurança do Trabalho (SST) e em negócios de empresas prestadoras de serviços SST.
+
+PERFIL:
+Você pensa como: consultor comercial sênior + analista de processos + gestor de melhorias + especialista técnico em SST.
+
+SERVIÇOS QUE A EMPRESA OFERECE:
+- PGR (Programa de Gerenciamento de Riscos)
+- PCMSO (Programa de Controle Médico de Saúde Ocupacional)  
+- LTCAT (Laudo Técnico das Condições Ambientais do Trabalho)
+- Laudos de insalubridade e periculosidade
+- Treinamentos NR (NR-1, NR-5, NR-6, NR-10, NR-12, NR-35 e outros)
+- eSocial SST (eventos S-2210, S-2220, S-2240)
+- Consultoria recorrente em SST
+- CIPA, PCA, PPRA, ASO, PPP
+
+PERFIS DE CLIENTES:
+- Indústria de pequeno e médio porte (grau de risco 3 e 4)
+- Construtoras (obra, canteiro, NR-18)
+- Transportadoras (NR-11, motoristas, logística)
+- Clínicas e hospitais (NR-32, saúde ocupacional)
+- Escritórios administrativos (grau de risco 1 e 2)
+- Empresas com múltiplas unidades
+- MEI e microempresas
+
+QUANDO DIAGNOSTICAR PROBLEMAS, responda SEMPRE neste formato:
+1. 🔍 Diagnóstico
+2. 🎯 Causa provável
+3. 📊 Impacto no resultado
+4. ✅ Ação recomendada
+5. 🚨 Prioridade (Alta/Média/Baixa)
+6. ⚡ Próximo passo prático
+
+QUANDO RESPONDER COMERCIALMENTE, considere sempre:
+- Perfil do cliente e setor
+- Dor provável e urgência legal
+- Nível de maturidade em SST
+- Valor percebido vs custo
+- Argumento consultivo (não só técnico)
+
+QUANDO RESPONDER OBJEÇÕES use a técnica: Empatia → Reframe → Prova → CTA
+
+RESPOSTAS:
+- Use markdown com negrito, listas e emojis estratégicos
+- Seja direto, prático e orientado a resultado
+- Máximo 400 palavras por resposta (a menos que solicitado contrário)
+- Sempre termine com uma pergunta ou próximo passo acionável`;
+
+// ── Init when view opens ──
+function iaInit() {
+  // Render credits
+  const cred = document.getElementById('ia-creditos-bar');
+  if (cred && typeof creditsGet === 'function') cred.textContent = creditsGet();
+
+  // Load saved history
+  try {
+    const saved = JSON.parse(localStorage.getItem(IA_HISTORY_KEY) || '[]');
+    if (saved.length > 0) {
+      iaMessages = saved;
+      iaRenderAll();
+    } else {
+      iaWelcome();
+    }
+  } catch(e) { iaWelcome(); }
+
+  iaRenderChips();
+}
+
+function iaWelcome() {
+  const modo = IA_MODOS[iaModoAtual];
+  iaPushBot(`# 👋 Olá! Sou a **RISE IA**
+
+Estou pronta para ajudar sua empresa de SST a **vender mais, fechar melhor e crescer**.
+
+**Modo atual:** ${modo.label}
+${modo.desc}
+
+**O que posso fazer por você agora?**
+- 💼 Gerar scripts de vendas para qualquer perfil de cliente
+- 🛡 Responder objeções de forma consultiva  
+- 🔍 Diagnosticar gargalos da sua operação
+- 📄 Criar propostas comerciais persuasivas
+- 📚 Tirar dúvidas técnicas sobre SST e normas
+
+Use os atalhos abaixo ou digite sua pergunta! 👇`);
+}
+
+// ── Send message ──
+async function iaEnviar() {
+  const input = document.getElementById('ia-input');
+  const msg = (input?.value || '').trim();
+  if (!msg) return;
+
+  // Check credits
+  if (typeof creditsCheckAndConsume === 'function') {
+    const ok = creditsCheckAndConsume('RISE IA: ' + msg.slice(0, 40));
+    if (!ok) return;
+  }
+
+  input.value = '';
+  input.style.height = '44px';
+
+  // Add user message
+  iaPushUser(msg);
+
+  // Show typing indicator
+  const typingId = 'typing-' + Date.now();
+  iaAddTyping(typingId);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT + '\n\nMODO ATIVO: ' + IA_MODOS[iaModoAtual].label,
+        messages: iaMessages
+          .filter(m => m.role !== 'system')
+          .slice(-10)
+          .map(m => ({ role: m.role, content: m.content }))
+      })
+    });
+
+    document.getElementById(typingId)?.remove();
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      iaPushBot('⚠️ **Erro ao conectar com a IA.** Verifique sua conexão e tente novamente.\n\nDetalhe: ' + (err.error?.message || response.status));
+      return;
+    }
+
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || 'Sem resposta.';
+    iaPushBot(reply);
+
+    // Save history
+    iaMessages = iaMessages.slice(-20); // keep last 20
+    localStorage.setItem(IA_HISTORY_KEY, JSON.stringify(iaMessages));
+
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    iaPushBot('⚠️ **Erro de conexão.** Verifique sua internet e tente novamente.\n\n`' + e.message + '`');
+  }
+}
+window.iaEnviar = iaEnviar;
+
+// ── Push messages ──
+function iaPushUser(text) {
+  iaMessages.push({ role: 'user', content: text, ts: Date.now() });
+  iaRenderMsg({ role: 'user', content: text });
+  iaScrollBottom();
+}
+
+function iaPushBot(text) {
+  iaMessages.push({ role: 'assistant', content: text, ts: Date.now() });
+  iaRenderMsg({ role: 'assistant', content: text });
+  iaScrollBottom();
+}
+
+function iaAddTyping(id) {
+  const chat = document.getElementById('ia-chat');
+  if (!chat) return;
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:flex;gap:10px;align-items:flex-start';
+  div.innerHTML = `
+    <div style="width:30px;height:30px;border-radius:8px;background:#1E1E5C;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00C47C" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div style="background:#fff;border:1px solid #E7E6F4;border-radius:12px;padding:12px 16px;display:flex;gap:5px;align-items:center">
+      <div style="width:6px;height:6px;border-radius:50%;background:#5B5BAA;animation:iaPulse .8s ease infinite"></div>
+      <div style="width:6px;height:6px;border-radius:50%;background:#5B5BAA;animation:iaPulse .8s ease .16s infinite"></div>
+      <div style="width:6px;height:6px;border-radius:50%;background:#5B5BAA;animation:iaPulse .8s ease .32s infinite"></div>
+    </div>`;
+  chat.appendChild(div);
+  iaScrollBottom();
+}
+
+// ── Render single message ──
+function iaRenderMsg(m) {
+  const chat = document.getElementById('ia-chat');
+  if (!chat) return;
+  const isUser = m.role === 'user';
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:10px;align-items:flex-start' + (isUser ? ';flex-direction:row-reverse' : '');
+
+  const avatar = isUser
+    ? `<div style="width:30px;height:30px;border-radius:8px;background:#E7E6F4;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#5B5BAA">U</div>`
+    : `<div style="width:30px;height:30px;border-radius:8px;background:#1E1E5C;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00C47C" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>`;
+
+  const bubbleStyle = isUser
+    ? 'background:#1E1E5C;border-radius:12px 4px 12px 12px;padding:10px 14px;max-width:70%;color:#fff;font-size:13px;line-height:1.55'
+    : 'background:#fff;border:1px solid #E7E6F4;border-radius:4px 12px 12px 12px;padding:12px 16px;max-width:82%;font-size:13px;line-height:1.65;color:#1E1E5C';
+
+  const renderedContent = isUser
+    ? m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')
+    : iaMarkdownToHtml(m.content);
+
+  div.innerHTML = avatar + `<div style="${bubbleStyle}">${renderedContent}</div>`;
+  chat.appendChild(div);
+}
+
+function iaRenderAll() {
+  const chat = document.getElementById('ia-chat');
+  if (!chat) return;
+  chat.innerHTML = '';
+  iaMessages.forEach(m => iaRenderMsg(m));
+  iaScrollBottom();
+}
+
+// ── Simple markdown renderer ──
+function iaMarkdownToHtml(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm, '<h4 style="margin:12px 0 4px;font-size:13px;color:#1E1E5C">$1</h4>')
+    .replace(/^## (.+)$/gm,  '<h3 style="margin:14px 0 6px;font-size:14px;color:#1E1E5C">$1</h3>')
+    .replace(/^# (.+)$/gm,   '<h2 style="margin:0 0 10px;font-size:16px;color:#1E1E5C">$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,   '<em>$1</em>')
+    .replace(/`(.+?)`/g,      '<code style="background:#F0EFF8;padding:1px 5px;border-radius:4px;font-size:11px;color:#3a4096">$1</code>')
+    .replace(/^- (.+)$/gm,    '<li style="margin:3px 0;padding-left:4px">$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm,'<li style="margin:3px 0;padding-left:4px"><strong>$1.</strong> $2</li>')
+    .replace(/(<li.*<\/li>\n?)+/g, m => '<ul style="margin:6px 0;padding-left:18px">'+m+'</ul>')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+}
+
+// ── Chips (quick action buttons) ──
+function iaRenderChips() {
+  const chips = IA_CHIPS[iaModoAtual] || [];
+  const container = document.getElementById('ia-chips');
+  if (!container) return;
+  container.innerHTML = chips.map(c =>
+    `<button onclick="iaChipClick(this)" style="padding:5px 12px;background:#F0EFF8;border:1px solid #D0CEF0;border-radius:999px;font-size:11px;font-weight:600;color:#3a4096;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s"
+      onmouseover="this.style.background='#1E1E5C';this.style.color='#fff'"
+      onmouseout="this.style.background='#F0EFF8';this.style.color='#3a4096'">${c}</button>`
+  ).join('');
+}
+
+function iaChipClick(btn) {
+  const input = document.getElementById('ia-input');
+  if (input) {
+    input.value = btn.textContent;
+    input.focus();
+    iaEnviar();
+  }
+}
+window.iaChipClick = iaChipClick;
+
+// ── Mode switching ──
+function iaTrocarModo(modo) {
+  iaModoAtual = modo;
+  const desc = document.getElementById('ia-modo-desc');
+  if (desc) desc.textContent = IA_MODOS[modo].label + ' — ' + IA_MODOS[modo].desc;
+  iaRenderChips();
+  // Add a system note in chat
+  const m = IA_MODOS[modo];
+  iaPushBot(`**Modo alterado: ${m.label}**\n\n${m.desc}\n\nComo posso ajudar?`);
+}
+window.iaTrocarModo = iaTrocarModo;
+
+function iaLimparChat() {
+  if (!confirm('Limpar histórico da conversa?')) return;
+  iaMessages = [];
+  localStorage.removeItem(IA_HISTORY_KEY);
+  const chat = document.getElementById('ia-chat');
+  if (chat) chat.innerHTML = '';
+  iaWelcome();
+}
+window.iaLimparChat = iaLimparChat;
+
+function iaScrollBottom() {
+  const chat = document.getElementById('ia-chat');
+  if (chat) setTimeout(() => chat.scrollTop = chat.scrollHeight, 50);
+}
+
+// ── CSS for typing animation ──
+if (!document.getElementById('ia-css')) {
+  const s = document.createElement('style');
+  s.id = 'ia-css';
+  s.textContent = `
+    @keyframes iaPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+    #ia-chat { scrollbar-width: thin; scrollbar-color: #C2BFE0 transparent; }
+    #ia-chat::-webkit-scrollbar { width: 4px; }
+    #ia-chat::-webkit-scrollbar-track { background: transparent; }
+    #ia-chat::-webkit-scrollbar-thumb { background: #C2BFE0; border-radius: 99px; }
+  `;
+  document.head.appendChild(s);
+}
+
+// ── Hook into navigation: init when IA view opens ──
+const _origGo = window.go;
+window.go = function(view) {
+  if (typeof _origGo === 'function') _origGo(view);
+  if (view === 'ia-sst') {
+    setTimeout(iaInit, 100);
+  }
+};
 </script>
 
 </body>

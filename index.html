@@ -84,15 +84,15 @@
     .sidebar {
       background: var(--rise-dark);
       width: 200px;
-      min-height: calc(100vh - 52px);
-      padding: 20px 0;
+      min-height: 100vh;
+      padding: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border-right: 1px solid var(--rise-med);
       position: sticky;
-      top: 52px;
-      height: calc(100vh - 52px);
+      top: 0;
+      height: 100vh;
       overflow-y: auto;
     }
     .sidebar-section-label {
@@ -1666,7 +1666,6 @@
 </div>
 
 
-<!-- ── TOP BAR ── -->
 <div class="main-layout">
 
   <!-- ── SIDEBAR ── -->
@@ -2971,15 +2970,15 @@
     .sidebar {
       background: var(--rise-dark);
       width: 200px;
-      min-height: calc(100vh - 52px);
-      padding: 20px 0;
+      min-height: 100vh;
+      padding: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border-right: 1px solid var(--rise-med);
       position: sticky;
-      top: 52px;
-      height: calc(100vh - 52px);
+      top: 0;
+      height: 100vh;
       overflow-y: auto;
     }
     .sidebar-section-label {
@@ -4464,8 +4463,15 @@
   if(document.getElementById('topbar-date')) document.getElementById('topbar-date').textContent =
     d.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 
+  /* ─── GLOBAL HELPERS ─── */
+  function safeSet(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+  window.safeSet = safeSet;
+
   /* ─── NAVIGATION ─── */
-  const views = ['dashboard','buscador','whatsapp','crm','ia','historico','analise'];
+  const views = ['dashboard','buscador','whatsapp','crm','ia-sst','historico','analise','configuracoes'];
 
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.addEventListener('click', function() {
@@ -4479,6 +4485,9 @@
       if (v === 'whatsapp') { waInitModule(); }
       if (v === 'crm') { if(typeof crmInit==='function') crmInit(); }
       if (v === 'dashboard') { if(typeof dashUpdKPIs==='function') { dashUpdKPIs(); dashRenderLog('leads'); } }
+      if (v === 'ia-sst') { setTimeout(function(){ if(typeof iaInit==='function') iaInit(); }, 150); }
+      if (v === 'historico') { setTimeout(histActivityLoad, 100); }
+      if (v === 'configuracoes') { setTimeout(cfgLoad, 100); }
     });
   });
 

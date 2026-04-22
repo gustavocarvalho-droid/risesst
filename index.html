@@ -1460,9 +1460,228 @@
     .b-credit-badge.low  { background: #FCEBEB; border-color: #A32D2D33; color: #A32D2D; }
     .b-credit-badge.zero { background: #A32D2D; color: #fff; border-color: #A32D2D; }
 
+  
+    /* ══ TELA DE LOGIN ══ */
+    #login-screen {
+      position: fixed; inset: 0; z-index: 99999;
+      background: linear-gradient(135deg, #0D0D3A 0%, #1E1E5C 50%, #2A2A70 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Figtree', sans-serif;
+    }
+    #login-screen.hidden { display: none; }
+
+    .login-bg-stripes {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .login-stripe {
+      position: absolute; background: rgba(91,91,170,.18);
+      border-radius: 4px;
+    }
+
+    .login-box {
+      position: relative; z-index: 1;
+      background: rgba(255,255,255,.04); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px; padding: 44px 40px 36px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.4);
+    }
+
+    .login-logo-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 32px; gap: 10px;
+    }
+    .login-logo-img {
+      width: 64px; height: 64px; object-fit: contain;
+    }
+    .login-logo-name {
+      font-size: 28px; font-weight: 800; color: #fff; letter-spacing: 2px;
+    }
+    .login-logo-name span {
+      background: #fff; color: #1E1E5C;
+      font-size: 11px; font-weight: 800;
+      padding: 2px 7px; border-radius: 4px;
+      vertical-align: middle; margin-left: 4px;
+    }
+    .login-subtitle {
+      font-size: 12px; color: rgba(255,255,255,.45);
+      text-align: center; margin-top: -6px;
+    }
+
+    .login-tab-row {
+      display: flex; gap: 0; margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .login-tab {
+      flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,.4); border: none; background: none;
+      cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: all .15s;
+      font-family: 'Figtree', sans-serif;
+    }
+    .login-tab.active { color: #fff; border-bottom-color: #00C47C; }
+
+    .login-panel { display: none; }
+    .login-panel.active { display: block; }
+
+    .login-field { margin-bottom: 16px; }
+    .login-field label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,.5); margin-bottom: 6px; letter-spacing: .5px;
+    }
+    .login-field input {
+      width: 100%; box-sizing: border-box;
+      padding: 12px 14px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.07); color: #fff;
+      font-size: 14px; font-family: 'Figtree', sans-serif;
+      outline: none; transition: border-color .15s;
+    }
+    .login-field input::placeholder { color: rgba(255,255,255,.25); }
+    .login-field input:focus { border-color: #00C47C; }
+
+    .login-btn {
+      width: 100%; padding: 13px; border-radius: 10px;
+      border: none; background: #00C47C; color: #0D3A1E;
+      font-size: 15px; font-weight: 800; cursor: pointer;
+      font-family: 'Figtree', sans-serif; transition: all .15s;
+      margin-top: 8px;
+    }
+    .login-btn:hover { background: #00E090; transform: translateY(-1px); }
+    .login-btn:active { transform: translateY(0); }
+
+    .login-msg {
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+      font-size: 12px; text-align: center; display: none;
+    }
+    .login-msg.error   { background: rgba(163,45,45,.2); color: #FF8080; border: 1px solid rgba(163,45,45,.3); }
+    .login-msg.success { background: rgba(0,196,124,.15); color: #80FFB8; border: 1px solid rgba(0,196,124,.3); }
+
+    .login-links {
+      display: flex; justify-content: space-between;
+      margin-top: 20px; flex-wrap: wrap; gap: 6px;
+    }
+    .login-link {
+      font-size: 11px; color: rgba(255,255,255,.4);
+      cursor: pointer; transition: color .15s;
+    }
+    .login-link:hover { color: #00C47C; }
+
+    .login-cta-bar {
+      margin-top: 24px; padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      text-align: center;
+    }
+    .login-cta-btn {
+      display: inline-block; padding: 10px 22px;
+      background: rgba(37,211,102,.15); border: 1px solid rgba(37,211,102,.35);
+      border-radius: 8px; color: #25D366; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .15s; font-family: 'Figtree', sans-serif;
+    }
+    .login-cta-btn:hover { background: rgba(37,211,102,.28); }
+
+    @keyframes loginFadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .login-box { animation: loginFadeIn .35s ease; }
+
   </style>
 </head>
 <body>
+
+<!-- ══ TELA DE LOGIN RISE SST ══ -->
+<div id="login-screen">
+  <!-- Background stripes decoration -->
+  <div class="login-bg-stripes">
+    <div class="login-stripe" style="width:6px;height:70%;top:-5%;right:12%;transform:rotate(18deg)"></div>
+    <div class="login-stripe" style="width:6px;height:80%;top:-5%;right:9%;transform:rotate(18deg)"></div>
+    <div class="login-stripe" style="width:6px;height:90%;top:-5%;right:6%;transform:rotate(18deg)"></div>
+    <div class="login-stripe" style="width:6px;height:70%;top:-5%;left:12%;transform:rotate(-18deg);opacity:.6"></div>
+    <div class="login-stripe" style="width:6px;height:80%;top:-5%;left:8%;transform:rotate(-18deg);opacity:.4"></div>
+  </div>
+
+  <div class="login-box">
+    <!-- Logo -->
+    <div class="login-logo-wrap">
+      <img src="data:image/png;base64,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" class="login-logo-img" alt="RISE SST">
+      <div>
+        <div class="login-logo-name">RISE <span>SST</span></div>
+        <div class="login-subtitle">Ecossistema Completo de SST</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="login-tab-row">
+      <button class="login-tab active" id="tab-login" onclick="loginSetTab('login')">Entrar</button>
+      <button class="login-tab" id="tab-forgot" onclick="loginSetTab('forgot')">Esqueci a senha</button>
+      <button class="login-tab" id="tab-first" onclick="loginSetTab('first')">Primeiro acesso</button>
+    </div>
+
+    <!-- Panel: Login -->
+    <div id="panel-login" class="login-panel active">
+      <div class="login-field">
+        <label>USUÁRIO</label>
+        <input type="text" id="login-user" placeholder="seu usuário" autocomplete="username"
+          onkeydown="if(event.key==='Enter')loginDoLogin()">
+      </div>
+      <div class="login-field">
+        <label>SENHA</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')loginDoLogin()">
+      </div>
+      <button class="login-btn" onclick="loginDoLogin()">ENTRAR →</button>
+      <div id="login-msg" class="login-msg"></div>
+      <div class="login-links">
+        <span class="login-link" onclick="loginSetTab('forgot')">Esqueci minha senha</span>
+        <span class="login-link" onclick="loginSetTab('first')">Primeiro acesso</span>
+      </div>
+    </div>
+
+    <!-- Panel: Esqueci a senha -->
+    <div id="panel-forgot" class="login-panel">
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 18px">
+        Informe seu e-mail cadastrado e enviaremos instruções para redefinir sua senha.
+      </p>
+      <div class="login-field">
+        <label>SEU E-MAIL</label>
+        <input type="email" id="forgot-email" placeholder="seu@email.com"
+          onkeydown="if(event.key==='Enter')loginSendEmail('forgot')">
+      </div>
+      <button class="login-btn" onclick="loginSendEmail('forgot')">ENVIAR INSTRUÇÕES</button>
+      <div id="forgot-msg" class="login-msg"></div>
+      <div class="login-links">
+        <span class="login-link" onclick="loginSetTab('login')">← Voltar ao login</span>
+      </div>
+    </div>
+
+    <!-- Panel: Primeiro acesso -->
+    <div id="panel-first" class="login-panel">
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 18px">
+        Informe seu e-mail para solicitar suas credenciais de acesso ao RISE SST.
+      </p>
+      <div class="login-field">
+        <label>SEU E-MAIL</label>
+        <input type="email" id="first-email" placeholder="seu@email.com"
+          onkeydown="if(event.key==='Enter')loginSendEmail('first')">
+      </div>
+      <div class="login-field">
+        <label>SEU NOME</label>
+        <input type="text" id="first-name" placeholder="Seu nome completo">
+      </div>
+      <button class="login-btn" onclick="loginSendEmail('first')">SOLICITAR ACESSO</button>
+      <div id="first-msg" class="login-msg"></div>
+      <div class="login-links">
+        <span class="login-link" onclick="loginSetTab('login')">← Voltar ao login</span>
+      </div>
+    </div>
+
+    <!-- CTA WhatsApp -->
+    <div class="login-cta-bar">
+      <button class="login-cta-btn" onclick="loginWhatsApp()">
+        📲 Quero saber mais!
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <!-- ── TOP BAR ── -->
 <div class="topbar">
@@ -1535,7 +1754,7 @@
       <div class="user-area">
         <div class="user-role">MASTER / USUÁRIO</div>
         <div class="user-name"><span id="dash-username">João Silva</span></div>
-        <button class="btn-sair">
+        <button class="btn-sair" onclick="loginLogout()">
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6"/></svg>
           Sair
         </button>
@@ -2649,10 +2868,16 @@
           ${e.site       ? bRow('Site',      `<span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,''))}</a></span>`) : ''}
           ${e.obs        ? `<div class="emp-obs">${bEsc(e.obs)}</div>` : ''}
           <div id="enrich-${bCardId(e)}" class="enrich-row" style="display:none"></div>
-          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rise-bg)">
+          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rise-bg);flex-wrap:wrap">
             <button class="enrich-btn" id="enrich-btn-${bCardId(e)}"
               onclick="bEnrichar(this,'${bCardId(e)}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
               🔍 Enriquecer
+            </button>
+            <button class="cp-btn" id="wa-disp-btn-${(e.cnpj||'').replace(/\D/g,'')}"
+              style="color:#25D366;border-color:#25D366;font-size:10px;padding:3px 10px;background:transparent;display:flex;align-items:center;gap:4px"
+              onclick="bEnviarParaDisparoWA(${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')}, this)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Disparo WA
             </button>
             <button class="cp-btn${jaAdded?' done':''}" id="hist-crm-btn-${(e.cnpj||'').replace(/\D/g,'')}"
               style="color:${jaAdded?'#3B6D11':'var(--rise-med)'};border-color:${jaAdded?'#3B6D11':'var(--rise-med)'};font-size:10px;padding:3px 10px;background:${jaAdded?'#eaf3de':'transparent'}"
@@ -3135,6 +3360,106 @@
     }
   }
   window.bSetTab = bSetTab;
+
+
+  // ══ Enviar empresa do Buscador para lista de Disparo WA ══
+  const WA_BUSCA_LIST_NAME = 'WhatsApp Buscas CNPJ';
+
+  function bEnviarParaDisparoWA(empresa, btnEl) {
+    // Get or create phone number
+    const enriched = bEnrichCache[bCardId(empresa)] || empresa;
+    const tel = (enriched.gmb_whatsapp || enriched.receita_telefone || enriched.gmb_telefone || enriched.telefone || '').replace(/\D/g,'');
+
+    if (!tel) {
+      // No phone — still add to list with name/cnpj, phone can be filled later
+      const confirm = window.confirm('Nenhum telefone encontrado para esta empresa.\nDeseja adicionar mesmo assim à lista (sem número)?');
+      if (!confirm) return;
+    }
+
+    // Format phone: add 55 if needed
+    let fmtTel = tel;
+    if (fmtTel && !fmtTel.startsWith('55')) fmtTel = '55' + fmtTel;
+
+    const nome    = enriched.receita_razao_social || enriched.nome || enriched.nome_fantasia || 'Empresa';
+    const cidade  = enriched.municipio || enriched.gmb_cidade || '';
+    const cnpj    = (empresa.cnpj || '').replace(/\D/g,'');
+
+    // Find or create "WhatsApp Buscas CNPJ" list in wa_listas
+    let lista = wa_listas.find(l => l.nome === WA_BUSCA_LIST_NAME);
+    if (!lista) {
+      lista = {
+        id:        'lista_busca_cnpj',
+        nome:      WA_BUSCA_LIST_NAME,
+        contatos:  [],
+        createdAt: Date.now(),
+        obs:       'Lista criada automaticamente pelo Buscador de Empresas CNPJ',
+      };
+      wa_listas.unshift(lista);
+    }
+
+    // Deduplicate by CNPJ or phone
+    const already = lista.contatos.some(c =>
+      (cnpj && c.cnpj === cnpj) || (fmtTel && c.tel === fmtTel)
+    );
+    if (already) {
+      if (btnEl) {
+        btnEl.textContent = '✓ Já na lista';
+        btnEl.style.color = '#25D366';
+        setTimeout(() => {
+          btnEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Disparo WA';
+          btnEl.style.color = '#25D366';
+        }, 1500);
+      }
+      return;
+    }
+
+    // Add contact
+    lista.contatos.push({
+      id:        Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      nome,
+      tel:       fmtTel || '',
+      cidade,
+      cnpj,
+      segmento:  enriched.cnae_descricao || enriched.atividade || '',
+      origem:    'buscador_cnpj',
+      addedAt:   Date.now(),
+      status:    'pendente',
+    });
+
+    // Also add to wa_contacts global list if not there
+    if (fmtTel && !wa_contacts.some(c => c.tel === fmtTel)) {
+      wa_contacts.push({
+        id:     Date.now().toString(36),
+        nome,
+        tel:    fmtTel,
+        cidade,
+        cnpj,
+        status: 'pendente',
+      });
+    }
+
+    // Save
+    salvarDados();
+
+    // Visual feedback on button
+    if (btnEl) {
+      btnEl.innerHTML = '✓ Adicionado!';
+      btnEl.style.color = '#25D366';
+      btnEl.style.borderColor = '#25D366';
+      btnEl.style.background = 'rgba(37,211,102,.08)';
+      setTimeout(() => {
+        btnEl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Disparo WA';
+      }, 2000);
+    }
+
+    // Show toast
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1E1E5C;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;border-left:4px solid #25D366;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:slideUp .2s ease';
+    toast.textContent = '✓ ' + nome.slice(0,30) + ' adicionado à lista "' + WA_BUSCA_LIST_NAME + '"';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+  window.bEnviarParaDisparoWA = bEnviarParaDisparoWA;
 
   // Auto-push all search results to CRM Buscador when a search completes
   function bAutoAddBatchToCRM(empresas) {
@@ -7752,6 +8077,110 @@ if (document.getElementById('view-crm')?.style.display !== 'none') {
         </div>
       </div>
     </div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+//   RISE SST — SISTEMA DE LOGIN
+// ═══════════════════════════════════════════════════════
+const LOGIN_SESSION_KEY = 'rise_session_v1';
+const LOGIN_CREDENTIALS = { user: 'gustavo1996c', pass: '1996' };
+const LOGIN_EMAIL_ADMIN = 'gustavo.carvalho@swgconsulting.com.br';
+const LOGIN_WA_NUMBER   = '5511979668226';
+
+(function checkSession() {
+  try {
+    const sess = localStorage.getItem(LOGIN_SESSION_KEY);
+    if (sess) {
+      const d = JSON.parse(sess);
+      if (d.expires && Date.now() < d.expires) { loginHideScreen(); return; }
+    }
+  } catch(e) {}
+  const scr = document.getElementById('login-screen');
+  const top = document.querySelector('.topbar');
+  const lay = document.querySelector('.main-layout');
+  if (scr) scr.classList.remove('hidden');
+  if (top) top.style.display = 'none';
+  if (lay) lay.style.display = 'none';
+})();
+
+function loginHideScreen() {
+  const scr = document.getElementById('login-screen');
+  const top = document.querySelector('.topbar');
+  const lay = document.querySelector('.main-layout');
+  if (scr) scr.classList.add('hidden');
+  if (top) top.style.display = '';
+  if (lay) lay.style.display = '';
+}
+
+function loginSetTab(tab) {
+  ['login','forgot','first'].forEach(t => {
+    document.getElementById('tab-'+t)?.classList.toggle('active', t===tab);
+    document.getElementById('panel-'+t)?.classList.toggle('active', t===tab);
+  });
+  ['login-msg','forgot-msg','first-msg'].forEach(id => {
+    const el=document.getElementById(id); if(el){el.style.display='none';el.textContent='';}
+  });
+}
+window.loginSetTab = loginSetTab;
+
+function loginShowMsg(id, type, text) {
+  const el=document.getElementById(id); if(!el)return;
+  el.className='login-msg '+type; el.textContent=text; el.style.display='block';
+}
+
+function loginDoLogin() {
+  const user=(document.getElementById('login-user')?.value||'').trim();
+  const pass=(document.getElementById('login-pass')?.value||'').trim();
+  if(!user||!pass){loginShowMsg('login-msg','error','Preencha usuário e senha.');return;}
+  if(user===LOGIN_CREDENTIALS.user && pass===LOGIN_CREDENTIALS.pass){
+    localStorage.setItem(LOGIN_SESSION_KEY, JSON.stringify({
+      user, loggedAt:Date.now(), expires:Date.now()+30*24*60*60*1000
+    }));
+    loginShowMsg('login-msg','success','✓ Acesso liberado! Carregando...');
+    setTimeout(()=>{
+      loginHideScreen();
+      if(typeof dashUpdKPIs==='function')dashUpdKPIs();
+      if(typeof creditsUpdUI==='function')creditsUpdUI();
+    }, 600);
+  } else {
+    loginShowMsg('login-msg','error','Usuário ou senha incorretos.');
+    const p=document.getElementById('login-pass'); if(p){p.value='';p.focus();}
+  }
+}
+window.loginDoLogin = loginDoLogin;
+
+async function loginSendEmail(type) {
+  const emailEl=document.getElementById(type==='forgot'?'forgot-email':'first-email');
+  const nameEl=document.getElementById('first-name');
+  const msgId=type==='forgot'?'forgot-msg':'first-msg';
+  const email=(emailEl?.value||'').trim();
+  const name=(nameEl?.value||'').trim();
+  if(!email||!email.includes('@')){loginShowMsg(msgId,'error','Informe um e-mail válido.');return;}
+  loginShowMsg(msgId,'success','⏳ Enviando...');
+  const subject=type==='forgot'
+    ?encodeURIComponent('RISE SST — Redefinição de Senha')
+    :encodeURIComponent('RISE SST — Solicitação de Primeiro Acesso');
+  const body=type==='forgot'
+    ?encodeURIComponent('Olá!\n\nSolicitação de redefinição de senha para: '+email+'\n\nRISE SST')
+    :encodeURIComponent('Olá!\n\nNovo pedido de primeiro acesso:\n\nNome: '+(name||'—')+'\nE-mail: '+email+'\n\nRISE SST');
+  window.open('mailto:'+LOGIN_EMAIL_ADMIN+'?subject='+subject+'&body='+body);
+  loginShowMsg(msgId,'success','✓ Solicitação enviada! Verifique seu e-mail em até 24h.');
+  if(emailEl) emailEl.value='';
+}
+window.loginSendEmail = loginSendEmail;
+
+function loginWhatsApp() {
+  const msg=encodeURIComponent('Olá! Quero saber mais sobre o RISE SST 🚀');
+  window.open('https://wa.me/'+LOGIN_WA_NUMBER+'?text='+msg,'_blank');
+}
+window.loginWhatsApp = loginWhatsApp;
+
+function loginLogout() {
+  localStorage.removeItem(LOGIN_SESSION_KEY); location.reload();
+}
+window.loginLogout = loginLogout;
+</script>
 
 </body>
 </html>

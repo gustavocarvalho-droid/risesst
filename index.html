@@ -3507,6 +3507,18 @@ let _currentUserData = null;
 async function usuariosInitSession() {
   const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
   if (!sess.user) return;
+
+  // Apply from session cache immediately (no flash)
+  if (sess.isMaster === false) {
+    // Non-master: apply restrictions while DB loads
+    const cachedUser = { is_master: false, empresa: sess.empresa || '', ...sess };
+    if (cachedUser.acesso_buscador === undefined) {
+      // No cached permissions yet - wait for DB
+    } else {
+      usuariosApplyAccess(cachedUser);
+    }
+  }
+
   try {
     const r = await fetch('/api/usuarios', {
       method: 'POST',
@@ -3515,16 +3527,20 @@ async function usuariosInitSession() {
     });
     if (r.ok) {
       const d = await r.json();
-      _currentUserData = d.user;
-      usuariosApplyAccess(d.user);
-      // Update sidebar logo/name
-      if (d.user.logo_url) {
-        const logoEls = document.querySelectorAll('.sidebar-logo-img');
-        logoEls.forEach(el => el.src = d.user.logo_url);
-      }
-      if (d.user.empresa) {
-        const nameEl = document.getElementById('dash-username');
-        if (nameEl) nameEl.textContent = d.user.empresa;
+      if (d.user) {
+        _currentUserData = d.user;
+        // Update session cache with permissions
+        const updSess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+        Object.assign(updSess, {
+          isMaster: d.user.is_master,
+          empresa: d.user.empresa,
+          acesso_buscador: d.user.acesso_buscador,
+          acesso_whatsapp: d.user.acesso_whatsapp,
+          acesso_crm: d.user.acesso_crm,
+          acesso_ia: d.user.acesso_ia,
+        });
+        localStorage.setItem('rise_session_v1', JSON.stringify(updSess));
+        usuariosApplyAccess(d.user);
       }
     }
   } catch(e) { console.warn('usuariosInitSession:', e.message); }
@@ -3532,42 +3548,82 @@ async function usuariosInitSession() {
 
 function usuariosApplyAccess(user) {
   if (!user) return;
-  // Show/hide master-only nav
+
+  // Store current user globally for access checks
+  window._currentUser = user;
+
+  // ── Master nav ──
   const navU = document.getElementById('nav-usuarios');
-  if (navU) navU.style.display = user.is_master ? '' : 'none';
-  // Fallback: also show if session user is gustavo1996c
   const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
-  if (navU && sess.user === 'gustavo1996c') navU.style.display = '';
-  // Show/hide product navs based on access
-  const navMap = {
-    'data-view="buscador"': user.acesso_buscador,
-    'data-view="whatsapp"': user.acesso_whatsapp,
-    'data-view="crm"':      user.acesso_crm,
-    'data-view="ia-sst"':   user.acesso_ia,
+  const isMaster = user.is_master || sess.user === 'gustavo1996c';
+  if (navU) navU.style.display = isMaster ? '' : 'none';
+
+  // ── Module access ──
+  const access = {
+    buscador: isMaster || user.acesso_buscador,
+    whatsapp: isMaster || user.acesso_whatsapp,
+    crm:      isMaster || user.acesso_crm,
+    'ia-sst': isMaster || user.acesso_ia,
   };
+
   document.querySelectorAll('.nav-item[data-view]').forEach(el => {
     const view = el.dataset.view;
-    if (view === 'buscador' && !user.acesso_buscador && !user.is_master)
-      el.style.opacity = '0.4';
-    if (view === 'whatsapp' && !user.acesso_whatsapp && !user.is_master)
-      el.style.opacity = '0.4';
-    if (view === 'crm' && !user.acesso_crm && !user.is_master)
-      el.style.opacity = '0.4';
-    if (view === 'ia-sst' && !user.acesso_ia && !user.is_master)
-      el.style.opacity = '0.4';
+    if (!(view in access)) return;
+    const allowed = access[view];
+    if (allowed) {
+      el.style.opacity   = '';
+      el.style.cursor    = '';
+      el.style.pointerEvents = '';
+      el.title = '';
+      // Remove lock icon if present
+      const lock = el.querySelector('.nav-lock');
+      if (lock) lock.remove();
+    } else {
+      el.style.opacity   = '0.4';
+      el.style.cursor    = 'not-allowed';
+      el.style.pointerEvents = 'none';
+      el.title = '🔒 Módulo não incluso no seu plano. Fale com o administrador.';
+      // Add lock icon
+      if (!el.querySelector('.nav-lock')) {
+        const lock = document.createElement('span');
+        lock.className = 'nav-lock';
+        lock.style.cssText = 'margin-left:auto;font-size:11px;opacity:.7';
+        lock.textContent = '🔒';
+        el.appendChild(lock);
+      }
+    }
   });
-  // Update credit limits from DB
-  if (!user.is_master) {
-    // Override local credits with DB limits
-    try {
-      const remaining_busca = Math.max(0, user.limite_busca - user.busca_usada);
-      const remaining_disp  = Math.max(0, user.limite_disparo - user.disparo_usado);
-      // Update UI
-      const credEl = document.getElementById('dash-credits');
-      if (credEl) credEl.textContent = remaining_busca;
-      const dispEl = document.getElementById('dash-wa-disp');
-      if (dispEl) dispEl.textContent = remaining_disp;
-    } catch(e) {}
+
+  // ── Update sidebar user info ──
+  const nameEl = document.getElementById('dash-username');
+  if (nameEl && user.empresa) nameEl.textContent = user.empresa;
+  const roleEl = document.querySelector('.user-role');
+  if (roleEl) roleEl.textContent = isMaster ? 'MASTER' : (user.plano||'USUÁRIO').toUpperCase();
+
+  // ── Update logo in sidebar ──
+  if (user.logo_url) {
+    const logoEls = document.querySelectorAll('.sidebar-logo-img, #sidebar-rise-logo');
+    logoEls.forEach(el => {
+      el.src = user.logo_url;
+      el.style.borderRadius = '6px';
+    });
+  }
+
+  // ── Credit limits from DB ──
+  if (!isMaster) {
+    const remBusca = Math.max(0, (user.limite_busca||25) - (user.busca_usada||0));
+    const remDisp  = Math.max(0, (user.limite_disparo||200) - (user.disparo_usado||0));
+    const credEl = document.getElementById('dash-credits');
+    const dispEl = document.getElementById('dash-wa-disp');
+    const subEl  = document.getElementById('dash-credits-sub');
+    const dispSubEl = document.getElementById('dash-wa-disp-sub');
+    if (credEl) credEl.textContent = remBusca;
+    if (dispEl) dispEl.textContent = remDisp;
+    if (subEl)  subEl.textContent  = `Renova em ${user.limite_busca||25} créditos`;
+    if (dispSubEl) dispSubEl.textContent = `${user.disparo_usado||0} usados este mês`;
+
+    // Override local credit system with DB values
+    window._dbCredits = { busca: remBusca, disparo: remDisp, user };
   }
 }
 
@@ -5564,6 +5620,26 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.addEventListener('click', function() {
       const v = this.dataset.view;
+
+      // ── Access guard ──
+      if (window._currentUser && !window._currentUser.is_master) {
+        const blocked = {
+          buscador: !window._currentUser.acesso_buscador,
+          whatsapp: !window._currentUser.acesso_whatsapp,
+          crm:      !window._currentUser.acesso_crm,
+          'ia-sst': !window._currentUser.acesso_ia,
+        };
+        if (blocked[v]) {
+          // Show blocked toast
+          const t = document.createElement('div');
+          t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1E1E5C;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.3);text-align:center';
+          t.innerHTML = '🔒 Este módulo não está disponível no seu plano.<br><small style="opacity:.7">Fale com o administrador para liberar o acesso.</small>';
+          document.body.appendChild(t);
+          setTimeout(() => t.remove(), 3500);
+          return; // Block navigation
+        }
+      }
+
       document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
       this.classList.add('active');
       views.forEach(id => {

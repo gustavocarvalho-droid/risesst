@@ -1721,9 +1721,18 @@
       </div>
 
       <div class="sidebar-section-label" style="margin-top:20px;">SISTEMA</div>
+      <div class="nav-item" data-view="usuarios" id="nav-usuarios" style="display:none">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/><circle cx="12" cy="5" r="2"/><path d="M12 9a3 3 0 012.5 3"/></svg>
+        Usuários
+      </div>
       <div class="nav-item" data-view="configuracoes">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/></svg>
         Configurações
+      </div>
+      <div class="nav-item" data-view="usuarios" data-master-only style="display:none">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/><circle cx="12" cy="5" r="2"/><path d="M12 8c1.7 0 3 1.3 3 3"/></svg>
+        Usuários
+        <span id="master-alerts-badge" style="display:none;background:#ff9800;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:999px;margin-left:4px"></span>
       </div>
     </div>
 
@@ -1925,6 +1934,210 @@
       </div>
     </div>
     <!-- /view-configuracoes -->
+
+
+    <!-- VIEW: USUÁRIOS (Master Only) -->
+    <div id="view-usuarios" style="display:none;">
+      <div class="content-header">
+        <div>
+          <div class="page-title">👥 Gerenciar Usuários</div>
+          <div class="page-subtitle">Controle de acesso, limites e módulos por empresa</div>
+        </div>
+        <button onclick="openEditUser(null)" style="padding:9px 18px;background:#1E1E5C;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
+          + Novo Usuário
+        </button>
+      </div>
+
+      <!-- Tabs: Usuários / Histórico -->
+      <div style="display:flex;gap:0;border-bottom:2px solid #E7E6F4;margin-bottom:20px">
+        <button id="users-tab-lista" onclick="usersSetTab('lista')" style="padding:10px 20px;font-size:13px;font-weight:600;color:#1E1E5C;border:none;background:none;cursor:pointer;border-bottom:3px solid #1E1E5C;margin-bottom:-2px;font-family:inherit">
+          👥 Usuários
+        </button>
+        <button id="users-tab-history" onclick="usersSetTab('history')" style="padding:10px 20px;font-size:13px;font-weight:600;color:#8892AA;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit">
+          📋 Histórico
+        </button>
+      </div>
+
+      <!-- Panel: Lista de usuários -->
+      <div id="users-panel-lista">
+        <div id="users-panel-list" style="display:flex;flex-direction:column;gap:12px">
+          <div style="text-align:center;padding:40px;color:#8892AA">Carregando usuários...</div>
+        </div>
+      </div>
+
+      <!-- Panel: Histórico de atividades -->
+      <div id="users-panel-history" style="display:none">
+        <div style="background:#fff;border:1px solid #E7E6F4;border-radius:12px;padding:20px">
+          <div style="font-size:14px;font-weight:700;color:#1E1E5C;margin-bottom:16px">📋 Histórico de Atividades de Todos os Usuários</div>
+          <div id="users-activity-list"></div>
+        </div>
+      </div>
+    </div>
+    <!-- /view-usuarios -->
+
+
+    <!-- VIEW: USUÁRIOS (Master only) -->
+    <div id="view-usuarios" style="display:none;">
+      <div class="content-header">
+        <div>
+          <div class="page-title">👥 Gerenciar Usuários</div>
+          <div class="page-subtitle">Crie e gerencie os acessos das empresas clientes</div>
+        </div>
+        <button onclick="usuariosOpenCreate()"
+          style="padding:9px 18px;background:#1E1E5C;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">
+          + Novo Usuário
+        </button>
+      </div>
+
+      <!-- Alertas de crédito baixo -->
+      <div id="usuarios-alertas" style="margin-bottom:16px"></div>
+
+      <!-- Cards de usuários -->
+      <div id="usuarios-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:20px">
+        <div style="text-align:center;padding:40px;color:#8892AA;grid-column:1/-1">
+          <div style="font-size:24px;margin-bottom:8px">👥</div>
+          <div style="font-size:13px">Carregando usuários...</div>
+        </div>
+      </div>
+
+      <!-- Histórico de atividades -->
+      <div style="background:#fff;border:1px solid #E7E6F4;border-radius:12px;padding:20px">
+        <div style="font-size:14px;font-weight:700;color:#1E1E5C;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+          📋 Histórico de Todas as Empresas
+          <select id="usuarios-hist-filter" onchange="usuariosLoadActivity()"
+            style="padding:5px 10px;border:1px solid #E7E6F4;border-radius:6px;font-size:12px;color:#1E1E5C;font-family:inherit">
+            <option value="ALL">Todos os usuários</option>
+          </select>
+        </div>
+        <div id="usuarios-activity" style="font-size:12px;color:#8892AA">Carregando...</div>
+      </div>
+    </div>
+    <!-- /view-usuarios -->
+
+    <!-- MODAL: Criar/Editar Usuário -->
+    <div id="usuarios-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:center;justify-content:center;padding:16px">
+      <div style="background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="background:#1E1E5C;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0">
+          <div style="font-size:16px;font-weight:800;color:#fff" id="usuarios-modal-title">Novo Usuário</div>
+          <button onclick="usuariosCloseModal()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;padding:0 4px">×</button>
+        </div>
+        <div style="padding:24px">
+
+          <!-- Logo da empresa -->
+          <div style="text-align:center;margin-bottom:20px">
+            <div id="usuarios-logo-preview" style="width:80px;height:80px;border-radius:12px;background:#E7E6F4;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden">
+              🏢
+            </div>
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:4px">LOGO DA EMPRESA</label>
+            <input type="file" id="usuarios-logo-file" accept="image/*" onchange="usuariosPreviewLogo(this)"
+              style="font-size:11px;font-family:inherit">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="grid-column:1/-1">
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME DA EMPRESA *</label>
+              <input id="u-empresa" type="text" placeholder="Ex: Construtora ABC Ltda"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">USUÁRIO *</label>
+              <input id="u-username" type="text" placeholder="usuario123"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">SENHA *</label>
+              <input id="u-password" type="text" placeholder="senha123"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME DO RESPONSÁVEL</label>
+              <input id="u-nome" type="text" placeholder="João Silva"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">EMAIL</label>
+              <input id="u-email" type="email" placeholder="email@empresa.com"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">PLANO</label>
+              <select id="u-plano" onchange="usuariosApplyPlan(this.value)"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none">
+                <option value="starter">🥉 Starter</option>
+                <option value="profissional">🥈 Profissional</option>
+                <option value="business">🥇 Business</option>
+                <option value="enterprise">🏆 Enterprise</option>
+                <option value="personalizado">⚙️ Personalizado</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Produtos -->
+          <div style="margin-top:16px;padding:14px;background:#F8F7FC;border-radius:10px">
+            <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:10px">ACESSO AOS PRODUTOS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="u-buscador" checked style="width:16px;height:16px;cursor:pointer">
+                🔍 Buscador de Empresas
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="u-whatsapp" checked style="width:16px;height:16px;cursor:pointer">
+                📱 WhatsApp Disparos
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="u-crm" checked style="width:16px;height:16px;cursor:pointer">
+                📋 CRM
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+                <input type="checkbox" id="u-ia" checked style="width:16px;height:16px;cursor:pointer">
+                🤖 RISE IA
+              </label>
+            </div>
+          </div>
+
+          <!-- Limites de crédito -->
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">💎 LIMITE BUSCAS / 45 DIAS</label>
+              <input id="u-limite-busca" type="number" value="25" min="0" max="999999"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">📱 LIMITE DISPAROS / MÊS</label>
+              <input id="u-limite-disparo" type="number" value="200" min="0" max="999999"
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">OBSERVAÇÕES</label>
+            <textarea id="u-obs" rows="2" placeholder="Notas internas sobre este cliente..."
+              style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none;resize:vertical"
+              onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'"></textarea>
+          </div>
+
+          <div id="usuarios-modal-msg" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
+
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button onclick="usuariosCloseModal()"
+              style="flex:1;padding:11px;background:#fff;color:#8892AA;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+              Cancelar
+            </button>
+            <button id="usuarios-save-btn" onclick="usuariosSave()"
+              style="flex:2;padding:11px;background:#1E1E5C;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+              Salvar Usuário
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- VIEW: BUSCADOR DE EMPRESAS -->
     <div id="view-buscador" style="display:none;">
@@ -3202,6 +3415,903 @@ document.addEventListener('DOMContentLoaded', function() {
   Object.keys(expose).forEach(function(k) {
     if (expose[k] !== null) window[k] = expose[k];
   });
+});
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — SISTEMA MULTI-TENANT / MASTER
+// ═══════════════════════════════════════════════════════════════
+const MASTER_ID       = 'gustavo_master_001';
+const MASTER_EMAIL    = 'gustavo1996c';
+const MASTER_SENHA    = localStorage.getItem('rise_custom_pass') || '1996';
+
+// ── Current session ──
+function getSessionUser() {
+  try {
+    const s = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    return s.user || null;
+  } catch(e) { return null; }
+}
+
+function isMaster() {
+  const u = getSessionUser();
+  return u === MASTER_EMAIL || u === 'master';
+}
+
+// ── Load users from DB ──
+async function usersLoad() {
+  try {
+    const r = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'list', masterId: MASTER_ID })
+    });
+    const d = await r.json();
+    return d.users || [];
+  } catch(e) { return []; }
+}
+
+async function userCreate(userData) {
+  const r = await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'create', masterId: MASTER_ID, userData })
+  });
+  return await r.json();
+}
+
+async function userUpdate(userId, userData) {
+  const r = await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'update', masterId: MASTER_ID, userId, userData })
+  });
+  return await r.json();
+}
+
+async function userDelete(userId) {
+  if (!confirm('Excluir este usuário permanentemente?')) return;
+  await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'delete', masterId: MASTER_ID, userId })
+  });
+  loadUsersPanel();
+}
+window.userDelete = userDelete;
+
+async function userResetCredits(userId, tipo, valor) {
+  await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'reset_credits', masterId: MASTER_ID, userId, tipo, valor: parseInt(valor) })
+  });
+  loadUsersPanel();
+}
+window.userResetCredits = userResetCredits;
+
+// ── Check alerts for master ──
+async function checkMasterAlerts() {
+  if (!isMaster()) return;
+  try {
+    const r = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'check_alerts', masterId: MASTER_ID })
+    });
+    const d = await r.json();
+    const alerts = d.alerts || [];
+    if (alerts.length > 0) {
+      showMasterAlerts(alerts);
+    }
+  } catch(e) {}
+}
+
+function showMasterAlerts(alerts) {
+  const container = document.getElementById('master-alerts-badge');
+  if (container) {
+    container.textContent = alerts.length;
+    container.style.display = 'flex';
+  }
+  // Show toast for each unread alert
+  alerts.slice(0, 3).forEach(a => {
+    setTimeout(() => {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#1E1E5C;color:#fff;padding:14px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:99999;border-left:4px solid #ff9800;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:320px;cursor:pointer';
+      toast.innerHTML = a.mensagem + '<div style="font-size:10px;opacity:.6;margin-top:4px">Clique para ver usuários</div>';
+      toast.onclick = () => { go('usuarios'); toast.remove(); markAlertRead(a.id); };
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove && toast.remove(), 8000);
+    }, alerts.indexOf(a) * 1500);
+  });
+}
+
+async function markAlertRead(alertId) {
+  await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'mark_alert_read', alertId })
+  });
+}
+window.markAlertRead = markAlertRead;
+
+// ── Load users panel ──
+async function loadUsersPanel() {
+  const panel = document.getElementById('users-panel-list');
+  if (!panel) return;
+  panel.innerHTML = '<div style="text-align:center;padding:40px;color:#8892AA">⏳ Carregando...</div>';
+  
+  const users = await usersLoad();
+  
+  if (!users.length) {
+    panel.innerHTML = '<div style="text-align:center;padding:40px;color:#8892AA"><div style="font-size:32px;margin-bottom:10px">👥</div><div style="font-weight:600">Nenhum usuário cadastrado</div><div style="font-size:12px;margin-top:4px">Clique em + Novo Usuário para começar</div></div>';
+    return;
+  }
+
+  panel.innerHTML = users.map(u => `
+    <div style="background:#fff;border:1px solid #E7E6F4;border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:16px">
+      <!-- Logo/Avatar -->
+      <div style="width:48px;height:48px;border-radius:10px;background:#F0EFF8;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+        ${u.logo_url ? `<img src="${u.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">` : `<span style="font-size:18px;font-weight:700;color:#5B5BAA">${(u.empresa||u.nome||'U')[0].toUpperCase()}</span>`}
+      </div>
+      <!-- Info -->
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div style="font-size:14px;font-weight:700;color:#1E1E5C">${u.empresa || u.nome || 'Empresa'}</div>
+          ${u.ativo ? '<span style="background:#eaf3de;color:#3B6D11;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px">ATIVO</span>' : '<span style="background:#FCEBEB;color:#A32D2D;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px">INATIVO</span>'}
+        </div>
+        <div style="font-size:12px;color:#8892AA">${u.email}</div>
+        <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap">
+          <span style="font-size:11px;color:#3a4096;font-weight:600">💎 ${u.creditos_atual} créditos</span>
+          <span style="font-size:11px;color:#25D366;font-weight:600">📱 ${u.disparos_atual} disparos</span>
+          <span style="font-size:11px;color:#8892AA">Acesso: ${[
+            u.modulos?.buscador && 'Buscador',
+            u.modulos?.whatsapp && 'WA',
+            u.modulos?.crm && 'CRM',
+            u.modulos?.ia && 'IA'
+          ].filter(Boolean).join(' · ')}</span>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="openEditUser('${u.id}')" style="padding:6px 12px;background:#F0EFF8;border:1px solid #E7E6F4;border-radius:7px;font-size:11px;font-weight:600;color:#3a4096;cursor:pointer;font-family:inherit">✏️ Editar</button>
+        <button onclick="userDelete('${u.id}')" style="padding:6px 12px;background:#FCEBEB;border:1px solid rgba(163,45,45,.2);border-radius:7px;font-size:11px;font-weight:600;color:#A32D2D;cursor:pointer;font-family:inherit">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+window.loadUsersPanel = loadUsersPanel;
+
+// ── Open create/edit user modal ──
+let _editingUserId = null;
+async function openEditUser(userId) {
+  _editingUserId = userId || null;
+  const users = userId ? await usersLoad() : [];
+  const u = users.find(x => x.id === userId) || {};
+  
+  const modal = document.getElementById('user-modal-overlay');
+  if (!modal) return;
+  
+  document.getElementById('um-empresa').value     = u.empresa || '';
+  document.getElementById('um-nome').value        = u.nome    || '';
+  document.getElementById('um-email').value       = u.email   || '';
+  document.getElementById('um-senha').value       = '';
+  document.getElementById('um-creditos').value    = u.limites?.creditos || 25;
+  document.getElementById('um-disparos').value    = u.limites?.disparos || 200;
+  document.getElementById('um-periodo').value     = u.limites?.creditos_periodo || 45;
+  document.getElementById('um-mod-buscador').checked = u.modulos?.buscador !== false;
+  document.getElementById('um-mod-wa').checked       = u.modulos?.whatsapp !== false;
+  document.getElementById('um-mod-crm').checked      = u.modulos?.crm !== false;
+  document.getElementById('um-mod-ia').checked       = u.modulos?.ia === true;
+  document.getElementById('um-ativo').checked        = u.ativo !== false;
+  document.getElementById('user-modal-title').textContent = userId ? 'Editar Usuário' : 'Novo Usuário';
+  
+  // Logo preview
+  if (u.logo_url) {
+    document.getElementById('um-logo-preview').src = u.logo_url;
+    document.getElementById('um-logo-preview').style.display = 'block';
+  } else {
+    document.getElementById('um-logo-preview').style.display = 'none';
+  }
+  
+  modal.style.display = 'flex';
+}
+window.openEditUser = openEditUser;
+
+function closeUserModal() {
+  const modal = document.getElementById('user-modal-overlay');
+  if (modal) modal.style.display = 'none';
+  _editingUserId = null;
+}
+window.closeUserModal = closeUserModal;
+
+// ── Logo upload ──
+function umLogoChange(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('um-logo-preview');
+    if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
+  };
+  reader.readAsDataURL(file);
+}
+window.umLogoChange = umLogoChange;
+
+// ── Save user ──
+async function saveUser() {
+  const empresa = document.getElementById('um-empresa').value.trim();
+  const email   = document.getElementById('um-email').value.trim();
+  const senha   = document.getElementById('um-senha').value.trim();
+  
+  if (!email) { alert('E-mail é obrigatório'); return; }
+  if (!_editingUserId && !senha) { alert('Senha é obrigatória para novo usuário'); return; }
+
+  const preview = document.getElementById('um-logo-preview');
+  const logo_url = preview?.style.display !== 'none' ? preview?.src : '';
+
+  const userData = {
+    empresa, email,
+    nome:  document.getElementById('um-nome').value.trim(),
+    logo_url,
+    senha: senha || undefined,
+    ativo: document.getElementById('um-ativo').checked,
+    modulos: {
+      buscador: document.getElementById('um-mod-buscador').checked,
+      whatsapp: document.getElementById('um-mod-wa').checked,
+      crm:      document.getElementById('um-mod-crm').checked,
+      ia:       document.getElementById('um-mod-ia').checked,
+    },
+    limites: {
+      creditos:          parseInt(document.getElementById('um-creditos').value) || 25,
+      creditos_periodo:  parseInt(document.getElementById('um-periodo').value) || 45,
+      disparos:          parseInt(document.getElementById('um-disparos').value) || 200,
+    },
+  };
+
+  const btn = document.getElementById('um-save-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+
+  let result;
+  if (_editingUserId) {
+    result = await userUpdate(_editingUserId, userData);
+  } else {
+    result = await userCreate(userData);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '💾 Salvar'; }
+
+  if (result.ok) {
+    closeUserModal();
+    loadUsersPanel();
+  } else {
+    alert('Erro: ' + (result.error || 'Tente novamente'));
+  }
+}
+window.saveUser = saveUser;
+
+// ── Activity history ──
+async function loadActivity() {
+  const panel = document.getElementById('users-activity-list');
+  if (!panel) return;
+  panel.innerHTML = '<div style="text-align:center;padding:20px;color:#8892AA">⏳ Carregando...</div>';
+  
+  try {
+    const r = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'activity', masterId: MASTER_ID })
+    });
+    const d = await r.json();
+    const acts = d.activity || [];
+    
+    if (!acts.length) {
+      panel.innerHTML = '<div style="text-align:center;padding:20px;color:#8892AA">Nenhuma atividade registrada</div>';
+      return;
+    }
+    
+    const icons = { login:'🔑', usuario_criado:'👤', busca:'🔍', disparo:'📱', creditos:'💎' };
+    panel.innerHTML = acts.map(a => `
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F0EFF8">
+        <div style="font-size:16px;flex-shrink:0">${icons[a.acao] || '📋'}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:#1E1E5C">${a.empresa || a.nome || 'Sistema'}</div>
+          <div style="font-size:11px;color:#8892AA">${a.detalhes || a.acao}</div>
+        </div>
+        <div style="font-size:10px;color:#8892AA;flex-shrink:0">${new Date(Number(a.criado_em)).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    panel.innerHTML = '<div style="text-align:center;padding:20px;color:#A32D2D">Erro ao carregar</div>';
+  }
+}
+window.loadActivity = loadActivity;
+
+// ── Init: show master nav only for master user ──
+document.addEventListener('DOMContentLoaded', function() {
+  if (isMaster()) {
+    // Show master-only nav items
+    document.querySelectorAll('[data-master-only]').forEach(el => el.style.display = '');
+    // Check alerts periodically
+    setTimeout(checkMasterAlerts, 2000);
+    setInterval(checkMasterAlerts, 60000); // every minute
+  }
+});
+</script>
+
+
+    <!-- ══ MODAL: NOVO/EDITAR USUÁRIO ══ -->
+    <div id="user-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;display:none;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeUserModal()">
+      <div style="background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <!-- Header -->
+        <div style="background:#1E1E5C;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0">
+          <div style="font-size:17px;font-weight:800;color:#fff" id="user-modal-title">Novo Usuário</div>
+          <button onclick="closeUserModal()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;line-height:1">×</button>
+        </div>
+        <!-- Body -->
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+
+          <!-- Logo upload -->
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:72px;height:72px;border-radius:12px;border:2px dashed #E7E6F4;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;flex-shrink:0" onclick="document.getElementById('um-logo-input').click()">
+              <img id="um-logo-preview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px">
+              <span style="font-size:24px">🏢</span>
+              <span style="font-size:9px;color:#8892AA;margin-top:2px">Logo</span>
+              <input type="file" id="um-logo-input" accept="image/*" style="display:none" onchange="umLogoChange(this)">
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">EMPRESA *</label>
+                <input id="um-empresa" type="text" placeholder="Nome da empresa" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#1E1E5C">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">RESPONSÁVEL</label>
+                <input id="um-nome" type="text" placeholder="Nome do responsável" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#1E1E5C">
+              </div>
+            </div>
+          </div>
+
+          <!-- Credenciais -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">E-MAIL / USUÁRIO *</label>
+              <input id="um-email" type="text" placeholder="usuario@empresa.com" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#1E1E5C">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">SENHA</label>
+              <input id="um-senha" type="password" placeholder="Deixe em branco para manter" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#1E1E5C">
+            </div>
+          </div>
+
+          <!-- Módulos -->
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:10px">MÓDULOS COM ACESSO</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#F0EFF8;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#1E1E5C">
+                <input type="checkbox" id="um-mod-buscador" checked style="width:14px;height:14px"> 🔍 Buscador
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#F0EFF8;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#1E1E5C">
+                <input type="checkbox" id="um-mod-wa" checked style="width:14px;height:14px"> 📱 WhatsApp
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#F0EFF8;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#1E1E5C">
+                <input type="checkbox" id="um-mod-crm" checked style="width:14px;height:14px"> 📋 CRM
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#F0EFF8;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#1E1E5C">
+                <input type="checkbox" id="um-mod-ia" style="width:14px;height:14px"> 🤖 RISE IA
+              </label>
+            </div>
+          </div>
+
+          <!-- Limites -->
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:10px">LIMITES</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:10px;color:#8892AA;display:block;margin-bottom:5px">💎 CRÉDITOS GRÁTIS</label>
+                <input id="um-creditos" type="number" value="25" min="0" max="9999" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;outline:none;color:#1E1E5C;text-align:center">
+              </div>
+              <div>
+                <label style="font-size:10px;color:#8892AA;display:block;margin-bottom:5px">📱 DISPAROS/MÊS</label>
+                <input id="um-disparos" type="number" value="200" min="0" max="99999" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;outline:none;color:#1E1E5C;text-align:center">
+              </div>
+              <div>
+                <label style="font-size:10px;color:#8892AA;display:block;margin-bottom:5px">🔄 PERÍODO (DIAS)</label>
+                <input id="um-periodo" type="number" value="45" min="1" max="365" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;outline:none;color:#1E1E5C;text-align:center">
+              </div>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#F8F7FC;border-radius:8px">
+            <span style="font-size:13px;font-weight:600;color:#1E1E5C">Usuário ativo</span>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+              <input type="checkbox" id="um-ativo" checked style="opacity:0;width:0;height:0">
+              <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:.3s" id="um-ativo-track"></span>
+            </label>
+          </div>
+
+          <!-- Save button -->
+          <button id="um-save-btn" onclick="saveUser()" style="width:100%;padding:13px;background:#1E1E5C;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .15s" onmouseover="this.style.background='#3a4096'" onmouseout="this.style.background='#1E1E5C'">
+            💾 Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — SISTEMA DE USUÁRIOS MULTI-TENANT
+// ═══════════════════════════════════════════════════════════════
+
+const PLANOS_CONFIG = {
+  starter:      { busca: 25,     disparo: 200,    label: '🥉 Starter' },
+  profissional: { busca: 60,     disparo: 500,    label: '🥈 Profissional' },
+  business:     { busca: 150,    disparo: 1000,   label: '🥇 Business' },
+  enterprise:   { busca: 400,    disparo: 2000,   label: '🏆 Enterprise' },
+  master:       { busca: 999999, disparo: 999999, label: '⭐ Master' },
+  personalizado:{ busca: 25,     disparo: 200,    label: '⚙️ Personalizado' },
+};
+
+let _usuariosEditingId = null;
+let _usuariosLogoBase64 = null;
+let _currentUserData = null;
+
+// ── Load current user from DB on startup ──
+async function usuariosInitSession() {
+  const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+  if (!sess.user) return;
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', username: sess.user })
+    });
+    if (r.ok) {
+      const d = await r.json();
+      _currentUserData = d.user;
+      usuariosApplyAccess(d.user);
+      // Update sidebar logo/name
+      if (d.user.logo_url) {
+        const logoEls = document.querySelectorAll('.sidebar-logo-img');
+        logoEls.forEach(el => el.src = d.user.logo_url);
+      }
+      if (d.user.empresa) {
+        const nameEl = document.getElementById('dash-username');
+        if (nameEl) nameEl.textContent = d.user.empresa;
+      }
+    }
+  } catch(e) { console.warn('usuariosInitSession:', e.message); }
+}
+
+function usuariosApplyAccess(user) {
+  if (!user) return;
+  // Show/hide master-only nav
+  const navU = document.getElementById('nav-usuarios');
+  if (navU) navU.style.display = user.is_master ? '' : 'none';
+  // Show/hide product navs based on access
+  const navMap = {
+    'data-view="buscador"': user.acesso_buscador,
+    'data-view="whatsapp"': user.acesso_whatsapp,
+    'data-view="crm"':      user.acesso_crm,
+    'data-view="ia-sst"':   user.acesso_ia,
+  };
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+    const view = el.dataset.view;
+    if (view === 'buscador' && !user.acesso_buscador && !user.is_master)
+      el.style.opacity = '0.4';
+    if (view === 'whatsapp' && !user.acesso_whatsapp && !user.is_master)
+      el.style.opacity = '0.4';
+    if (view === 'crm' && !user.acesso_crm && !user.is_master)
+      el.style.opacity = '0.4';
+    if (view === 'ia-sst' && !user.acesso_ia && !user.is_master)
+      el.style.opacity = '0.4';
+  });
+  // Update credit limits from DB
+  if (!user.is_master) {
+    // Override local credits with DB limits
+    try {
+      const remaining_busca = Math.max(0, user.limite_busca - user.busca_usada);
+      const remaining_disp  = Math.max(0, user.limite_disparo - user.disparo_usado);
+      // Update UI
+      const credEl = document.getElementById('dash-credits');
+      if (credEl) credEl.textContent = remaining_busca;
+      const dispEl = document.getElementById('dash-wa-disp');
+      if (dispEl) dispEl.textContent = remaining_disp;
+    } catch(e) {}
+  }
+}
+
+// ── Load users list ──
+async function usuariosLoad() {
+  const list = document.getElementById('usuarios-list');
+  if (!list) return;
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'list' })
+    });
+    const d = await r.json();
+    const users = d.users || [];
+    
+    if (!users.length) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:#8892AA;grid-column:1/-1">Nenhum usuário cadastrado.</div>';
+      return;
+    }
+
+    list.innerHTML = users.map(u => {
+      const busca_rest = Math.max(0, u.limite_busca - (u.busca_usada||0));
+      const disp_rest  = Math.max(0, u.limite_disparo - (u.disparo_usado||0));
+      const busca_pct  = Math.min(100, Math.round((u.busca_usada||0) / u.limite_busca * 100));
+      const disp_pct   = Math.min(100, Math.round((u.disparo_usado||0) / u.limite_disparo * 100));
+      const isMaster   = u.is_master;
+      const isLow_b    = busca_rest <= 5 && !isMaster;
+      const isLow_d    = disp_rest  <= 5 && !isMaster;
+      
+      return `
+      <div style="background:#fff;border:1px solid ${isLow_b||isLow_d ? '#A32D2D33':'#E7E6F4'};border-radius:12px;overflow:hidden;transition:box-shadow .15s"
+           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
+        <!-- Header -->
+        <div style="background:${isMaster?'linear-gradient(135deg,#1E1E5C,#3a4096)':'#F8F7FC'};padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:10px;background:${isMaster?'rgba(255,255,255,.15)':'#E7E6F4'};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+            ${u.logo_url ? `<img src="${u.logo_url}" style="width:100%;height:100%;object-fit:contain">` : `<span style="font-size:20px">🏢</span>`}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;color:${isMaster?'#fff':'#1E1E5C'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              ${u.empresa || u.nome} ${isMaster?'<span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 6px;border-radius:4px">MASTER</span>':''}
+            </div>
+            <div style="font-size:11px;color:${isMaster?'rgba(255,255,255,.6)':'#8892AA'}">@${u.username} · ${PLANOS_CONFIG[u.plano]?.label||u.plano}</div>
+          </div>
+          <span style="width:8px;height:8px;border-radius:50%;background:${u.ativo?'#00C47C':'#A32D2D'};flex-shrink:0" title="${u.ativo?'Ativo':'Inativo'}"></span>
+        </div>
+        <!-- Credits -->
+        <div style="padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:${isLow_b?'#A32D2D':'#8892AA'};margin-bottom:4px">💎 BUSCAS ${isLow_b?'⚠️ BAIXO':''}</div>
+            <div style="font-size:18px;font-weight:800;color:${isLow_b?'#A32D2D':'#1E1E5C'}">${isMaster?'∞':busca_rest}</div>
+            <div style="background:#E7E6F4;border-radius:4px;height:4px;margin-top:4px">
+              <div style="background:${isLow_b?'#A32D2D':'#1E1E5C'};width:${isMaster?'100':100-busca_pct}%;height:100%;border-radius:4px;transition:width .3s"></div>
+            </div>
+            <div style="font-size:10px;color:#8892AA;margin-top:2px">${isMaster?'ilimitado':`${u.busca_usada||0}/${u.limite_busca} usados`}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:${isLow_d?'#A32D2D':'#8892AA'};margin-bottom:4px">📱 DISPAROS ${isLow_d?'⚠️ BAIXO':''}</div>
+            <div style="font-size:18px;font-weight:800;color:${isLow_d?'#A32D2D':'#1E1E5C'}">${isMaster?'∞':disp_rest}</div>
+            <div style="background:#E7E6F4;border-radius:4px;height:4px;margin-top:4px">
+              <div style="background:${isLow_d?'#A32D2D':'#25D366'};width:${isMaster?'100':100-disp_pct}%;height:100%;border-radius:4px;transition:width .3s"></div>
+            </div>
+            <div style="font-size:10px;color:#8892AA;margin-top:2px">${isMaster?'ilimitado':`${u.disparo_usado||0}/${u.limite_disparo} usados`}</div>
+          </div>
+        </div>
+        <!-- Products -->
+        <div style="padding:8px 16px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #F0EFF8">
+          ${u.acesso_buscador?'<span style="font-size:10px;background:#E7E6F4;color:#3a4096;padding:2px 7px;border-radius:4px;font-weight:600">🔍 Buscador</span>':''}
+          ${u.acesso_whatsapp?'<span style="font-size:10px;background:#f0fff8;color:#1a7a46;padding:2px 7px;border-radius:4px;font-weight:600">📱 WA</span>':''}
+          ${u.acesso_crm?'<span style="font-size:10px;background:#E7E6F4;color:#3a4096;padding:2px 7px;border-radius:4px;font-weight:600">📋 CRM</span>':''}
+          ${u.acesso_ia?'<span style="font-size:10px;background:#E7E6F4;color:#3a4096;padding:2px 7px;border-radius:4px;font-weight:600">🤖 IA</span>':''}
+        </div>
+        <!-- Actions -->
+        ${!isMaster ? `
+        <div style="padding:10px 16px;display:flex;gap:8px;border-top:1px solid #F0EFF8">
+          <button onclick="usuariosEdit('${u.username}')"
+            style="flex:1;padding:7px;background:#F8F7FC;border:1px solid #E7E6F4;border-radius:7px;font-size:11px;font-weight:600;color:#1E1E5C;cursor:pointer;font-family:inherit">
+            ✏️ Editar
+          </button>
+          <button onclick="usuariosAddCredit('${u.username}','${u.nome||u.empresa}')"
+            style="flex:1;padding:7px;background:#eaf3de;border:1px solid #3B6D1133;border-radius:7px;font-size:11px;font-weight:600;color:#3B6D11;cursor:pointer;font-family:inherit">
+            💎 + Créditos
+          </button>
+          <button onclick="usuariosToggleAtivo('${u.username}',${u.ativo})"
+            style="padding:7px 10px;background:${u.ativo?'#FCEBEB':'#eaf3de'};border:1px solid ${u.ativo?'#A32D2D33':'#3B6D1133'};border-radius:7px;font-size:11px;font-weight:600;color:${u.ativo?'#A32D2D':'#3B6D11'};cursor:pointer;font-family:inherit">
+            ${u.ativo?'⏸ Pausar':'▶ Ativar'}
+          </button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+
+    // Populate filter
+    const filter = document.getElementById('usuarios-hist-filter');
+    if (filter) {
+      const current = filter.value;
+      filter.innerHTML = '<option value="ALL">Todos os usuários</option>' +
+        users.map(u => `<option value="${u.username}">${u.empresa||u.nome} (@${u.username})</option>`).join('');
+      filter.value = current;
+    }
+
+    // Load alerts
+    usuariosLoadAlerts();
+    usuariosLoadActivity();
+
+  } catch(e) {
+    if (list) list.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:#A32D2D">Erro ao carregar: ${e.message}<br><small>Verifique se /api/usuarios está configurado.</small></div>`;
+  }
+}
+window.usuariosLoad = usuariosLoad;
+
+// ── Load alerts ──
+async function usuariosLoadAlerts() {
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'alerts' })
+    });
+    const d = await r.json();
+    const alerts = d.alerts || [];
+    const box = document.getElementById('usuarios-alertas');
+    if (!box) return;
+    if (!alerts.length) { box.innerHTML = ''; return; }
+    box.innerHTML = alerts.slice(0,3).map(a => {
+      const dados = typeof a.dados === 'string' ? JSON.parse(a.dados) : a.dados;
+      return `<div style="background:#FCEBEB;border:1px solid #A32D2D33;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:12px">
+        <span style="font-size:18px">⚠️</span>
+        <div>
+          <strong style="color:#A32D2D">${a.descricao}</strong>
+          <div style="color:#C05621;margin-top:2px">${(dados?.alerts||[]).join(' · ')}</div>
+        </div>
+        <div style="margin-left:auto;font-size:10px;color:#C05621">${new Date(a.criado_em).toLocaleDateString('pt-BR')}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ── Load activity ──
+async function usuariosLoadActivity() {
+  const box = document.getElementById('usuarios-activity');
+  if (!box) return;
+  const filter = document.getElementById('usuarios-hist-filter')?.value || 'ALL';
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'activity', username: filter, limit: 50 })
+    });
+    const d = await r.json();
+    const acts = d.activity || [];
+    if (!acts.length) { box.innerHTML = '<div style="text-align:center;padding:20px;color:#8892AA">Nenhuma atividade registrada.</div>'; return; }
+    const icons = { login:'🔑', criar_usuario:'➕', add_credit:'💎', alerta_credito:'⚠️', busca:'🔍', disparo:'📱', default:'•' };
+    box.innerHTML = `<div style="display:flex;flex-direction:column;gap:0">` +
+      acts.map(a => `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #F0EFF8;font-size:12px">
+        <div style="width:28px;text-align:center;font-size:16px">${icons[a.tipo]||icons.default}</div>
+        <div style="flex:1">
+          <span style="font-weight:600;color:#1E1E5C">${a.username}</span>
+          <span style="color:#8892AA;margin-left:6px">${a.descricao||a.tipo}</span>
+        </div>
+        <div style="color:#8892AA;font-size:10px;white-space:nowrap">${new Date(a.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>`).join('') + '</div>';
+  } catch(e) { box.innerHTML = `<div style="color:#A32D2D;padding:10px">Erro: ${e.message}</div>`; }
+}
+window.usuariosLoadActivity = usuariosLoadActivity;
+
+// ── Open create modal ──
+function usuariosOpenCreate() {
+  _usuariosEditingId = null;
+  _usuariosLogoBase64 = null;
+  document.getElementById('usuarios-modal-title').textContent = 'Novo Usuário';
+  document.getElementById('usuarios-save-btn').textContent = 'Criar Usuário';
+  ['u-empresa','u-username','u-password','u-nome','u-email','u-obs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('u-plano').value = 'starter';
+  document.getElementById('u-limite-busca').value = 25;
+  document.getElementById('u-limite-disparo').value = 200;
+  ['u-buscador','u-whatsapp','u-crm','u-ia'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = true;
+  });
+  document.getElementById('usuarios-logo-preview').innerHTML = '🏢';
+  document.getElementById('usuarios-logo-file').value = '';
+  const msg = document.getElementById('usuarios-modal-msg');
+  if (msg) msg.style.display = 'none';
+  const modal = document.getElementById('usuarios-modal');
+  if (modal) modal.style.display = 'flex';
+}
+window.usuariosOpenCreate = usuariosOpenCreate;
+
+function usuariosCloseModal() {
+  const modal = document.getElementById('usuarios-modal');
+  if (modal) modal.style.display = 'none';
+}
+window.usuariosCloseModal = usuariosCloseModal;
+
+// ── Edit user ──
+async function usuariosEdit(username) {
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'get', username })
+    });
+    const d = await r.json();
+    const u = d.user;
+    if (!u) return;
+    _usuariosEditingId = username;
+    document.getElementById('usuarios-modal-title').textContent = 'Editar: ' + (u.empresa||u.nome);
+    document.getElementById('usuarios-save-btn').textContent = 'Salvar Alterações';
+    document.getElementById('u-empresa').value = u.empresa||'';
+    document.getElementById('u-username').value = u.username;
+    document.getElementById('u-username').disabled = true;
+    document.getElementById('u-password').value = u.password||'';
+    document.getElementById('u-nome').value = u.nome||'';
+    document.getElementById('u-email').value = u.email||'';
+    document.getElementById('u-plano').value = u.plano||'starter';
+    document.getElementById('u-limite-busca').value = u.limite_busca||25;
+    document.getElementById('u-limite-disparo').value = u.limite_disparo||200;
+    document.getElementById('u-obs').value = u.obs||'';
+    document.getElementById('u-buscador').checked = u.acesso_buscador;
+    document.getElementById('u-whatsapp').checked = u.acesso_whatsapp;
+    document.getElementById('u-crm').checked = u.acesso_crm;
+    document.getElementById('u-ia').checked = u.acesso_ia;
+    const prev = document.getElementById('usuarios-logo-preview');
+    if (u.logo_url) {
+      prev.innerHTML = `<img src="${u.logo_url}" style="width:100%;height:100%;object-fit:contain;border-radius:10px">`;
+      _usuariosLogoBase64 = u.logo_url;
+    } else {
+      prev.innerHTML = '🏢';
+    }
+    document.getElementById('usuarios-modal').style.display = 'flex';
+  } catch(e) { alert('Erro ao carregar: ' + e.message); }
+}
+window.usuariosEdit = usuariosEdit;
+
+// ── Logo preview ──
+function usuariosPreviewLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    _usuariosLogoBase64 = e.target.result;
+    const prev = document.getElementById('usuarios-logo-preview');
+    prev.innerHTML = `<img src="${_usuariosLogoBase64}" style="width:100%;height:100%;object-fit:contain;border-radius:10px">`;
+  };
+  reader.readAsDataURL(file);
+}
+window.usuariosPreviewLogo = usuariosPreviewLogo;
+
+// ── Apply plan defaults ──
+function usuariosApplyPlan(plano) {
+  const cfg = PLANOS_CONFIG[plano];
+  if (cfg && plano !== 'personalizado') {
+    document.getElementById('u-limite-busca').value = cfg.busca;
+    document.getElementById('u-limite-disparo').value = cfg.disparo;
+  }
+}
+window.usuariosApplyPlan = usuariosApplyPlan;
+
+// ── Save user ──
+async function usuariosSave() {
+  const btn = document.getElementById('usuarios-save-btn');
+  const msg = document.getElementById('usuarios-modal-msg');
+  const isEdit = !!_usuariosEditingId;
+
+  const payload = {
+    action: isEdit ? 'update' : 'create',
+    username:    isEdit ? _usuariosEditingId : document.getElementById('u-username').value.trim(),
+    password:    document.getElementById('u-password').value.trim(),
+    nome:        document.getElementById('u-nome').value.trim() || document.getElementById('u-empresa').value.trim(),
+    email:       document.getElementById('u-email').value.trim(),
+    empresa:     document.getElementById('u-empresa').value.trim(),
+    logo_url:    _usuariosLogoBase64 || null,
+    plano:       document.getElementById('u-plano').value,
+    acesso_buscador: document.getElementById('u-buscador').checked,
+    acesso_whatsapp: document.getElementById('u-whatsapp').checked,
+    acesso_crm:      document.getElementById('u-crm').checked,
+    acesso_ia:       document.getElementById('u-ia').checked,
+    limite_busca:    parseInt(document.getElementById('u-limite-busca').value)||25,
+    limite_disparo:  parseInt(document.getElementById('u-limite-disparo').value)||200,
+    obs:             document.getElementById('u-obs').value.trim(),
+    criado_por:      'gustavo1996c',
+  };
+
+  if (!isEdit && !payload.username) { showMsg('error','Informe o nome de usuário'); return; }
+  if (!payload.password) { showMsg('error','Informe a senha'); return; }
+  if (!payload.empresa)  { showMsg('error','Informe o nome da empresa'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Salvando...';
+
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (d.ok) {
+      showMsg('success', isEdit ? '✓ Usuário atualizado!' : '✓ Usuário criado com sucesso!');
+      setTimeout(() => { usuariosCloseModal(); usuariosLoad(); }, 1000);
+    } else {
+      showMsg('error', d.error || 'Erro ao salvar');
+    }
+  } catch(e) {
+    showMsg('error', 'Erro de conexão: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = isEdit ? 'Salvar Alterações' : 'Criar Usuário';
+
+  function showMsg(type, text) {
+    if (!msg) return;
+    msg.style.display = 'block';
+    msg.style.background = type === 'success' ? '#eaf3de' : '#FCEBEB';
+    msg.style.color = type === 'success' ? '#3B6D11' : '#A32D2D';
+    msg.textContent = text;
+  }
+}
+window.usuariosSave = usuariosSave;
+
+// ── Toggle ativo ──
+async function usuariosToggleAtivo(username, currentAtivo) {
+  if (!confirm(`${currentAtivo ? 'Pausar' : 'Reativar'} o acesso de ${username}?`)) return;
+  await fetch('/api/usuarios', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ action: 'update', username, ativo: !currentAtivo })
+  });
+  usuariosLoad();
+}
+window.usuariosToggleAtivo = usuariosToggleAtivo;
+
+// ── Add credits ──
+async function usuariosAddCredit(username, nome) {
+  const tipo = prompt(`Adicionar créditos para ${nome}:\n\nDigite: busca ou disparo`);
+  if (!tipo || !['busca','disparo'].includes(tipo.toLowerCase())) {
+    if (tipo) alert('Digite "busca" ou "disparo"');
+    return;
+  }
+  const amount = parseInt(prompt(`Quantos créditos de ${tipo} adicionar?`, '25'));
+  if (!amount || amount <= 0) return;
+  await fetch('/api/usuarios', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ action: 'addCredit', username, tipo: tipo.toLowerCase(), amount })
+  });
+  alert(`✓ ${amount} créditos de ${tipo} adicionados para ${nome}`);
+  usuariosLoad();
+}
+window.usuariosAddCredit = usuariosAddCredit;
+
+// ── Check alerts for master (called on dashboard load) ──
+async function usuariosCheckMasterAlerts() {
+  const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+  if (sess.user !== 'gustavo1996c') return;
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'alerts' })
+    });
+    const d = await r.json();
+    const alerts = d.alerts || [];
+    if (!alerts.length) return;
+    // Show badge on sidebar
+    const navU = document.getElementById('nav-usuarios');
+    if (navU && alerts.length > 0) {
+      const existing = navU.querySelector('.alert-badge');
+      if (!existing) {
+        const badge = document.createElement('span');
+        badge.className = 'alert-badge';
+        badge.style.cssText = 'background:#A32D2D;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:999px;margin-left:auto';
+        badge.textContent = alerts.length;
+        navU.appendChild(badge);
+      }
+    }
+    // Show toast notification
+    if (alerts.length > 0) {
+      const a = alerts[0];
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#A32D2D;color:#fff;padding:14px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:320px;cursor:pointer';
+      toast.innerHTML = `⚠️ <strong>Alerta de Crédito!</strong><br><small>${a.descricao}</small>`;
+      toast.onclick = () => { toast.remove(); if(typeof go==='function') go('usuarios'); };
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 8000);
+    }
+  } catch(e) {}
+}
+
+// ── Init on page load ──
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    usuariosInitSession();
+    usuariosCheckMasterAlerts();
+  }, 1200);
 });
 </script>
 
@@ -4793,7 +5903,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.safeSet = safeSet;
 
   /* ─── NAVIGATION ─── */
-  const views = ['dashboard','buscador','whatsapp','crm','ia-sst','historico','analise','configuracoes'];
+  const views = ['dashboard','buscador','whatsapp','crm','ia-sst','historico','analise','configuracoes','usuarios'];
 
   document.querySelectorAll('.nav-item[data-view]').forEach(item => {
     item.addEventListener('click', function() {
@@ -4810,6 +5920,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (v === 'ia-sst') { setTimeout(function(){ if(typeof iaInit==='function') iaInit(); }, 150); }
       if (v === 'historico') { setTimeout(histActivityLoad, 100); }
       if (v === 'configuracoes') { setTimeout(cfgLoad, 100); }
+      if (v === 'usuarios') { setTimeout(usuariosLoad, 100); }
     });
   });
 

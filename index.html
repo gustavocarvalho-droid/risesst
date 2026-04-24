@@ -10150,12 +10150,10 @@ async function iaEnviar() {
   iaAddTyping(typingId);
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/ia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
         system: SYSTEM_PROMPT + '\n\nMODO ATIVO: ' + IA_MODOS[iaModoAtual].label,
         messages: iaMessages
           .filter(m => m.role !== 'system')
@@ -10168,12 +10166,12 @@ async function iaEnviar() {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      iaPushBot('⚠️ **Erro ao conectar com a IA.** Verifique sua conexão e tente novamente.\n\nDetalhe: ' + (err.error?.message || response.status));
+      iaPushBot('⚠️ **Erro ao conectar com a IA.** Tente novamente.\n\nDetalhe: ' + (err.error || response.status));
       return;
     }
 
     const data = await response.json();
-    const reply = data.content?.[0]?.text || 'Sem resposta.';
+    const reply = data.text || data.content?.[0]?.text || 'Sem resposta.';
     iaPushBot(reply);
 
     // Save history to localStorage + DB
@@ -10517,19 +10515,17 @@ Forneça:
 
 Use markdown com emojis. Seja direto e orientado a resultado.`;
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/ia', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
         system:'Você é a RISE IA, especialista em SST e negócios. Analise dados de uso da plataforma e gere diagnóstico e plano de ação.',
         messages:[{role:'user',content:prompt}]
       })
     });
 
     const data = await res.json();
-    const text = data.content?.[0]?.text || 'Sem resposta.';
+    const text = data.text || data.content?.[0]?.text || 'Sem resposta.';
 
     const iaBox = document.getElementById('analise-ia-box');
     const iaContent = document.getElementById('analise-ia-content');

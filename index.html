@@ -8889,6 +8889,30 @@ window.waBootApp = function() {
   }
 }
 
+
+
+// Expose all onclick functions to window (same script block = same scope)
+if (typeof ctPageGo !== 'undefined') window.ctPageGo = ctPageGo;
+if (typeof openChat !== 'undefined') window.openChat = openChat;
+if (typeof sendChatMsg !== 'undefined') window.sendChatMsg = sendChatMsg;
+if (typeof renderChatList !== 'undefined') window.renderChatList = renderChatList;
+if (typeof dispararLista !== 'undefined') window.dispararLista = dispararLista;
+if (typeof excluirLista !== 'undefined') window.excluirLista = excluirLista;
+if (typeof toggleLista !== 'undefined') window.toggleLista = toggleLista;
+if (typeof remDaLista !== 'undefined') window.remDaLista = remDaLista;
+if (typeof arquivarAg !== 'undefined') window.arquivarAg = arquivarAg;
+if (typeof cancelAgendamento !== 'undefined') window.cancelAgendamento = cancelAgendamento;
+if (typeof excluirAg !== 'undefined') window.excluirAg = excluirAg;
+if (typeof dispararAgNow !== 'undefined') window.dispararAgNow = dispararAgNow;
+if (typeof verHistoricoAg !== 'undefined') window.verHistoricoAg = verHistoricoAg;
+if (typeof atribuirResp !== 'undefined') window.atribuirResp = atribuirResp;
+if (typeof changePwd !== 'undefined') window.changePwd = changePwd;
+if (typeof editUserInst !== 'undefined') window.editUserInst = editUserInst;
+window.sendChatMsg = sendChatMsg;
+window.openSendModal = openSendModal;
+window.waSendChatMsg = sendChatMsg;
+window.waOpenSendModal = openSendModal;
+
 </script>
 <script>
 

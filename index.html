@@ -3535,6 +3535,9 @@ function usuariosApplyAccess(user) {
   // Show/hide master-only nav
   const navU = document.getElementById('nav-usuarios');
   if (navU) navU.style.display = user.is_master ? '' : 'none';
+  // Fallback: also show if session user is gustavo1996c
+  const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+  if (navU && sess.user === 'gustavo1996c') navU.style.display = '';
   // Show/hide product navs based on access
   const navMap = {
     'data-view="buscador"': user.acesso_buscador,
@@ -3952,10 +3955,19 @@ async function usuariosCheckMasterAlerts() {
 
 // ── Init on page load ──
 document.addEventListener('DOMContentLoaded', function() {
+  // Show Usuarios nav immediately for master user (no API wait)
+  try {
+    const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    if (sess.user === 'gustavo1996c') {
+      const navU = document.getElementById('nav-usuarios');
+      if (navU) navU.style.display = '';
+    }
+  } catch(e) {}
+
   setTimeout(function() {
     usuariosInitSession();
     usuariosCheckMasterAlerts();
-  }, 1200);
+  }, 1500);
 });
 </script>
 
@@ -11118,6 +11130,11 @@ function loginDoLogin() {
       loginHideScreen();
       if(typeof dashUpdKPIs==='function')dashUpdKPIs();
       if(typeof creditsUpdUI==='function')creditsUpdUI();
+      // Show Usuarios nav for master
+      if(user === 'gustavo1996c') {
+        const navU = document.getElementById('nav-usuarios');
+        if(navU) navU.style.display = '';
+      }
     }, 600);
   } else {
     loginShowMsg('login-msg','error','Usuário ou senha incorretos.');

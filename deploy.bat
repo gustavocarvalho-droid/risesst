@@ -1,94 +1,87 @@
 @echo off
 title RISE SST — Deploy Automatico
-color 1F
-chcp 65001 >nul
+color 0A
+cls
 
 echo.
-echo  =====================================================
-echo    ///  RISE SST  —  Deploy Automatico para Vercel
-echo  =====================================================
+echo  ##############################################
+echo  #                                            #
+echo  #        RISE SST  ^|  Deploy Automatico      #
+echo  #                                            #
+echo  ##############################################
 echo.
 
-REM -- Vai para a pasta do projeto
+:: ── Vai para a pasta do projeto ──
 cd /d "C:\Users\Gustavo - SWG\Documents\Rise SST"
-
-if not exist ".git" (
-    echo  [ERRO] Pasta sem repositorio Git. Verifique o caminho.
+if errorlevel 1 (
+    color 0C
+    echo  [ERRO] Pasta nao encontrada!
+    echo  Verifique: C:\Users\Gustavo - SWG\Documents\Rise SST
     pause
     exit /b 1
 )
 
-if not exist "index.html" (
-    echo  [ERRO] index.html nao encontrado na pasta.
-    pause
-    exit /b 1
-)
+echo  Pasta: %CD%
+echo.
 
-echo  [1/3] Registrando mudancas...
-git add index.html
-if %errorlevel% neq 0 (
-    echo  [ERRO] Falha no git add. Verifique o Git.
-    pause
-    exit /b 1
-)
+:: ── Stage todos os arquivos ──
+echo  [1/4]  Adicionando arquivos alterados...
+git add -A
+echo         OK
+echo.
 
-echo  [2/3] Criando commit com data/hora...
-for /f "tokens=2 delims==" %%a in ('wmic OS Get localdatetime /value') do set dt=%%a
-set TIMESTAMP=%dt:~0,4%-%dt:~4,2%-%dt:~6,2% %dt:~8,2%:%dt:~10,2%
-git commit -m "deploy: %TIMESTAMP%"
-if %errorlevel% neq 0 (
-    echo  [AVISO] Nada para commitar - arquivo pode nao ter mudado.
-    echo  Verifique se substituiu o index.html antes de rodar este script.
-    pause
-    exit /b 0
-)
+:: ── Commit com timestamp ──
+echo  [2/4]  Criando commit...
+set DATAHORA=%date:~6,4%-%date:~3,2%-%date:~0,2% %time:~0,5%
+git commit -m "deploy: %DATAHORA%"
+echo         OK
+echo.
 
-echo  [3/3] Enviando para GitHub / Vercel...
+:: ── Push ──
+echo  [3/4]  Enviando para GitHub/Vercel...
 git push origin main
-if %errorlevel% neq 0 (
+if errorlevel 1 (
+    color 0C
     echo.
-    echo  [ERRO] Falha no push. Possiveis causas:
-    echo    - Token do GitHub expirado
-    echo    - Sem conexao com a internet
-    echo.
-    echo  Solucao: gere novo token em:
-    echo  github.com - Settings - Developer settings - Personal access tokens
+    echo  [ERRO] Push falhou. Verifique conexao ou credenciais Git.
     pause
     exit /b 1
 )
-
-echo.
-echo  =====================================================
-echo    Codigo enviado com sucesso!
-echo    A Vercel esta fazendo o deploy automatico...
-echo  =====================================================
+echo         OK — Vercel vai processar em instantes.
 echo.
 
-REM -- Contagem regressiva de 60 segundos
-echo  Aguarde 60 segundos para o deploy concluir...
+:: ── Countdown ──
+echo  [4/4]  Aguardando build da Vercel...
+echo.
+echo  +----------------------------------+
+echo  ^|  O sistema abre automaticamente  ^|
+echo  ^|  apos a contagem regressiva      ^|
+echo  +----------------------------------+
 echo.
 
-for /L %%i in (60,-1,1) do (
-    if %%i==60 echo  60 segundos...
-    if %%i==45 echo  45 segundos...
-    if %%i==30 echo  30 segundos...
-    if %%i==15 echo  15 segundos...
-    if %%i==10 echo  10 segundos...
-    if %%i==5  echo  5 segundos...
-    if %%i==4  echo  4...
-    if %%i==3  echo  3...
-    if %%i==2  echo  2...
-    if %%i==1  echo  1...
-    timeout /t 1 /nobreak >nul
-)
+set /a SECS=60
+:LOOP
+if %SECS%==0 goto OPEN
+set /p =  Abrindo em %SECS%s...                  <nul
+echo.
+timeout /t 1 /nobreak >nul
+set /a SECS=%SECS%-1
+:: Move para linha anterior via ANSI (funciona no Win10+)
+echo [1A[2K
+goto LOOP
 
+:OPEN
+cls
+color 0B
 echo.
-echo  Abrindo RISE SST no navegador...
-start https://risesst.vercel.app
+echo  ##############################################
+echo  #                                            #
+echo  #    Deploy OK! Abrindo RISE SST...          #
+echo  #                                            #
+echo  ##############################################
+echo.
 
-echo.
-echo  =====================================================
-echo    Deploy concluido! Pressione qualquer tecla para sair.
-echo  =====================================================
-echo.
-pause
+start "" "https://risesst.vercel.app"
+
+timeout /t 3 /nobreak >nul
+exit

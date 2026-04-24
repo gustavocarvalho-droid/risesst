@@ -2128,21 +2128,21 @@
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
                   <div class="wa-search-bar" style="flex:1;min-width:200px;margin-bottom:0">
                     <span>🔍</span>
-                    <input type="text" id="wa-ct-search" placeholder="Buscar por nome, telefone, empresa..." oninput="waRenderC()">
+                    <input type="text" id="wa-ct-search" placeholder="Buscar por nome, telefone, empresa..." oninput="if(typeof waRenderC==='function')waRenderC()">
                   </div>
-                  <select id="wa-ct-status" class="wa-sel" style="width:auto;min-width:130px" onchange="waRenderC()">
+                  <select id="wa-ct-status" class="wa-sel" style="width:auto;min-width:130px" onchange="if(typeof waRenderC==='function')waRenderC()">
                     <option value="">Todos status</option>
                     <option value="pendente">Pendente</option>
                     <option value="enviado">Enviado</option>
                     <option value="falha">Falha</option>
                   </select>
-                  <select id="wa-ct-cidade" class="wa-sel" style="width:auto;min-width:120px" onchange="waRenderC()">
+                  <select id="wa-ct-cidade" class="wa-sel" style="width:auto;min-width:120px" onchange="if(typeof waRenderC==='function')waRenderC()">
                     <option value="">Todas cidades</option>
                   </select>
-                  <select id="wa-ct-lista" class="wa-sel" style="width:auto;min-width:120px" onchange="waRenderC()">
+                  <select id="wa-ct-lista" class="wa-sel" style="width:auto;min-width:120px" onchange="if(typeof waRenderC==='function')waRenderC()">
                     <option value="">Todas listas</option>
                   </select>
-                  <select id="wa-ct-resp" class="wa-sel" style="width:auto;min-width:140px" onchange="waRenderC()">
+                  <select id="wa-ct-resp" class="wa-sel" style="width:auto;min-width:140px" onchange="if(typeof waRenderC==='function')waRenderC()">
                     <option value="">Todos responsáveis</option>
                     <option value="Gustavo C.">Gustavo C.</option>
                     <option value="Giulia B.">Giulia B.</option>
@@ -3131,6 +3131,70 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
     </div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — GLOBAL FUNCTION REGISTRY
+//   Expose ALL onclick functions to window scope
+//   Required because inline HTML onclick needs window-level access
+// ═══════════════════════════════════════════════════════════════
+(function exposeGlobals() {
+  var fns = [
+    // WA module
+    'openChat','sendMsg','openChatWindow_tel','closeModal','wGet',
+    'arquivarAg','cancelAgendamento','dispararAgNow','excluirAg',
+    'verHistoricoAg','_limparAgs','atribuirResp','remDaLista',
+    'toggleLista','useTpl','delTpl','changePwd','editUserInst',
+    'dispararLista','excluirLista','readFileLista','ctPageGo',
+    'openAddModal','clrAll','addSelecionadosModal','deselTodos',
+    'selTodos','selTodosChk','updSel','addContato','renderLogs',
+    // CRM module
+    'editCRM','delCRM','delCRMCol','delContato','crmDelLead',
+    'crmOpenLead','crmFilterStatus','crmRenderTab','crmSaveLead',
+    'crmQuickStatus','crmSetView','crmAddCol',
+    // Modal callbacks (defined when modal opens)
+    '_doAddSel','_doAddUser','_doAtribuirResp','_doChangePwd',
+    '_doChangePwdSelf','_doClrAll','_doDelCRMCol','_doExcluirAg',
+    '_doImport','_doReenviarFalhas','_doSaveTpl','_doSendModal',
+    '_doWipe','_doAddCRMCol','_saveCRM','_saveUserInst',
+    '_confirmDispararAgNow',
+    // Buscador
+    'bRunSearch','bRunMore','bApplyFilter','bExportJSON','bExportCSV',
+    'bEnrichar','bAddToCRMEnriched','bAddToCRMEnrichedHist','bCopy',
+    'bCardId','bEsc','bFmtWA','bSetTab','bEnviarParaDisparoWA',
+    'histRebuscar','histDelGroup','histClearAll','histAddToCRM',
+    // History & Analysis
+    'histActivityLoad','analiseGerar',
+    // Config
+    'cfgSetTheme','cfgSalvarPerfil','cfgTrocarSenha','cfgExcluirDados',
+    // Dashboard
+    'dashSetLogTab',
+    // IA
+    'iaEnviar','iaLimparChat','iaTrocarModo','iaChipClick',
+    // Credits
+    'creditsOpenModal','creditsCloseModal','creditsBuy','creditsConfirmBuy',
+    // WA Dispatch
+    'waDispOpenModal','waDispCloseModal','waDispBuy','waDispConfirmBuy',
+    // Login
+    'loginDoLogin','loginSetTab','loginSendEmail','loginWhatsApp','loginLogout',
+  ];
+  fns.forEach(function(name) {
+    if (typeof window[name] === 'undefined') {
+      // Try to find it in global scope
+      try {
+        var fn = eval(name);
+        if (typeof fn === 'function') {
+          window[name] = fn;
+        }
+      } catch(e) {}
+    }
+  });
+  // Also expose waXxx aliases for functions without wa prefix
+  if (!window.waRenderC && typeof renderC === 'function') window.waRenderC = renderC;
+  if (!window.waRenderLogs && typeof renderLogs === 'function') window.waRenderLogs = renderLogs;
+})();
+</script>
 
 </body>
 </html>TYPE html>

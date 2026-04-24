@@ -2115,7 +2115,7 @@
                 </div>
                 <input type="file" id="wa-file-up" accept=".xlsx,.xls,.csv" style="display:none" onchange="waReadFile(this)">
                 <div style="display:flex;gap:8px">
-                  <button class="wa-btn wa-btn-sm" onclick="waOpenAddModal()">+ Adicionar manualmente</button>
+                  <button class="wa-btn wa-btn-sm" onclick="openAddModal()">+ Adicionar manualmente</button>
                   <button class="wa-btn wa-btn-sm wa-btn-danger" onclick="waClrAll()">🗑 Limpar tudo</button>
                 </div>
               </div>
@@ -2146,8 +2146,8 @@
                 </div>
                 <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
                   <button class="wa-btn wa-btn-sm" onclick="waSelTodos()">☑ Todos</button>
-                  <button class="wa-btn wa-btn-sm" onclick="waDeselTodos()">☐ Nenhum</button>
-                  <button class="wa-btn wa-btn-sm wa-btn-rise" onclick="waAddSelecionadosModal()">+ Adicionar à lista</button>
+                  <button class="wa-btn wa-btn-sm" onclick="deselTodos()">☐ Nenhum</button>
+                  <button class="wa-btn wa-btn-sm wa-btn-rise" onclick="addSelecionadosModal()">+ Adicionar à lista</button>
                   <button class="wa-btn wa-btn-sm" onclick="waExportContatos()">⬇ Exportar</button>
 
                   <span id="wa-sel-count" style="font-size:12px;color:#7878A8;align-self:center;margin-left:4px"></span>

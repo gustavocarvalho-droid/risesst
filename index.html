@@ -1767,7 +1767,7 @@
           <div class="credit-val" id="dash-credits">–</div>
           <div style="font-size:9px;color:var(--muted);margin-top:1px" id="dash-credits-sub">carregando...</div>
         </div>
-        <div class="credit-pill" id="dash-wa-pill" onclick="waDispOpenModal()" title="Ver e comprar disparos WA" style="background:#f0fff8;border-color:#25D366;cursor:pointer">
+        <div class="credit-pill" id="dash-wa-pill" onclick="waDispOpenModal()" title="Ver e comprar disparos WA" style="background:#f0fff8;border-color:#25D366;cursor:pointer;display:none">
           <div class="credit-label" style="color:#1a7a46">📱 DISPAROS WA</div>
           <div class="credit-val" id="dash-wa-disp" style="color:#1a7a46">–</div>
           <div style="font-size:9px;color:#4a9e6e;margin-top:1px" id="dash-wa-disp-sub">carregando...</div>
@@ -2130,7 +2130,7 @@
               <div class="b-credit-badge" id="b-credit-badge" onclick="creditsOpenModal()">
                 💎 <span id="b-credits-display">–</span> créditos
               </div>
-              <div class="b-credit-badge" id="wa-disp-badge" onclick="waDispOpenModal()" style="color:#25D366;border-color:#25D366;background:#f0fff8">
+              <div class="b-credit-badge" id="wa-disp-badge" onclick="waDispOpenModal()" style="color:#25D366;border-color:#25D366;background:#f0fff8;display:none">
                 📱 <span id="wa-disp-remaining">–</span> disparos
               </div>
             </div>
@@ -3138,6 +3138,10 @@ function waDispConsume(n) {
 }
 
 function waDispUpdUI() {
+  // Only update if user has WA access
+  const user = window._currentUser;
+  if (user && !user.is_master && !user.acesso_whatsapp) return;
+
   const d = waDispLoad();
   const remaining = Math.max(0, d.limit - d.used);
   const pct = Math.round((d.used / d.limit) * 100);
@@ -3625,6 +3629,20 @@ function usuariosApplyAccess(user) {
     // Override local credit system with DB values
     window._dbCredits = { busca: remBusca, disparo: remDisp, user };
   }
+
+  // ── Show/hide WA dispatch pill based on access ──
+  const hasWA = isMaster || user.acesso_whatsapp;
+  const waPill  = document.getElementById('dash-wa-pill');
+  const waBadge = document.getElementById('wa-disp-badge');
+  if (waPill)  waPill.style.display  = hasWA ? '' : 'none';
+  if (waBadge) waBadge.style.display = hasWA ? '' : 'none';
+
+  // ── Show/hide buscador credits badge ──
+  const hasBuscador = isMaster || user.acesso_buscador;
+  const credPill = document.getElementById('dash-credit-pill');
+  const credBadge = document.getElementById('b-credit-badge');
+  if (credPill)  credPill.style.display  = hasBuscador ? '' : 'none';
+  if (credBadge) credBadge.style.display = hasBuscador ? '' : 'none';
 }
 
 // ── Load users list ──
@@ -4017,6 +4035,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (sess.user === 'gustavo1996c') {
       const navU = document.getElementById('nav-usuarios');
       if (navU) navU.style.display = '';
+      // Master always sees WA pill
+      const waPill  = document.getElementById('dash-wa-pill');
+      const waBadge = document.getElementById('wa-disp-badge');
+      if (waPill)  waPill.style.display  = '';
+      if (waBadge) waBadge.style.display = '';
+    } else if (sess.acesso_whatsapp) {
+      // Cached session has WA access
+      const waPill  = document.getElementById('dash-wa-pill');
+      const waBadge = document.getElementById('wa-disp-badge');
+      if (waPill)  waPill.style.display  = '';
+      if (waBadge) waBadge.style.display = '';
     }
   } catch(e) {}
 

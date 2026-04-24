@@ -1753,6 +1753,11 @@
           <div class="credit-val" id="dash-credits">–</div>
           <div style="font-size:9px;color:var(--muted);margin-top:1px" id="dash-credits-sub">carregando...</div>
         </div>
+        <div class="credit-pill" id="dash-wa-pill" onclick="waDispOpenModal()" title="Ver e comprar disparos WA" style="background:#f0fff8;border-color:#25D366;cursor:pointer">
+          <div class="credit-label" style="color:#1a7a46">📱 DISPAROS WA</div>
+          <div class="credit-val" id="dash-wa-disp" style="color:#1a7a46">–</div>
+          <div style="font-size:9px;color:#4a9e6e;margin-top:1px" id="dash-wa-disp-sub">carregando...</div>
+        </div>
       </div>
 
       <div class="kpi-row">
@@ -1939,8 +1944,13 @@
         <div id="b-panel-busca">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div style="font-size:11px;color:var(--muted)">Cada busca consome <strong>1 crédito</strong></div>
-            <div class="b-credit-badge" id="b-credit-badge" onclick="creditsOpenModal()">
-              💎 <span id="b-credits-display">–</span> créditos
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="b-credit-badge" id="b-credit-badge" onclick="creditsOpenModal()">
+                💎 <span id="b-credits-display">–</span> créditos
+              </div>
+              <div class="b-credit-badge" id="wa-disp-badge" onclick="waDispOpenModal()" style="color:#25D366;border-color:#25D366;background:#f0fff8">
+                📱 <span id="wa-disp-remaining">–</span> disparos
+              </div>
             </div>
           </div>
           <div class="search-box">
@@ -2882,6 +2892,240 @@
   </div><!-- /content -->
 </div><!-- /main-layout -->
 
+
+
+// ═══════════════════════════════════════════════════════════════
+//   SISTEMA DE DISPAROS WA — Limite 200/mês
+// ═══════════════════════════════════════════════════════════════
+
+const WA_DISP_KEY    = 'rise_wa_disparos_v1';
+const WA_DISP_LIMIT  = 200;    // mensagens por mês
+const WA_DISP_EXTRA_WA = '5511979668226';
+
+function waDispLoad() {
+  try {
+    const raw = localStorage.getItem(WA_DISP_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      // Reset monthly on first day of new month
+      const now = new Date();
+      const saved = new Date(d.resetAt || 0);
+      if (now.getMonth() !== saved.getMonth() || now.getFullYear() !== saved.getFullYear()) {
+        return waDispReset();
+      }
+      return d;
+    }
+  } catch(e) {}
+  return waDispReset();
+}
+
+function waDispReset() {
+  const now = new Date();
+  const d = {
+    used:    0,
+    limit:   WA_DISP_LIMIT,
+    resetAt: now.getTime(),
+    resetLabel: now.toLocaleDateString('pt-BR', {month:'long', year:'numeric'}),
+  };
+  localStorage.setItem(WA_DISP_KEY, JSON.stringify(d));
+  return d;
+}
+
+function waDispSave(d) {
+  localStorage.setItem(WA_DISP_KEY, JSON.stringify(d));
+  if (window._db) window._db.save('wa_disparos_contador', d).catch(()=>{});
+  waDispUpdUI();
+}
+
+function waDispGet() {
+  return waDispLoad().used || 0;
+}
+
+function waDispRemaining() {
+  const d = waDispLoad();
+  return Math.max(0, d.limit - d.used);
+}
+
+function waDispConsume(n) {
+  n = n || 1;
+  const d = waDispLoad();
+  if (d.used >= d.limit) return false;
+  d.used += n;
+  waDispSave(d);
+  return true;
+}
+
+function waDispUpdUI() {
+  const d = waDispLoad();
+  const remaining = Math.max(0, d.limit - d.used);
+  const pct = Math.round((d.used / d.limit) * 100);
+  const isLow  = remaining <= 30;
+  const isZero = remaining === 0;
+
+  // Dashboard pill
+  const pill = document.getElementById('dash-wa-pill');
+  const val  = document.getElementById('dash-wa-disp');
+  const sub  = document.getElementById('dash-wa-disp-sub');
+  if (val) val.textContent = remaining;
+  if (sub) sub.textContent = d.used + ' usados este mês';
+  if (pill) {
+    pill.classList.remove('low','zero');
+    if (isZero) pill.classList.add('zero');
+    else if (isLow) pill.classList.add('low');
+  }
+
+  // WA module badge
+  const waBadge = document.getElementById('wa-disp-badge');
+  const waVal   = document.getElementById('wa-disp-remaining');
+  if (waVal) waVal.textContent = remaining;
+  if (waBadge) {
+    waBadge.classList.remove('low','zero');
+    if (isZero) waBadge.classList.add('zero');
+    else if (isLow) waBadge.classList.add('low');
+  }
+
+  // Modal data
+  const mNum  = document.getElementById('modal-wa-num');
+  const mBar  = document.getElementById('modal-wa-bar');
+  const mPct  = document.getElementById('modal-wa-pct');
+  const mLbl  = document.getElementById('modal-wa-total-lbl');
+  const mRen  = document.getElementById('modal-wa-renewal');
+  if (mNum) { mNum.textContent = remaining; mNum.style.color = isZero ? '#A32D2D' : isLow ? '#854F0B' : 'var(--rise-dark)'; }
+  if (mBar) { mBar.style.width = (100-pct) + '%'; mBar.style.background = isZero ? '#A32D2D' : isLow ? '#854F0B' : '#25D366'; }
+  if (mPct) mPct.textContent = (100-pct) + '% restante';
+  if (mLbl) mLbl.textContent = 'de ' + d.limit + ' disparos/mês';
+  if (mRen) mRen.textContent = 'Renova em: ' + waDispProxReset();
+}
+
+function waDispProxReset() {
+  const now = new Date();
+  const proxMes = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return proxMes.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function waDispOpenModal() {
+  const overlay = document.getElementById('wa-disp-modal-overlay');
+  if (overlay) { overlay.style.display = 'flex'; waDispUpdUI(); }
+}
+window.waDispOpenModal = waDispOpenModal;
+
+function waDispCloseModal() {
+  const overlay = document.getElementById('wa-disp-modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+  window._waDispPkg = null;
+  const btn = document.getElementById('wa-disp-buy-btn');
+  if (btn) btn.textContent = 'Entrar em contato para comprar mais disparos';
+}
+window.waDispCloseModal = waDispCloseModal;
+
+function waDispBuy(qty, price) {
+  window._waDispPkg = { qty, price };
+  const btn = document.getElementById('wa-disp-buy-btn');
+  if (btn) btn.textContent = `Comprar ${qty} disparos por ${price} →`;
+}
+window.waDispBuy = waDispBuy;
+
+function waDispConfirmBuy() {
+  const pkg = window._waDispPkg;
+  const msg = pkg
+    ? encodeURIComponent(`Olá! Quero comprar ${pkg.qty} disparos WhatsApp RISE SST por ${pkg.price}. Meu acesso: (informe seu email)`)
+    : encodeURIComponent('Olá! Quero comprar mais disparos WhatsApp para o RISE SST.');
+  window.open('https://wa.me/' + WA_DISP_EXTRA_WA + '?text=' + msg, '_blank');
+  waDispCloseModal();
+}
+window.waDispConfirmBuy = waDispConfirmBuy;
+
+window.waDispLoad      = waDispLoad;
+window.waDispGet       = waDispGet;
+window.waDispRemaining = waDispRemaining;
+window.waDispConsume   = waDispConsume;
+window.waDispUpdUI     = waDispUpdUI;
+
+// Init
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(waDispUpdUI, 700);
+});
+
+
+    <!-- ══ MODAL DE DISPAROS WA ══ -->
+    <div id="wa-disp-modal-overlay" class="credits-modal-overlay" style="display:none" onclick="if(event.target===this)waDispCloseModal()">
+      <div class="credits-modal">
+        <div class="credits-modal-header" style="background:#075E54">
+          <div class="credits-modal-title">📱 Disparos WhatsApp</div>
+          <button class="credits-modal-close" onclick="waDispCloseModal()">×</button>
+        </div>
+        <div class="credits-modal-body">
+          <!-- Saldo atual -->
+          <div class="credits-balance-card" style="background:#f0fff8;border:1px solid #25D36622">
+            <div class="credits-balance-icon">📱</div>
+            <div>
+              <div class="credits-balance-num" id="modal-wa-num" style="color:#075E54">–</div>
+              <div class="credits-balance-label">DISPAROS DISPONÍVEIS ESTE MÊS</div>
+              <div class="credits-balance-renewal" id="modal-wa-renewal">Renova em: –</div>
+            </div>
+            <div style="margin-left:auto;text-align:right">
+              <div style="font-size:10px;color:var(--muted);font-weight:600">PLANO</div>
+              <div style="font-size:13px;font-weight:700;color:#075E54">200/mês</div>
+              <div style="font-size:10px;color:var(--muted)" id="modal-wa-used">0 usados</div>
+            </div>
+          </div>
+
+          <!-- Barra de progresso -->
+          <div class="credits-progress">
+            <div class="credits-progress-bar-bg">
+              <div class="credits-progress-bar" id="modal-wa-bar" style="width:100%;background:#25D366"></div>
+            </div>
+            <div class="credits-progress-labels">
+              <span id="modal-wa-pct">100% restante</span>
+              <span id="modal-wa-total-lbl">de 200 disparos/mês</span>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div style="background:#f0fff8;border:1px solid #25D36633;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#1a7a46;line-height:1.5">
+            ℹ️ <strong>Como funciona:</strong> Cada mensagem enviada via Disparo WA consome 1 unidade. 
+            O limite é renovado automaticamente todo mês. 
+            Disparos bloqueados quando o limite é atingido.
+          </div>
+
+          <!-- Pacotes para comprar -->
+          <div class="credits-history-title">Comprar disparos extras</div>
+          <div class="credits-packages">
+            <div class="credits-pkg" onclick="waDispBuy(100, 'R$29')" style="border-color:#25D36640">
+              <div class="credits-pkg-credits" style="color:#075E54">100</div>
+              <div class="credits-pkg-label">disparos</div>
+              <div class="credits-pkg-price" style="color:#25D366">R$ 29</div>
+              <div class="credits-pkg-unit">R$0,29 / disparo</div>
+            </div>
+            <div class="credits-pkg popular" onclick="waDispBuy(300, 'R$59')" style="border-color:#25D366;background:#f0fff8">
+              <div class="credits-pkg-badge" style="background:#075E54">✨ MAIS POPULAR</div>
+              <div class="credits-pkg-credits" style="color:#075E54">300</div>
+              <div class="credits-pkg-label">disparos</div>
+              <div class="credits-pkg-price" style="color:#25D366">R$ 59</div>
+              <div class="credits-pkg-unit">R$0,20 / disparo</div>
+            </div>
+            <div class="credits-pkg" onclick="waDispBuy(700, 'R$99')" style="border-color:#25D36640">
+              <div class="credits-pkg-credits" style="color:#075E54">700</div>
+              <div class="credits-pkg-label">disparos</div>
+              <div class="credits-pkg-price" style="color:#25D366">R$ 99</div>
+              <div class="credits-pkg-unit">R$0,14 / disparo</div>
+            </div>
+            <div class="credits-pkg" onclick="waDispBuy(2000, 'R$199')" style="border-color:#25D36640">
+              <div class="credits-pkg-credits" style="color:#075E54">2000</div>
+              <div class="credits-pkg-label">disparos</div>
+              <div class="credits-pkg-price" style="color:#25D366">R$ 199</div>
+              <div class="credits-pkg-unit">R$0,10 / disparo</div>
+            </div>
+          </div>
+          <button class="credits-buy-btn" id="wa-disp-buy-btn" onclick="waDispConfirmBuy()" style="background:#25D366">
+            Entrar em contato para comprar disparos
+          </button>
+          <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">
+            Pagamento via PIX ou cartão · Disparos adicionados em até 1h
+          </div>
+        </div>
+      </div>
+    </div>
 
 </body>
 </html>TYPE html>
@@ -4778,12 +5022,6 @@
       return;
     }
 
-    // Consume 1 credit for enrichment
-    if (typeof creditsCheckAndConsume === 'function') {
-      const ok = creditsCheckAndConsume('Enriquecimento: ' + (empresa.nome || empresa.cnpj || '').slice(0, 40));
-      if (!ok) return;
-    }
-
     btn.disabled = true;
     btn.textContent = '⏳ Buscando...';
 
@@ -6466,6 +6704,15 @@ function updFireUI() {
 }
 async function fireNext() {
   if(!wa_fireActive) return;
+  // Block if monthly WA dispatch limit reached
+  if (typeof waDispRemaining === 'function' && waDispRemaining() <= 0) {
+    wa_fireActive = false;
+    const btn = wGet('fire-btn'); if(btn) btn.disabled = false;
+    const banner = wGet('fire-banner'); if(banner) banner.style.display = 'none';
+    toast('⚠️ Limite mensal de disparos atingido (200/mês). Compre mais para continuar!');
+    waDispOpenModal();
+    return;
+  }
   if(wa_filaIdx>=wa_fila.length) {
     wa_fireActive=false;
     wGet('fire-btn').disabled=false;
@@ -6528,6 +6775,11 @@ async function fireNext() {
   if(ct) ct.status=sucesso?'enviado':'falha';
 
   // Registrar log com motivo do erro
+  // ── Contar disparo se enviado ──
+  if (sucesso && typeof waDispConsume === 'function') {
+    waDispConsume(1);
+  }
+
   const logEntry={
     id:uid(),time:ts,
     nome:c.nome,empresa:c.empresa,tel:c.tel,
@@ -8896,7 +9148,7 @@ function creditsConfirmBuy() {
   if (!_creditsPendingPkg) {
     // No package selected — open WhatsApp contact
     const msg = encodeURIComponent('Olá! Gostaria de comprar créditos adicionais para o RISE SST.');
-    window.open('https://wa.me/5516000000000?text=' + msg, '_blank');
+    window.open('https://wa.me/5511979668226?text=' + msg, '_blank');
     return;
   }
   const { amount, price } = _creditsPendingPkg;
@@ -8906,7 +9158,7 @@ function creditsConfirmBuy() {
     `Olá! Quero comprar ${amount} créditos RISE SST por ${price}. ` +
     `Meu email de cadastro: (informe seu email)`
   );
-  window.open('https://wa.me/5516000000000?text=' + msg, '_blank');
+  window.open('https://wa.me/5511979668226?text=' + msg, '_blank');
   creditsCloseModal();
 }
 window.creditsConfirmBuy = creditsConfirmBuy;
@@ -10133,11 +10385,7 @@ async function iaEnviar() {
   const msg = (input?.value || '').trim();
   if (!msg) return;
 
-  // Check credits
-  if (typeof creditsCheckAndConsume === 'function') {
-    const ok = creditsCheckAndConsume('RISE IA: ' + msg.slice(0, 40));
-    if (!ok) return;
-  }
+  // IA não consome créditos de busca
 
   input.value = '';
   input.style.height = '44px';

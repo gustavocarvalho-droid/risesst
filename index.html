@@ -11117,29 +11117,72 @@ function loginShowMsg(id, type, text) {
   el.className='login-msg '+type; el.textContent=text; el.style.display='block';
 }
 
-function loginDoLogin() {
+async function loginDoLogin() {
   const user=(document.getElementById('login-user')?.value||'').trim();
   const pass=(document.getElementById('login-pass')?.value||'').trim();
   if(!user||!pass){loginShowMsg('login-msg','error','Preencha usuário e senha.');return;}
-  if(user===LOGIN_CREDENTIALS.user && pass===LOGIN_CREDENTIALS.pass){
+
+  const btnEl = document.querySelector('.login-btn');
+  if(btnEl){ btnEl.disabled=true; btnEl.textContent='⏳ Verificando...'; }
+  loginShowMsg('login-msg','success','⏳ Verificando acesso...');
+
+  // 1. Try DB first
+  let dbUser = null;
+  try {
+    const r = await fetch('/api/usuarios', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'login', username:user, password:pass })
+    });
+    if(r.ok) {
+      const d = await r.json();
+      if(d.ok && d.user) dbUser = d.user;
+    }
+  } catch(e) { /* DB unavailable - fall through to local */ }
+
+  // 2. Fallback: hardcoded master credentials
+  const savedPass = localStorage.getItem('rise_custom_pass') || LOGIN_CREDENTIALS.pass;
+  const isLocalMaster = (user === LOGIN_CREDENTIALS.user && pass === savedPass);
+
+  if(dbUser || isLocalMaster) {
+    const isMaster = dbUser ? dbUser.is_master : true;
+
+    // Save session (30 days)
     localStorage.setItem(LOGIN_SESSION_KEY, JSON.stringify({
-      user, loggedAt:Date.now(), expires:Date.now()+30*24*60*60*1000
+      user,
+      isMaster,
+      empresa: dbUser?.empresa || 'RISE SST',
+      loggedAt: Date.now(),
+      expires: Date.now()+30*24*60*60*1000
     }));
+
+    // Apply access restrictions from DB
+    if(dbUser && typeof usuariosApplyAccess === 'function') {
+      usuariosApplyAccess(dbUser);
+    }
+
     loginShowMsg('login-msg','success','✓ Acesso liberado! Carregando...');
     setTimeout(()=>{
       loginHideScreen();
       if(typeof dashUpdKPIs==='function')dashUpdKPIs();
       if(typeof creditsUpdUI==='function')creditsUpdUI();
-      // Show Usuarios nav for master
-      if(user === 'gustavo1996c') {
+      if(isMaster) {
         const navU = document.getElementById('nav-usuarios');
         if(navU) navU.style.display = '';
+      }
+      // Update sidebar name
+      if(dbUser?.empresa) {
+        const nameEl = document.getElementById('dash-username');
+        if(nameEl) nameEl.textContent = dbUser.empresa;
       }
     }, 600);
   } else {
     loginShowMsg('login-msg','error','Usuário ou senha incorretos.');
-    const p=document.getElementById('login-pass'); if(p){p.value='';p.focus();}
+    const p=document.getElementById('login-pass');
+    if(p){p.value='';p.focus();}
   }
+
+  if(btnEl){ btnEl.disabled=false; btnEl.textContent='ENTRAR →'; }
 }
 window.loginDoLogin = loginDoLogin;
 

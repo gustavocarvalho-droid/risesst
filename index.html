@@ -9314,7 +9314,7 @@ const KEYS = {
   empName:  'rise_crm_empresa_name',
 };
 
-const TABS = ['buscador', 'zap', 'empresa'];
+const CRM_TABS = ['buscador', 'zap', 'empresa'];
 
 const CRM_DEFAULT_COLS = [
   { id:'novo',       label:'Novo Lead',        color:'#5B5BAA', emoji:'🆕' },
@@ -9336,14 +9336,14 @@ let empresaName = 'Minha Empresa';
 
 // ── Load / Save ──
 function crmLoad() {
-  TABS.forEach(t => {
+  CRM_TABS.forEach(t => {
     try { crmData[t] = JSON.parse(localStorage.getItem(KEYS[t])) || []; } catch(e) { crmData[t] = []; }
   });
   try { crmCols = JSON.parse(localStorage.getItem(KEYS.cols)) || [...CRM_DEFAULT_COLS]; } catch(e) { crmCols = [...CRM_DEFAULT_COLS]; }
   try { empresaName = localStorage.getItem(KEYS.empName) || 'Minha Empresa'; } catch(e) {}
 }
 function crmSave() {
-  TABS.forEach(t => localStorage.setItem(KEYS[t], JSON.stringify(crmData[t])));
+  CRM_TABS.forEach(t => localStorage.setItem(KEYS[t], JSON.stringify(crmData[t])));
   localStorage.setItem(KEYS.cols, JSON.stringify(crmCols));
   localStorage.setItem(KEYS.empName, empresaName);
   // Sync to Neon DB
@@ -9374,7 +9374,7 @@ async function crmServerLoad() {
     const d = await r.json();
     if (d && d.crmData) {
       // Merge server data with local (server wins if newer)
-      TABS.forEach(t => {
+      CRM_TABS.forEach(t => {
         if (d.crmData[t]?.length) {
           // Only overwrite if server has more data
           const local = crmData[t] || [];
@@ -9407,7 +9407,7 @@ function leads(tab)      { return crmData[tab||activeTab]||[]; }
 // ── Tab switching ──
 function crmSetTab(tab) {
   activeTab = tab;
-  TABS.forEach(t => {
+  CRM_TABS.forEach(t => {
     document.getElementById('crm-tab-'+t)?.classList.toggle('active', t===tab);
     document.getElementById('crm-panel-'+t)?.classList.toggle('active', t===tab);
   });
@@ -9705,7 +9705,7 @@ function crmLeadModal(l, defaultStatus, tab) {
   const isNew  = !l;
   const status = l?.status || defaultStatus || 'novo';
   const colOpts = crmCols.map(c=>`<option value="${c.id}" ${status===c.id?'selected':''}>${c.label}</option>`).join('');
-  const tabOpts = TABS.map(t => {
+  const tabOpts = CRM_TABS.map(t => {
     const lbl = t==='empresa' ? empresaName : t==='buscador' ? 'Buscador' : 'ZapDisparos';
     return `<option value="${t}" ${t===tab?'selected':''}>${lbl}</option>`;
   }).join('');
@@ -9938,7 +9938,7 @@ window.crmAddCol = crmAddCol;
 function crmExport() {
   crmLoad();
   const rows = [['Aba','Empresa','Nome','CNPJ','Tel','Email','Cidade','Segmento','Status','Prioridade','Responsável','Valor','Funcionários','Serviços','Próxima Ação','Obs','Criado em']];
-  TABS.forEach(t => {
+  CRM_TABS.forEach(t => {
     (crmData[t]||[]).forEach(l => rows.push([
       t==='empresa'?empresaName:t==='buscador'?'Buscador':'ZapDisparos',
       l.empresa,l.nome,l.cnpj,l.tel,l.email,l.cidade,l.segmento,
@@ -10027,7 +10027,7 @@ window.crmInit = async function() {
   if (window._db) {
     window._db.crmLoadDB().then(dbData => {
       if (dbData) {
-        TABS.forEach(t => {
+        CRM_TABS.forEach(t => {
           if (Array.isArray(dbData[t]) && dbData[t].length >= (crmData[t]||[]).length) {
             crmData[t] = dbData[t];
             localStorage.setItem(KEYS[t], JSON.stringify(crmData[t]));
@@ -10035,7 +10035,7 @@ window.crmInit = async function() {
         });
         if (dbData.cols?.length) { crmCols = dbData.cols; localStorage.setItem(KEYS.cols, JSON.stringify(crmCols)); }
         if (dbData.empresaName)  { empresaName = dbData.empresaName; localStorage.setItem(KEYS.empName, empresaName); }
-        TABS.forEach(t => crmUpdKPIs(t));
+        CRM_TABS.forEach(t => crmUpdKPIs(t));
         if (document.getElementById('crm-panel-buscador')?.classList.contains('active')) crmRenderTab('buscador');
       }
     }).catch(()=>{});
@@ -10057,11 +10057,11 @@ window.crmInit = async function() {
     }
   }
   crmLoad(); // load from localStorage immediately (fast)
-  TABS.forEach(t => crmUpdKPIs(t));
+  CRM_TABS.forEach(t => crmUpdKPIs(t));
   crmSetTab('buscador');
   // Then sync from server (async — updates UI if server has newer data)
   await crmServerLoad();
-  TABS.forEach(t => crmUpdKPIs(t));
+  CRM_TABS.forEach(t => crmUpdKPIs(t));
   if (document.getElementById('crm-panel-buscador')?.classList.contains('active')) {
     crmRenderTab('buscador');
   }
@@ -10069,7 +10069,7 @@ window.crmInit = async function() {
 
 // Auto-init if already visible
 if (document.getElementById('view-crm')?.style.display !== 'none') {
-  crmLoad(); TABS.forEach(t=>crmUpdKPIs(t)); crmSetTab('buscador');
+  crmLoad(); CRM_TABS.forEach(t=>crmUpdKPIs(t)); crmSetTab('buscador');
 }
 
 })();

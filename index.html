@@ -2120,7 +2120,7 @@
                 </div>
                 <input type="file" id="wa-file-up" accept=".xlsx,.xls,.csv" style="display:none" onchange="waReadFile(this)">
                 <div style="display:flex;gap:8px">
-                  <button class="wa-btn wa-btn-sm" onclick="openAddModal()">+ Adicionar manualmente</button>
+                  <button class="wa-btn wa-btn-sm" onclick="window.waOpenAddModal ? waOpenAddModal() : openAddModal()">+ Adicionar manualmente</button>
                   <button class="wa-btn wa-btn-sm wa-btn-danger" onclick="waClrAll()">🗑 Limpar tudo</button>
                 </div>
               </div>
@@ -2151,8 +2151,8 @@
                 </div>
                 <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
                   <button class="wa-btn wa-btn-sm" onclick="waSelTodos()">☑ Todos</button>
-                  <button class="wa-btn wa-btn-sm" onclick="deselTodos()">☐ Nenhum</button>
-                  <button class="wa-btn wa-btn-sm wa-btn-rise" onclick="addSelecionadosModal()">+ Adicionar à lista</button>
+                  <button class="wa-btn wa-btn-sm" onclick="window.waDeselTodos ? waDeselTodos() : deselTodos()">☐ Nenhum</button>
+                  <button class="wa-btn wa-btn-sm wa-btn-rise" onclick="window.waAddSelecionadosModal ? waAddSelecionadosModal() : addSelecionadosModal()">+ Adicionar à lista</button>
                   <button class="wa-btn wa-btn-sm" onclick="waExportContatos()">⬇ Exportar</button>
 
                   <span id="wa-sel-count" style="font-size:12px;color:#7878A8;align-self:center;margin-left:4px"></span>
@@ -3133,64 +3133,76 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
 
+
+
+
 <script>
-// ═══════════════════════════════════════════════════════════════
-//   RISE SST — GLOBAL FUNCTION REGISTRY (direct assignments)
-// ═══════════════════════════════════════════════════════════════
-if (typeof openChat              !== 'undefined') window.openChat              = openChat;
-if (typeof sendMsg               !== 'undefined') window.sendMsg               = sendMsg;
-if (typeof openChatWindow_tel    !== 'undefined') window.openChatWindow_tel    = openChatWindow_tel;
-if (typeof closeModal            !== 'undefined') window.closeModal            = closeModal;
-if (typeof wGet                  !== 'undefined') window.wGet                  = wGet;
-if (typeof arquivarAg            !== 'undefined') window.arquivarAg            = arquivarAg;
-if (typeof cancelAgendamento     !== 'undefined') window.cancelAgendamento     = cancelAgendamento;
-if (typeof dispararAgNow         !== 'undefined') window.dispararAgNow         = dispararAgNow;
-if (typeof excluirAg             !== 'undefined') window.excluirAg             = excluirAg;
-if (typeof verHistoricoAg        !== 'undefined') window.verHistoricoAg        = verHistoricoAg;
-if (typeof _limparAgs            !== 'undefined') window._limparAgs            = _limparAgs;
-if (typeof atribuirResp          !== 'undefined') window.atribuirResp          = atribuirResp;
-if (typeof remDaLista            !== 'undefined') window.remDaLista            = remDaLista;
-if (typeof toggleLista           !== 'undefined') window.toggleLista           = toggleLista;
-if (typeof useTpl                !== 'undefined') window.useTpl                = useTpl;
-if (typeof delTpl                !== 'undefined') window.delTpl                = delTpl;
-if (typeof changePwd             !== 'undefined') window.changePwd             = changePwd;
-if (typeof editUserInst          !== 'undefined') window.editUserInst          = editUserInst;
-if (typeof dispararLista         !== 'undefined') window.dispararLista         = dispararLista;
-if (typeof excluirLista          !== 'undefined') window.excluirLista          = excluirLista;
-if (typeof readFileLista         !== 'undefined') window.readFileLista         = readFileLista;
-if (typeof ctPageGo              !== 'undefined') window.ctPageGo              = ctPageGo;
-if (typeof openAddModal          !== 'undefined') window.openAddModal          = openAddModal;
-if (typeof clrAll                !== 'undefined') window.clrAll                = clrAll;
-if (typeof addSelecionadosModal  !== 'undefined') window.addSelecionadosModal  = addSelecionadosModal;
-if (typeof deselTodos            !== 'undefined') window.deselTodos            = deselTodos;
-if (typeof selTodos              !== 'undefined') window.selTodos              = selTodos;
-if (typeof selTodosChk           !== 'undefined') window.selTodosChk           = selTodosChk;
-if (typeof updSel                !== 'undefined') window.updSel                = updSel;
-if (typeof addContato            !== 'undefined') window.addContato            = addContato;
-if (typeof renderLogs            !== 'undefined') window.renderLogs            = renderLogs;
-if (typeof editCRM               !== 'undefined') window.editCRM               = editCRM;
-if (typeof delCRM                !== 'undefined') window.delCRM                = delCRM;
-if (typeof delCRMCol             !== 'undefined') window.delCRMCol             = delCRMCol;
-if (typeof delContato            !== 'undefined') window.delContato            = delContato;
-if (typeof _doAddSel             !== 'undefined') window._doAddSel             = _doAddSel;
-if (typeof _doAddUser            !== 'undefined') window._doAddUser            = _doAddUser;
-if (typeof _doAtribuirResp       !== 'undefined') window._doAtribuirResp       = _doAtribuirResp;
-if (typeof _doChangePwd          !== 'undefined') window._doChangePwd          = _doChangePwd;
-if (typeof _doChangePwdSelf      !== 'undefined') window._doChangePwdSelf      = _doChangePwdSelf;
-if (typeof _doClrAll             !== 'undefined') window._doClrAll             = _doClrAll;
-if (typeof _doDelCRMCol          !== 'undefined') window._doDelCRMCol          = _doDelCRMCol;
-if (typeof _doExcluirAg          !== 'undefined') window._doExcluirAg          = _doExcluirAg;
-if (typeof _doImport             !== 'undefined') window._doImport             = _doImport;
-if (typeof _doReenviarFalhas     !== 'undefined') window._doReenviarFalhas     = _doReenviarFalhas;
-if (typeof _doSaveTpl            !== 'undefined') window._doSaveTpl            = _doSaveTpl;
-if (typeof _doSendModal          !== 'undefined') window._doSendModal          = _doSendModal;
-if (typeof _doWipe               !== 'undefined') window._doWipe               = _doWipe;
-if (typeof _doAddCRMCol          !== 'undefined') window._doAddCRMCol          = _doAddCRMCol;
-if (typeof _saveCRM              !== 'undefined') window._saveCRM              = _saveCRM;
-if (typeof _saveUserInst         !== 'undefined') window._saveUserInst         = _saveUserInst;
-if (typeof _confirmDispararAgNow !== 'undefined') window._confirmDispararAgNow = _confirmDispararAgNow;
-if (typeof renderC               !== 'undefined') window.waRenderC             = renderC;
-if (typeof renderLogs            !== 'undefined') window.waRenderLogs          = renderLogs;
+// RISE SST — Global Registry (runs after ALL scripts loaded)
+document.addEventListener('DOMContentLoaded', function() {
+  var expose = {
+    openChat: typeof openChat !== 'undefined' ? openChat : null,
+    sendMsg: typeof sendMsg !== 'undefined' ? sendMsg : null,
+    openChatWindow_tel: typeof openChatWindow_tel !== 'undefined' ? openChatWindow_tel : null,
+    closeModal: typeof closeModal !== 'undefined' ? closeModal : null,
+    wGet: typeof wGet !== 'undefined' ? wGet : null,
+    arquivarAg: typeof arquivarAg !== 'undefined' ? arquivarAg : null,
+    cancelAgendamento: typeof cancelAgendamento !== 'undefined' ? cancelAgendamento : null,
+    dispararAgNow: typeof dispararAgNow !== 'undefined' ? dispararAgNow : null,
+    excluirAg: typeof excluirAg !== 'undefined' ? excluirAg : null,
+    verHistoricoAg: typeof verHistoricoAg !== 'undefined' ? verHistoricoAg : null,
+    _limparAgs: typeof _limparAgs !== 'undefined' ? _limparAgs : null,
+    atribuirResp: typeof atribuirResp !== 'undefined' ? atribuirResp : null,
+    remDaLista: typeof remDaLista !== 'undefined' ? remDaLista : null,
+    toggleLista: typeof toggleLista !== 'undefined' ? toggleLista : null,
+    useTpl: typeof useTpl !== 'undefined' ? useTpl : null,
+    delTpl: typeof delTpl !== 'undefined' ? delTpl : null,
+    changePwd: typeof changePwd !== 'undefined' ? changePwd : null,
+    editUserInst: typeof editUserInst !== 'undefined' ? editUserInst : null,
+    dispararLista: typeof dispararLista !== 'undefined' ? dispararLista : null,
+    excluirLista: typeof excluirLista !== 'undefined' ? excluirLista : null,
+    readFileLista: typeof readFileLista !== 'undefined' ? readFileLista : null,
+    ctPageGo: typeof ctPageGo !== 'undefined' ? ctPageGo : null,
+    openAddModal: typeof openAddModal !== 'undefined' ? openAddModal : null,
+    clrAll: typeof clrAll !== 'undefined' ? clrAll : null,
+    addSelecionadosModal: typeof addSelecionadosModal !== 'undefined' ? addSelecionadosModal : null,
+    deselTodos: typeof deselTodos !== 'undefined' ? deselTodos : null,
+    selTodos: typeof selTodos !== 'undefined' ? selTodos : null,
+    selTodosChk: typeof selTodosChk !== 'undefined' ? selTodosChk : null,
+    updSel: typeof updSel !== 'undefined' ? updSel : null,
+    addContato: typeof addContato !== 'undefined' ? addContato : null,
+    renderLogs: typeof renderLogs !== 'undefined' ? renderLogs : null,
+    editCRM: typeof editCRM !== 'undefined' ? editCRM : null,
+    delCRM: typeof delCRM !== 'undefined' ? delCRM : null,
+    delCRMCol: typeof delCRMCol !== 'undefined' ? delCRMCol : null,
+    delContato: typeof delContato !== 'undefined' ? delContato : null,
+    _doAddSel: typeof _doAddSel !== 'undefined' ? _doAddSel : null,
+    _doAddUser: typeof _doAddUser !== 'undefined' ? _doAddUser : null,
+    _doAtribuirResp: typeof _doAtribuirResp !== 'undefined' ? _doAtribuirResp : null,
+    _doChangePwd: typeof _doChangePwd !== 'undefined' ? _doChangePwd : null,
+    _doChangePwdSelf: typeof _doChangePwdSelf !== 'undefined' ? _doChangePwdSelf : null,
+    _doClrAll: typeof _doClrAll !== 'undefined' ? _doClrAll : null,
+    _doDelCRMCol: typeof _doDelCRMCol !== 'undefined' ? _doDelCRMCol : null,
+    _doExcluirAg: typeof _doExcluirAg !== 'undefined' ? _doExcluirAg : null,
+    _doImport: typeof _doImport !== 'undefined' ? _doImport : null,
+    _doReenviarFalhas: typeof _doReenviarFalhas !== 'undefined' ? _doReenviarFalhas : null,
+    _doSaveTpl: typeof _doSaveTpl !== 'undefined' ? _doSaveTpl : null,
+    _doSendModal: typeof _doSendModal !== 'undefined' ? _doSendModal : null,
+    _doWipe: typeof _doWipe !== 'undefined' ? _doWipe : null,
+    _doAddCRMCol: typeof _doAddCRMCol !== 'undefined' ? _doAddCRMCol : null,
+    _saveCRM: typeof _saveCRM !== 'undefined' ? _saveCRM : null,
+    _saveUserInst: typeof _saveUserInst !== 'undefined' ? _saveUserInst : null,
+    _confirmDispararAgNow: typeof _confirmDispararAgNow !== 'undefined' ? _confirmDispararAgNow : null,
+    waRenderC: typeof renderC !== 'undefined' ? renderC : null,
+    waRenderLogs: typeof renderLogs !== 'undefined' ? renderLogs : null,
+    sendChatMsg: typeof sendChatMsg !== 'undefined' ? sendChatMsg : null,
+    openChat: typeof openChat !== 'undefined' ? openChat : null,
+    openSendModal: typeof openSendModal !== 'undefined' ? openSendModal : null,
+    doSendMsg: typeof doSendMsg !== 'undefined' ? doSendMsg : null
+  };
+  Object.keys(expose).forEach(function(k) {
+    if (expose[k] !== null) window[k] = expose[k];
+  });
+});
 </script>
 
 </body>
@@ -5551,6 +5563,22 @@ if (typeof renderLogs            !== 'undefined') window.waRenderLogs          =
     // Save
     salvarDados();
 
+    // Also add to CRM ZapDisparos immediately (don't wait for dispatch)
+    if (typeof window.crmAddLeadFromSource === 'function') {
+      window.crmAddLeadFromSource('zap', {
+        empresa:    enriched.receita_razao_social || enriched.nome || enriched.nome_fantasia || '',
+        nome:       enriched.nome_fantasia || '',
+        cnpj:       (empresa.cnpj||'').replace(/\D/g,''),
+        tel:        fmtTel || '',
+        cidade:     enriched.municipio || enriched.gmb_cidade || '',
+        segmento:   enriched.cnae_descricao || enriched.atividade || '',
+        status:     'novo',
+        prioridade: 'baixa',
+        obs:        'Adicionado via Buscador → Disparo WA',
+        _autoAdded: true,
+      });
+    }
+
     // Visual feedback on button
     if (btnEl) {
       btnEl.innerHTML = '✓ Adicionado!';
@@ -5978,7 +6006,7 @@ function iniciarApp() {
   window.waCriarLista = window.wacriarLista;
   window.waRenderListas = window.warenderListas;
   window.waRenderChatList = window.warenderChatList;
-  window.waSendChatMsg = window.wasendChatMsg;
+  window.waSendChatMsg = sendChatMsg; window.wasendChatMsg = sendChatMsg;
   window.waOpenSendModal = window.waopenSendModal;
   window.waSaveMsg = window.wasaveMsg;
   window.waSaveTpl = window.wasaveTpl;
@@ -6194,9 +6222,8 @@ function renderC() {
       <td>${st_badge}</td>
       <td>
         <div style="display:flex;gap:4px">
-          <button class="wa-btn wa-btn-xs" onclick="openChat(${c.id})">💬</button>
-          <button class="wa-btn wa-btn-xs" onclick="sendMsg(${c.id})">📤</button>
-          <button class="wa-btn wa-btn-xs wa-btn-danger" onclick="delContato('${c.id}')">🗑</button>
+          <button class="wa-btn wa-btn-xs wa-btn-rise" onclick="openChat(${c.id})" title="Iniciar conversa">💬</button>
+          <button class="wa-btn wa-btn-xs wa-btn-danger" onclick="delContato('${c.id}')" title="Excluir">🗑</button>
         </div>
       </td>
     </tr>`;
@@ -6440,6 +6467,21 @@ function openChat(id) {
   go('conversa');
   renderChatList();
   openChatWindow(id);
+  // Push to CRM ZapDisparos when starting conversation
+  const c = wa_chatContact;
+  if (c && typeof window.crmAddLeadFromSource === 'function') {
+    window.crmAddLeadFromSource('zap', {
+      empresa:    c.empresa || c.nome || '',
+      nome:       c.nome    || '',
+      cnpj:       (c.cnpj   || '').replace(/\D/g,''),
+      tel:        c.tel     || '',
+      cidade:     c.cidade  || '',
+      status:     'contato',
+      prioridade: 'baixa',
+      obs:        'Iniciou conversa no WhatsApp',
+      _autoAdded: true,
+    });
+  }
 }
 function renderChatList() {
   const srch = (wGet('chat-search')?.value||'').toLowerCase();
@@ -8697,7 +8739,7 @@ async function loadAllChats() {
   if (!window.waSaveTpl) window.waSaveTpl = window.wasaveTpl;
   if (!window.waSelTodos) window.waSelTodos = window.waselTodos;
   if (!window.waSelTodosChk) window.waSelTodosChk = window.waselTodosChk;
-  if (!window.waSendChatMsg) window.waSendChatMsg = window.wasendChatMsg;
+  if (!window.waSendChatMsg) window.waSendChatMsg = sendChatMsg; window.wasendChatMsg = sendChatMsg;
   if (!window.waSendTest) window.waSendTest = window.wasendTest;
   if (!window.waSetChatTab) window.waSetChatTab = window.wasetChatTab;
   if (!window.waSetupWebhook) window.waSetupWebhook = window.wasetupWebhook;
@@ -8800,7 +8842,7 @@ async function loadAllChats() {
   if (!window.waSaveTpl) window.waSaveTpl = window.wasaveTpl;
   if (!window.waSelTodos) window.waSelTodos = window.waselTodos;
   if (!window.waSelTodosChk) window.waSelTodosChk = window.waselTodosChk;
-  if (!window.waSendChatMsg) window.waSendChatMsg = window.wasendChatMsg;
+  if (!window.waSendChatMsg) window.waSendChatMsg = sendChatMsg; window.wasendChatMsg = sendChatMsg;
   if (!window.waSendTest) window.waSendTest = window.wasendTest;
   if (!window.waSetChatTab) window.waSetChatTab = window.wasetChatTab;
   if (!window.waSetupWebhook) window.waSetupWebhook = window.wasetupWebhook;

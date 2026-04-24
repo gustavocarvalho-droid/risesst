@@ -10935,5 +10935,94 @@ document.addEventListener('click', function(e) {
 setTimeout(cfgLoad, 500);
 </script>
 
+
+<script>
+/* PATCH RISE SST - WA Disparos robust init + aliases - 2026-04-24 */
+(function(){
+  'use strict';
+  function $(id){ return document.getElementById(id); }
+  function setTxt(id, txt){ var el=$(id); if(el) el.textContent=txt; }
+
+  function bindAliases(){
+    var map = {
+      waGo:'wago', waToggleSidebar:'watoggleSidebar', waCloseSidebar:'wacloseSidebar',
+      waRenderC:'warenderC', waRenderChatList:'warenderChatList', waUpdBadges:'waupdBadges',
+      waCheckNum:'wacheckNum', waGerarQR:'wagerarQR', waTrocarNum:'watrocarNum',
+      waSaveConf:'wasaveConf', waTestConn:'watestConn', waTestDB:'watestDB', waWipeDB:'wawipeDB',
+      waStartFire:'wastartFire', waStopFire:'wastopFire', waSendTest:'wasendTest',
+      waUpdDisparo:'waupdDisparo', waSyncFireSliders:'wasyncFireSliders', waSyncAgSliders:'wasyncAgSliders',
+      waCriarAgendamento:'wacriarAgendamento', waRenderAgendamentos:'warenderAgendamentos',
+      waCriarLista:'wacriarLista', waRenderListas:'warenderListas', waToggleLista:'watoggleLista',
+      waExcluirLista:'waexcluirLista', waDispararLista:'wadispararLista', waReadFileLista:'wareadFileLista',
+      waSelTodos:'waselTodos', waDeselTodos:'wadeselTodos', waSelTodosChk:'waselTodosChk',
+      waUpdSel:'waupdSel', waCtPageGo:'wactPageGo', waDelContato:'wadelContato', waClrAll:'waclrAll',
+      waHandleDrop:'wahandleDrop', waReadFile:'wareadFile', waOpenAddModal:'waopenAddModal',
+      waAddContato:'waaddContato', waAddSelecionadosModal:'waaddSelecionadosModal',
+      waExportContatos:'waexportContatos', waOpenChat:'waopenChat', waSetChatTab:'wasetChatTab',
+      waSendChatMsg:'wasendChatMsg', waOpenSendModal:'waopenSendModal', waSendMsg:'wasendMsg',
+      waInsVar:'wainsVar', waUpdPrev:'waupdPrev', waSaveMsg:'wasaveMsg', waSaveTpl:'wasaveTpl',
+      waLoadTpl:'waloadTpl', waUseTpl:'wauseTpl', waDelTpl:'wadelTpl',
+      waLoadFireTpl:'waloadFireTpl', waClearFireMsg:'waclearFireMsg', waUpdFirePrev:'waupdFirePrev',
+      waPopulateFireTpls:'wapopulateFireTpls', waLoadAgTpl:'waloadAgTpl', waClearAgMsg:'waclearAgMsg',
+      waUpdAgPrev:'waupdAgPrev', waLimparAgendamentos:'walimparAgendamentos',
+      waCancelAgendamento:'wacancelAgendamento', waExcluirAg:'waexcluirAg', waArquivarAg:'waarquivarAg',
+      waDispararAgNow:'wadispararAgNow', waVerHistoricoAg:'waverHistoricoAg',
+      waExpLogs:'waexpLogs', waLimparLogs:'walimparLogs', waReenviarFalhas:'wareenviarFalhas',
+      waRenderConfig:'warenderConfig', waSetupWebhook:'wasetupWebhook', waOpenAddUser:'waopenAddUser',
+      waOpenUserMenu:'waopenUserMenu', waDoLogout:'wadoLogout', waTrocarUsuario:'watrocarUsuario',
+      waOpenChangePwdSelf:'waopenChangePwdSelf', waCloseModal:'wacloseModal', waShowModal:'washowModal'
+    };
+    Object.keys(map).forEach(function(camel){
+      var lower = map[camel];
+      if (typeof window[lower] === 'function') window[camel] = window[lower];
+    });
+    window.waDoLogout = window.wadoLogout || window.waDoLogout;
+  }
+
+  function repairWaUi(){
+    bindAliases();
+    setTxt('dash-wa-disp-sub','pronto');
+    setTxt('wa-clbl','Pronto');
+    if ($('wa-cdot')) $('wa-cdot').className = 'wa-cdot warn';
+
+    try { if (typeof window.waDispUpdUI === 'function') window.waDispUpdUI(); } catch(e) { console.warn('waDispUpdUI patch:', e); }
+    try { if (typeof window.warenderC === 'function') window.warenderC(); } catch(e) { console.warn('warenderC patch:', e); }
+    try { if (typeof window.waupdBadges === 'function') window.waupdBadges(); } catch(e) { console.warn('waupdBadges patch:', e); }
+    try { if (typeof window.warenderListas === 'function') window.warenderListas(); } catch(e) { console.warn('warenderListas patch:', e); }
+    try { if (typeof window.warenderAgendamentos === 'function') window.warenderAgendamentos(); } catch(e) { console.warn('warenderAgendamentos patch:', e); }
+  }
+
+  var oldInit = window.waInitModule;
+  window.waInitModule = function(){
+    bindAliases();
+    try { if (typeof oldInit === 'function') oldInit(); } catch(e) { console.warn('waInitModule original falhou:', e); }
+    setTimeout(function(){
+      bindAliases();
+      try { if (typeof window.waBootApp === 'function') window.waBootApp(); } catch(e) { console.warn('waBootApp falhou:', e); }
+      repairWaUi();
+    }, 80);
+  };
+
+  document.addEventListener('click', function(ev){
+    var nav = ev.target.closest && ev.target.closest('[data-view="whatsapp"]');
+    if (nav) setTimeout(function(){ if (typeof window.waInitModule === 'function') window.waInitModule(); }, 30);
+  }, true);
+
+  window.addEventListener('error', function(ev){
+    console.error('Erro tratado pelo patch:', ev.message, ev.error || '');
+    repairWaUi();
+    if (ev.message && /wa|whatsapp|disparo/i.test(ev.message)) ev.preventDefault();
+  });
+  window.addEventListener('unhandledrejection', function(ev){
+    console.error('Promise tratada pelo patch:', ev.reason || ev);
+    repairWaUi();
+  });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', repairWaUi);
+  else repairWaUi();
+  setTimeout(repairWaUi, 600);
+})();
+</script>
+
 </body>
 </html>

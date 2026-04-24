@@ -3135,65 +3135,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-//   RISE SST — GLOBAL FUNCTION REGISTRY
-//   Expose ALL onclick functions to window scope
-//   Required because inline HTML onclick needs window-level access
+//   RISE SST — GLOBAL FUNCTION REGISTRY (direct assignments)
 // ═══════════════════════════════════════════════════════════════
-(function exposeGlobals() {
-  var fns = [
-    // WA module
-    'openChat','sendMsg','openChatWindow_tel','closeModal','wGet',
-    'arquivarAg','cancelAgendamento','dispararAgNow','excluirAg',
-    'verHistoricoAg','_limparAgs','atribuirResp','remDaLista',
-    'toggleLista','useTpl','delTpl','changePwd','editUserInst',
-    'dispararLista','excluirLista','readFileLista','ctPageGo',
-    'openAddModal','clrAll','addSelecionadosModal','deselTodos',
-    'selTodos','selTodosChk','updSel','addContato','renderLogs',
-    // CRM module
-    'editCRM','delCRM','delCRMCol','delContato','crmDelLead',
-    'crmOpenLead','crmFilterStatus','crmRenderTab','crmSaveLead',
-    'crmQuickStatus','crmSetView','crmAddCol',
-    // Modal callbacks (defined when modal opens)
-    '_doAddSel','_doAddUser','_doAtribuirResp','_doChangePwd',
-    '_doChangePwdSelf','_doClrAll','_doDelCRMCol','_doExcluirAg',
-    '_doImport','_doReenviarFalhas','_doSaveTpl','_doSendModal',
-    '_doWipe','_doAddCRMCol','_saveCRM','_saveUserInst',
-    '_confirmDispararAgNow',
-    // Buscador
-    'bRunSearch','bRunMore','bApplyFilter','bExportJSON','bExportCSV',
-    'bEnrichar','bAddToCRMEnriched','bAddToCRMEnrichedHist','bCopy',
-    'bCardId','bEsc','bFmtWA','bSetTab','bEnviarParaDisparoWA',
-    'histRebuscar','histDelGroup','histClearAll','histAddToCRM',
-    // History & Analysis
-    'histActivityLoad','analiseGerar',
-    // Config
-    'cfgSetTheme','cfgSalvarPerfil','cfgTrocarSenha','cfgExcluirDados',
-    // Dashboard
-    'dashSetLogTab',
-    // IA
-    'iaEnviar','iaLimparChat','iaTrocarModo','iaChipClick',
-    // Credits
-    'creditsOpenModal','creditsCloseModal','creditsBuy','creditsConfirmBuy',
-    // WA Dispatch
-    'waDispOpenModal','waDispCloseModal','waDispBuy','waDispConfirmBuy',
-    // Login
-    'loginDoLogin','loginSetTab','loginSendEmail','loginWhatsApp','loginLogout',
-  ];
-  fns.forEach(function(name) {
-    if (typeof window[name] === 'undefined') {
-      // Try to find it in global scope
-      try {
-        var fn = eval(name);
-        if (typeof fn === 'function') {
-          window[name] = fn;
-        }
-      } catch(e) {}
-    }
-  });
-  // Also expose waXxx aliases for functions without wa prefix
-  if (!window.waRenderC && typeof renderC === 'function') window.waRenderC = renderC;
-  if (!window.waRenderLogs && typeof renderLogs === 'function') window.waRenderLogs = renderLogs;
-})();
+if (typeof openChat              !== 'undefined') window.openChat              = openChat;
+if (typeof sendMsg               !== 'undefined') window.sendMsg               = sendMsg;
+if (typeof openChatWindow_tel    !== 'undefined') window.openChatWindow_tel    = openChatWindow_tel;
+if (typeof closeModal            !== 'undefined') window.closeModal            = closeModal;
+if (typeof wGet                  !== 'undefined') window.wGet                  = wGet;
+if (typeof arquivarAg            !== 'undefined') window.arquivarAg            = arquivarAg;
+if (typeof cancelAgendamento     !== 'undefined') window.cancelAgendamento     = cancelAgendamento;
+if (typeof dispararAgNow         !== 'undefined') window.dispararAgNow         = dispararAgNow;
+if (typeof excluirAg             !== 'undefined') window.excluirAg             = excluirAg;
+if (typeof verHistoricoAg        !== 'undefined') window.verHistoricoAg        = verHistoricoAg;
+if (typeof _limparAgs            !== 'undefined') window._limparAgs            = _limparAgs;
+if (typeof atribuirResp          !== 'undefined') window.atribuirResp          = atribuirResp;
+if (typeof remDaLista            !== 'undefined') window.remDaLista            = remDaLista;
+if (typeof toggleLista           !== 'undefined') window.toggleLista           = toggleLista;
+if (typeof useTpl                !== 'undefined') window.useTpl                = useTpl;
+if (typeof delTpl                !== 'undefined') window.delTpl                = delTpl;
+if (typeof changePwd             !== 'undefined') window.changePwd             = changePwd;
+if (typeof editUserInst          !== 'undefined') window.editUserInst          = editUserInst;
+if (typeof dispararLista         !== 'undefined') window.dispararLista         = dispararLista;
+if (typeof excluirLista          !== 'undefined') window.excluirLista          = excluirLista;
+if (typeof readFileLista         !== 'undefined') window.readFileLista         = readFileLista;
+if (typeof ctPageGo              !== 'undefined') window.ctPageGo              = ctPageGo;
+if (typeof openAddModal          !== 'undefined') window.openAddModal          = openAddModal;
+if (typeof clrAll                !== 'undefined') window.clrAll                = clrAll;
+if (typeof addSelecionadosModal  !== 'undefined') window.addSelecionadosModal  = addSelecionadosModal;
+if (typeof deselTodos            !== 'undefined') window.deselTodos            = deselTodos;
+if (typeof selTodos              !== 'undefined') window.selTodos              = selTodos;
+if (typeof selTodosChk           !== 'undefined') window.selTodosChk           = selTodosChk;
+if (typeof updSel                !== 'undefined') window.updSel                = updSel;
+if (typeof addContato            !== 'undefined') window.addContato            = addContato;
+if (typeof renderLogs            !== 'undefined') window.renderLogs            = renderLogs;
+if (typeof editCRM               !== 'undefined') window.editCRM               = editCRM;
+if (typeof delCRM                !== 'undefined') window.delCRM                = delCRM;
+if (typeof delCRMCol             !== 'undefined') window.delCRMCol             = delCRMCol;
+if (typeof delContato            !== 'undefined') window.delContato            = delContato;
+if (typeof _doAddSel             !== 'undefined') window._doAddSel             = _doAddSel;
+if (typeof _doAddUser            !== 'undefined') window._doAddUser            = _doAddUser;
+if (typeof _doAtribuirResp       !== 'undefined') window._doAtribuirResp       = _doAtribuirResp;
+if (typeof _doChangePwd          !== 'undefined') window._doChangePwd          = _doChangePwd;
+if (typeof _doChangePwdSelf      !== 'undefined') window._doChangePwdSelf      = _doChangePwdSelf;
+if (typeof _doClrAll             !== 'undefined') window._doClrAll             = _doClrAll;
+if (typeof _doDelCRMCol          !== 'undefined') window._doDelCRMCol          = _doDelCRMCol;
+if (typeof _doExcluirAg          !== 'undefined') window._doExcluirAg          = _doExcluirAg;
+if (typeof _doImport             !== 'undefined') window._doImport             = _doImport;
+if (typeof _doReenviarFalhas     !== 'undefined') window._doReenviarFalhas     = _doReenviarFalhas;
+if (typeof _doSaveTpl            !== 'undefined') window._doSaveTpl            = _doSaveTpl;
+if (typeof _doSendModal          !== 'undefined') window._doSendModal          = _doSendModal;
+if (typeof _doWipe               !== 'undefined') window._doWipe               = _doWipe;
+if (typeof _doAddCRMCol          !== 'undefined') window._doAddCRMCol          = _doAddCRMCol;
+if (typeof _saveCRM              !== 'undefined') window._saveCRM              = _saveCRM;
+if (typeof _saveUserInst         !== 'undefined') window._saveUserInst         = _saveUserInst;
+if (typeof _confirmDispararAgNow !== 'undefined') window._confirmDispararAgNow = _confirmDispararAgNow;
+if (typeof renderC               !== 'undefined') window.waRenderC             = renderC;
+if (typeof renderLogs            !== 'undefined') window.waRenderLogs          = renderLogs;
 </script>
 
 </body>

@@ -2087,6 +2087,22 @@
               onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'"></textarea>
           </div>
 
+          <!-- Multi-user section -->
+          <div style="margin-top:16px;padding:14px;background:#F0EFF8;border-radius:10px">
+            <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+              👥 Usuários da Empresa
+              <span style="font-size:10px;font-weight:400;color:#8892AA">(opcional — até 4 usuários adicionais)</span>
+            </div>
+            <div style="font-size:11px;color:#8892AA;margin-bottom:10px">Cada usuário terá login próprio com os mesmos créditos e módulos da empresa.</div>
+            <div id="u-extra-users" style="display:flex;flex-direction:column;gap:8px">
+              <!-- Extra user rows added by JS -->
+            </div>
+            <button type="button" onclick="usuariosAddUserRow()" id="u-add-user-btn"
+              style="margin-top:8px;padding:7px 14px;background:#fff;border:1.5px dashed #C2BFE0;border-radius:7px;font-size:11px;font-weight:600;color:#5B5BAA;cursor:pointer;font-family:inherit;width:100%">
+              + Adicionar usuário
+            </button>
+          </div>
+
           <div id="usuarios-modal-msg" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
 
           <div style="display:flex;gap:10px;margin-top:18px">
@@ -3699,10 +3715,50 @@ function usuariosApplyAccess(user) {
 
   // ── Show/hide buscador credits badge ──
   const hasBuscador = isMaster || user.acesso_buscador;
-  const credPill = document.getElementById('dash-credit-pill');
+  const credPill  = document.getElementById('dash-credit-pill');
   const credBadge = document.getElementById('b-credit-badge');
   if (credPill)  credPill.style.display  = hasBuscador ? '' : 'none';
   if (credBadge) credBadge.style.display = hasBuscador ? '' : 'none';
+
+  // ── Update credit numbers from DB for non-master ──
+  if (!isMaster) {
+    const remB = Math.max(0, (user.limite_busca||25) - (user.busca_usada||0));
+    const remD = Math.max(0, (user.limite_disparo||200) - (user.disparo_usado||0));
+
+    // Buscador badge
+    const bBadgeVal = document.getElementById('b-credits-display');
+    if (bBadgeVal) bBadgeVal.textContent = remB;
+
+    // Dashboard pill
+    const dashCredVal = document.getElementById('dash-credits');
+    const dashCredSub = document.getElementById('dash-credits-sub');
+    if (dashCredVal) dashCredVal.textContent = remB;
+    if (dashCredSub) dashCredSub.textContent = remB + ' buscas disponíveis';
+
+    // WA pill
+    const waVal = document.getElementById('dash-wa-disp');
+    const waSub = document.getElementById('dash-wa-disp-sub');
+    if (waVal) waVal.textContent = remD;
+    if (waSub) waSub.textContent = remD + ' disparos disponíveis';
+
+    // WA badge in buscador
+    const waBadgeVal = document.getElementById('wa-disp-remaining');
+    if (waBadgeVal) waBadgeVal.textContent = remD;
+  } else {
+    // Master: show ∞
+    ['dash-credits','b-credits-display'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '∞';
+    });
+    ['dash-wa-disp','wa-disp-remaining'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '∞';
+    });
+    const sub = document.getElementById('dash-credits-sub');
+    if (sub) sub.textContent = 'ilimitado';
+    const waSub = document.getElementById('dash-wa-disp-sub');
+    if (waSub) waSub.textContent = 'ilimitado';
+  }
 }
 
 // ── Load users list ──
@@ -4174,6 +4230,135 @@ if (!document.getElementById('locked-popup-css')) {
   document.head.appendChild(s);
 }
 window.showModuleLockedPopup = showModuleLockedPopup;
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — MULTI-USUÁRIO POR EMPRESA
+// ═══════════════════════════════════════════════════════════════
+
+let _extraUserRows = 0;
+const MAX_EXTRA_USERS = 4;
+
+function usuariosAddUserRow() {
+  if (_extraUserRows >= MAX_EXTRA_USERS) {
+    alert('Máximo de ' + MAX_EXTRA_USERS + ' usuários adicionais por empresa.');
+    return;
+  }
+  _extraUserRows++;
+  const n = _extraUserRows;
+  const container = document.getElementById('u-extra-users');
+  if (!container) return;
+
+  const row = document.createElement('div');
+  row.id = 'u-extra-row-' + n;
+  row.style.cssText = 'background:#fff;border:1px solid #E7E6F4;border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center';
+  row.innerHTML = `
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#8892AA;margin-bottom:4px">USUÁRIO ${n}</div>
+      <input type="text" id="u-extra-user-${n}" placeholder="usuario${n}"
+        style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:inherit;color:#1E1E5C;outline:none"
+        onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#8892AA;margin-bottom:4px">SENHA</div>
+      <input type="text" id="u-extra-pass-${n}" placeholder="senha123"
+        style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:inherit;color:#1E1E5C;outline:none"
+        onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+    </div>
+    <button type="button" onclick="usuariosRemoveUserRow(${n})"
+      style="padding:8px;background:#FCEBEB;border:1px solid #A32D2D33;border-radius:6px;color:#A32D2D;cursor:pointer;font-size:14px;margin-top:14px">✕</button>
+  `;
+  container.appendChild(row);
+
+  // Show/hide add button
+  if (_extraUserRows >= MAX_EXTRA_USERS) {
+    const btn = document.getElementById('u-add-user-btn');
+    if (btn) btn.style.display = 'none';
+  }
+}
+window.usuariosAddUserRow = usuariosAddUserRow;
+
+function usuariosRemoveUserRow(n) {
+  const row = document.getElementById('u-extra-row-' + n);
+  if (row) row.remove();
+  _extraUserRows = Math.max(0, _extraUserRows - 1);
+  const btn = document.getElementById('u-add-user-btn');
+  if (btn) btn.style.display = '';
+}
+window.usuariosRemoveUserRow = usuariosRemoveUserRow;
+
+function usuariosGetExtraUsers() {
+  const users = [];
+  for (let i = 1; i <= MAX_EXTRA_USERS; i++) {
+    const uEl = document.getElementById('u-extra-user-' + i);
+    const pEl = document.getElementById('u-extra-pass-' + i);
+    if (uEl && pEl && uEl.value.trim() && pEl.value.trim()) {
+      users.push({ username: uEl.value.trim(), password: pEl.value.trim() });
+    }
+  }
+  return users;
+}
+
+// ── Reset extra users on modal open ──
+const _origOpenCreate = window.usuariosOpenCreate;
+window.usuariosOpenCreate = function() {
+  _extraUserRows = 0;
+  if (_origOpenCreate) _origOpenCreate();
+  const container = document.getElementById('u-extra-users');
+  if (container) container.innerHTML = '';
+  const btn = document.getElementById('u-add-user-btn');
+  if (btn) btn.style.display = '';
+};
+
+// ── Override usuariosSave to also create extra users ──
+const _origSave = window.usuariosSave;
+window.usuariosSave = async function() {
+  // First save the main user
+  if (_origSave) await _origSave();
+
+  // Then create extra users with same permissions
+  const extraUsers = usuariosGetExtraUsers();
+  if (!extraUsers.length) return;
+
+  const empresa   = document.getElementById('u-empresa')?.value?.trim() || '';
+  const plano     = document.getElementById('u-plano')?.value || 'starter';
+  const limBusca  = parseInt(document.getElementById('u-limite-busca')?.value) || 25;
+  const limDisp   = parseInt(document.getElementById('u-limite-disparo')?.value) || 200;
+  const acBuscador= document.getElementById('u-buscador')?.checked;
+  const acWA      = document.getElementById('u-whatsapp')?.checked;
+  const acCRM     = document.getElementById('u-crm')?.checked;
+  const acIA      = document.getElementById('u-ia')?.checked;
+  const nomeResp  = document.getElementById('u-nome')?.value?.trim() || '';
+  const email     = document.getElementById('u-email')?.value?.trim() || '';
+
+  for (const eu of extraUsers) {
+    try {
+      await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          username:    eu.username,
+          password:    eu.password,
+          nome:        nomeResp || eu.username,
+          email:       email,
+          empresa:     empresa,
+          plano:       plano,
+          acesso_buscador: acBuscador,
+          acesso_whatsapp: acWA,
+          acesso_crm:      acCRM,
+          acesso_ia:       acIA,
+          limite_busca:    limBusca,
+          limite_disparo:  limDisp,
+          obs:             'Usuário adicional da empresa ' + empresa,
+          criado_por:      'gustavo1996c',
+        })
+      });
+    } catch(e) { console.warn('Extra user create error:', e.message); }
+  }
+};
+</script>
 
 </body>
 </html>TYPE html>
@@ -10178,6 +10363,16 @@ function creditsHistoryGet() {
 
 // ── Update UI everywhere ──
 function creditsUpdUI() {
+  // If user has DB data, use DB limits
+  if (window._currentUser && !window._currentUser.is_master) {
+    const u = window._currentUser;
+    const remBusca = Math.max(0, (u.limite_busca||25) - (u.busca_usada||0));
+    const valEl = document.getElementById('dash-credits');
+    const badgeEl = document.getElementById('b-credits-display');
+    if (valEl) valEl.textContent = remBusca;
+    if (badgeEl) badgeEl.textContent = remBusca;
+    return;
+  }
   const d = creditsLoad();
   const bal = d.balance;
   const max = d.total_granted + (d.purchased || 0);
@@ -10350,7 +10545,12 @@ document.addEventListener('DOMContentLoaded', function() {
 //   troca de navegador, celular, computador.
 // ════════════════════════════════════════════
 
-const DB_USER_KEY = 'rise_user';
+const DB_USER_KEY = (function() {
+  try {
+    const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    return sess.user ? 'rise_user_' + sess.user : 'rise_user';
+  } catch(e) { return 'rise_user'; }
+})();
 
 // ── Sync: salva no localStorage E no banco ──
 async function dbSave(storeKey, data) {
@@ -10394,8 +10594,9 @@ async function dbLoad(storeKey) {
 }
 
 // ── Histórico do Buscador: save/load via banco ──
-async function histSaveDB(data) {
-  try { localStorage.setItem('rise_buscador_historico', JSON.stringify(data)); } catch(e) {}
+async function histSaveDB(data, uKey) {
+  const localKey = (uKey || (typeof getCurrentUsername==='function' ? getCurrentUsername() : 'guest')) + '_rise_buscador_historico';
+  try { localStorage.setItem(localKey, JSON.stringify(data)); } catch(e) {}
   await dbSave('historico', { buscas: data });
 }
 
@@ -10403,9 +10604,11 @@ async function histLoadDB() {
   // Try DB first
   const db = await dbLoad('historico');
   if (db && Array.isArray(db.buscas) && db.buscas.length > 0) return db.buscas;
-  // Fallback localStorage
+  // Fallback localStorage (user-scoped)
   try {
-    const local = localStorage.getItem('rise_buscador_historico');
+    const u = (typeof getCurrentUsername==='function') ? getCurrentUsername() : 'guest';
+    const localKey = u + '_rise_buscador_historico';
+    const local = localStorage.getItem(localKey) || localStorage.getItem('rise_buscador_historico');
     return local ? JSON.parse(local) : [];
   } catch(e) { return []; }
 }
@@ -11432,22 +11635,39 @@ async function loginDoLogin() {
 window.loginDoLogin = loginDoLogin;
 
 async function loginSendEmail(type) {
-  const emailEl=document.getElementById(type==='forgot'?'forgot-email':'first-email');
-  const nameEl=document.getElementById('first-name');
-  const msgId=type==='forgot'?'forgot-msg':'first-msg';
-  const email=(emailEl?.value||'').trim();
-  const name=(nameEl?.value||'').trim();
-  if(!email||!email.includes('@')){loginShowMsg(msgId,'error','Informe um e-mail válido.');return;}
-  loginShowMsg(msgId,'success','⏳ Enviando...');
-  const subject=type==='forgot'
-    ?encodeURIComponent('RISE SST — Redefinição de Senha')
-    :encodeURIComponent('RISE SST — Solicitação de Primeiro Acesso');
-  const body=type==='forgot'
-    ?encodeURIComponent('Olá!\n\nSolicitação de redefinição de senha para: '+email+'\n\nRISE SST')
-    :encodeURIComponent('Olá!\n\nNovo pedido de primeiro acesso:\n\nNome: '+(name||'—')+'\nE-mail: '+email+'\n\nRISE SST');
-  window.open('mailto:'+LOGIN_EMAIL_ADMIN+'?subject='+subject+'&body='+body);
-  loginShowMsg(msgId,'success','✓ Solicitação enviada! Verifique seu e-mail em até 24h.');
-  if(emailEl) emailEl.value='';
+  const emailEl = document.getElementById(type==='forgot' ? 'forgot-email' : 'first-email');
+  const nameEl  = document.getElementById('first-name');
+  const msgId   = type==='forgot' ? 'forgot-msg' : 'first-msg';
+  const email   = (emailEl?.value||'').trim();
+  const name    = (nameEl?.value||'').trim();
+
+  if(!email && !name){
+    loginShowMsg(msgId,'error','Informe seu e-mail ou nome.');
+    return;
+  }
+
+  loginShowMsg(msgId,'success','⏳ Enviando solicitação...');
+
+  const WA = '5511979668226';
+  let msg = '';
+  if(type==='forgot') {
+    msg = encodeURIComponent(
+      'Olá! Preciso redefinir minha senha no RISE SST.\n\n' +
+      'E-mail: ' + (email||'não informado') + '\n\n' +
+      'Por favor, me envie as novas credenciais.'
+    );
+  } else {
+    msg = encodeURIComponent(
+      'Olá! Gostaria de solicitar meu primeiro acesso ao RISE SST.\n\n' +
+      'Nome: ' + (name||'não informado') + '\n' +
+      'E-mail: ' + (email||'não informado') + '\n\n' +
+      'Aguardo as credenciais. Obrigado!'
+    );
+  }
+
+  window.open('https://wa.me/' + WA + '?text=' + msg, '_blank');
+  loginShowMsg(msgId, 'success', '✓ WhatsApp aberto! Envie a mensagem para receber suas credenciais.');
+  setTimeout(() => { if(emailEl) emailEl.value = ''; if(nameEl) nameEl.value = ''; }, 2000);
 }
 window.loginSendEmail = loginSendEmail;
 

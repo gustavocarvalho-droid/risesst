@@ -3076,17 +3076,77 @@
 
 
 <script>
+
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — DATA ISOLATION PER USER
+//   Each user's data is stored under their own key prefix
+// ═══════════════════════════════════════════════════════════════
+function getCurrentUsername() {
+  try {
+    const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    return sess.user || 'guest';
+  } catch(e) { return 'guest'; }
+}
+
+function userKey(baseKey) {
+  const u = getCurrentUsername();
+  // Master sees their own data, others get prefixed keys
+  return u + '_' + baseKey;
+}
+
+// Override localStorage to auto-prefix keys for data isolation
+const _ISOLATED_KEYS = [
+  'rise_buscador_historico',
+  'rise_crm_buscador', 'rise_crm_zap', 'rise_crm_empresa',
+  'rise_ia_historico',
+  'rise_credits_v2', 'rise_credits',
+  'rise_wa_disparos_v1',
+];
+
+const _origGetItem = localStorage.getItem.bind(localStorage);
+const _origSetItem = localStorage.setItem.bind(localStorage);
+const _origRemoveItem = localStorage.removeItem.bind(localStorage);
+
+function _scopedKey(key) {
+  if (_ISOLATED_KEYS.includes(key)) {
+    return getCurrentUsername() + '_' + key;
+  }
+  return key;
+}
+
+// Only patch for isolated keys, leave others (session, config) untouched
+const _origStorage = {
+  get: (k) => _origGetItem(_scopedKey(k)),
+  set: (k, v) => _origSetItem(_scopedKey(k), v),
+  remove: (k) => _origRemoveItem(_scopedKey(k)),
+};
+
+// Patch the storage accessors for isolated keys
+const _patchedLocalStorage = new Proxy(localStorage, {
+  get(target, prop) {
+    if (prop === 'getItem') return (k) => _origGetItem(_scopedKey(k));
+    if (prop === 'setItem') return (k, v) => _origSetItem(_scopedKey(k), v);
+    if (prop === 'removeItem') return (k) => _origRemoveItem(_scopedKey(k));
+    return typeof target[prop] === 'function' ? target[prop].bind(target) : target[prop];
+  }
+});
+
+
 // ═══════════════════════════════════════════════════════════════
 //   SISTEMA DE DISPAROS WA — Limite 200/mês
 // ═══════════════════════════════════════════════════════════════
 
-const WA_DISP_KEY    = 'rise_wa_disparos_v1';
+function getWADispKey() {
+  const u = (typeof getCurrentUsername === 'function') ? getCurrentUsername() : 'guest';
+  return u + '_rise_wa_disparos_v1';
+}
+const WA_DISP_KEY = getWADispKey();
 const WA_DISP_LIMIT  = 200;    // mensagens por mês
 const WA_DISP_EXTRA_WA = '5511979668226';
 
 function waDispLoad() {
   try {
-    const raw = localStorage.getItem(WA_DISP_KEY);
+    const raw = localStorage.getItem(getWADispKey());
     if (raw) {
       const d = JSON.parse(raw);
       // Reset monthly on first day of new month
@@ -3109,12 +3169,12 @@ function waDispReset() {
     resetAt: now.getTime(),
     resetLabel: now.toLocaleDateString('pt-BR', {month:'long', year:'numeric'}),
   };
-  localStorage.setItem(WA_DISP_KEY, JSON.stringify(d));
+  localStorage.setItem(getWADispKey(), JSON.stringify(d));
   return d;
 }
 
 function waDispSave(d) {
-  localStorage.setItem(WA_DISP_KEY, JSON.stringify(d));
+  localStorage.setItem(getWADispKey(), JSON.stringify(d));
   if (window._db) window._db.save('wa_disparos_contador', d).catch(()=>{});
   waDispUpdUI();
 }
@@ -4055,6 +4115,65 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 1500);
 });
 </script>
+
+
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — POPUP MÓDULO BLOQUEADO
+// ═══════════════════════════════════════════════════════════════
+function showModuleLockedPopup(moduleName) {
+  const MASTER_WA = '5511979668226';
+  const labels = {
+    buscador: '🔍 Buscador de Empresas',
+    whatsapp: '📱 WhatsApp Disparos',
+    crm:      '📋 CRM',
+    'ia-sst': '🤖 RISE IA',
+  };
+  const moduleLabel = labels[moduleName] || moduleName;
+  
+  // Remove existing popup
+  document.getElementById('module-locked-popup')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'module-locked-popup';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease';
+  overlay.onclick = (e) => { if(e.target===overlay) overlay.remove(); };
+  
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:36px 32px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.25);animation:slideUp .25s ease">
+      <div style="width:64px;height:64px;background:#F0EFF8;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px">🔒</div>
+      <div style="font-size:20px;font-weight:800;color:#1E1E5C;margin-bottom:8px">Módulo Bloqueado</div>
+      <div style="font-size:14px;color:#5B5BAA;margin-bottom:6px;font-weight:600">${moduleLabel}</div>
+      <div style="font-size:13px;color:#8892AA;line-height:1.6;margin-bottom:24px">
+        Este módulo não está incluído no seu plano atual.<br>
+        Tem interesse em desbloquear essa funcionalidade?
+      </div>
+      <button onclick="
+        const msg = encodeURIComponent('Olá! Tenho interesse em desbloquear o módulo ${moduleLabel} do RISE SST. Pode me ajudar?');
+        window.open('https://wa.me/${MASTER_WA}?text=' + msg, '_blank');
+        document.getElementById('module-locked-popup')?.remove();
+      " style="width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:background .15s"
+         onmouseover="this.style.background='#1da851'" onmouseout="this.style.background='#25D366'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Tenho interesse! Falar agora
+      </button>
+      <button onclick="document.getElementById('module-locked-popup')?.remove()"
+        style="width:100%;padding:11px;background:#fff;color:#8892AA;border:1.5px solid #E7E6F4;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+        Fechar
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+// Add popup animations
+if (!document.getElementById('locked-popup-css')) {
+  const s = document.createElement('style');
+  s.id = 'locked-popup-css';
+  s.textContent = `
+    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  `;
+  document.head.appendChild(s);
+}
+window.showModuleLockedPopup = showModuleLockedPopup;
 
 </body>
 </html>TYPE html>
@@ -6160,18 +6279,25 @@ document.addEventListener('DOMContentLoaded', function() {
   //   BUSCADOR — HISTÓRICO + TABS + WHATSAPP
   // ════════════════════════════════════════════
 
-  const HIST_KEY = 'rise_buscador_historico';
+  const HIST_KEY = (typeof getCurrentUsername==='function' ? getCurrentUsername()+'_' : '') + 'rise_buscador_historico';
   let bActiveTab = 'busca';
 
   // ── Load / Save history ──
+  function getHistKey() {
+    const u = (typeof getCurrentUsername==='function') ? getCurrentUsername() : 'guest';
+    return u + '_rise_buscador_historico';
+  }
   function histLoad() {
-    try { return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+    try { return JSON.parse(localStorage.getItem(getHistKey())) || []; }
     catch(e) { return []; }
   }
   function histSave(data) {
-    try { localStorage.setItem(HIST_KEY, JSON.stringify(data)); } catch(e) {}
-    // Sync to DB asynchronously
-    if (window._db) window._db.histSaveDB(data).catch(()=>{});
+    try { localStorage.setItem(getHistKey(), JSON.stringify(data)); } catch(e) {}
+    // Sync to DB asynchronously with user key
+    if (window._db) {
+      const uKey = (typeof getCurrentUsername==='function') ? getCurrentUsername() : 'shared';
+      window._db.histSaveDB(data, uKey).catch(()=>{});
+    }
   }
   // Load from DB on init (overrides localStorage if DB has newer data)
   async function histLoadFromDB() {
@@ -6179,7 +6305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       const data = await window._db.histLoadDB();
       if (data && data.length > 0) {
-        localStorage.setItem(HIST_KEY, JSON.stringify(data));
+        localStorage.setItem(getHistKey(), JSON.stringify(data));
         histUpdCount();
         if (bActiveTab === 'hist') histRender();
       }
@@ -6924,9 +7050,10 @@ async function salvarImediato() { await _saveNeon(); }
 async function _saveNeon() {
   const ind = wGet('wa-save-indicator');
   try {
+    const _uKey = getCurrentUsername ? getCurrentUsername() : 'shared';
     const res = await fetch('/api/dados', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-user-key':'shared'},
+      headers:{'Content-Type':'application/json','x-user-key':_uKey},
       body:JSON.stringify({contacts:wa_contacts,listas:wa_listas,logs:wa_logs,crm:wa_crmData,fila:wa_fila,agendamentos:wa_agendamentos,savedmsg:wa_savedMsg,config:{tpls:wa_tpls}})
     });
     if(!res.ok) throw new Error('HTTP '+res.status);
@@ -6936,10 +7063,11 @@ async function _saveNeon() {
   }
 }
 async function carregarDados() {
-  // Try loading from Neon DB first
+  // Try loading from Neon DB first (user-scoped)
   if (window._db) {
     try {
-      const db = await window._db.waLoadDB();
+      const _uKey = getCurrentUsername ? getCurrentUsername() : 'shared';
+      const db = await window._db.waLoadDB(_uKey);
       if (db && (db.contacts?.length || db.listas?.length)) {
         wa_contacts    = db.contacts    || [];
         wa_listas      = db.listas      || [];
@@ -9802,9 +9930,9 @@ function dashUpdKPIs() {
     }
 
     // ── CRM data ──
-    const crmB = JSON.parse(localStorage.getItem('rise_crm_buscador') || '[]');
-    const crmZ = JSON.parse(localStorage.getItem('rise_crm_zap') || '[]');
-    const crmE = JSON.parse(localStorage.getItem('rise_crm_empresa') || '[]');
+    const crmB = JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador') || '[]');
+    const crmZ = JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap') || '[]');
+    const crmE = JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa') || '[]');
     const all  = [...crmB, ...crmZ, ...crmE];
     const total    = all.length;
     const prop     = all.filter(l => l.status === 'proposta').length;
@@ -9895,9 +10023,9 @@ function dashRenderLog(tab) {
   }
 
   // Default: leads do CRM
-  const crmB = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_buscador')||'[]'); } catch(e){return [];} })();
-  const crmZ = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_zap')||'[]'); } catch(e){return [];} })();
-  const crmE = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_empresa')||'[]'); } catch(e){return [];} })();
+  const crmB = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador')||'[]'); } catch(e){return [];} })();
+  const crmZ = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap')||'[]'); } catch(e){return [];} })();
+  const crmE = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa')||'[]'); } catch(e){return [];} })();
   const all  = [...crmB,...crmZ,...crmE].sort((a,b)=>(b.criadoEm||0)-(a.criadoEm||0)).slice(0,6);
 
   if (!all.length) {
@@ -9943,7 +10071,11 @@ document.addEventListener('DOMContentLoaded', function() {
 //   Compra de pacotes extras disponível
 // ════════════════════════════════════════════════════════════════
 
-const CREDITS_KEY     = 'rise_credits';
+function getCreditsKey() {
+  const u = (typeof getCurrentUsername === 'function') ? getCurrentUsername() : 'guest';
+  return u + '_rise_credits';
+}
+const CREDITS_KEY = getCreditsKey();
 const CREDITS_DEFAULT = 25;           // créditos grátis por período
 const CREDITS_DAYS    = 45;           // dias entre renovações
 const CREDITS_HISTORY_KEY = 'rise_credits_history';
@@ -9960,7 +10092,7 @@ const CREDITS_HISTORY_KEY = 'rise_credits_history';
 
 function creditsLoad() {
   try {
-    const raw = localStorage.getItem(CREDITS_KEY);
+    const raw = localStorage.getItem(getCreditsKey());
     if (raw) {
       const d = JSON.parse(raw);
       // Check if renewal is due
@@ -9991,7 +10123,7 @@ function creditsLoad() {
 }
 
 function creditsSave(data) {
-  try { localStorage.setItem(CREDITS_KEY, JSON.stringify(data)); } catch(e) {}
+  try { localStorage.setItem(getCreditsKey(), JSON.stringify(data)); } catch(e) {}
   // Sync to DB
   if (window._db) window._db.save('credits', data).catch(()=>{});
 }
@@ -10315,13 +10447,21 @@ window._db = { save: dbSave, load: dbLoad, histSaveDB, histLoadDB, crmSaveDB, cr
 (function() {
 
 // ── Storage keys per tab ──
-const KEYS = {
-  buscador: 'rise_crm_buscador',
-  zap:      'rise_crm_zap',
-  empresa:  'rise_crm_empresa',
-  cols:     'rise_crm_cols',
-  empName:  'rise_crm_empresa_name',
-};
+// CRM keys are user-scoped for data isolation
+function getCRMKeys() {
+  const u = (typeof getCurrentUsername === 'function') ? getCurrentUsername() : 'guest';
+  return {
+    buscador: u + '_rise_crm_buscador',
+    zap:      u + '_rise_crm_zap',
+    empresa:  u + '_rise_crm_empresa',
+    cols:     u + '_rise_crm_cols',
+    empName:  u + '_rise_crm_empresa_name',
+  };
+}
+// Keep KEYS as a getter alias for compatibility
+const KEYS = new Proxy({}, {
+  get(_, prop) { return getCRMKeys()[prop]; }
+});
 
 const CRM_TABS = ['buscador', 'zap', 'empresa'];
 
@@ -11331,7 +11471,12 @@ window.loginLogout = loginLogout;
 //            Follow-up, Base de Conhecimento
 // ═══════════════════════════════════════════════════════════════
 
-const IA_HISTORY_KEY = 'rise_ia_historico';
+// IA history key is user-scoped
+function getIAHistKey() {
+  const u = (typeof getCurrentUsername === 'function') ? getCurrentUsername() : 'guest';
+  return u + '_rise_ia_historico';
+}
+const IA_HISTORY_KEY = getIAHistKey(); // initial value (updated on use)
 let iaMessages = []; // {role, content, ts}
 let iaModoAtual = 'comercial';
 
@@ -11415,14 +11560,14 @@ async function iaInit() {
       const db = await window._db.load('ia_historico');
       if (db && Array.isArray(db.messages) && db.messages.length > 0) {
         iaMessages = db.messages;
-        localStorage.setItem(IA_HISTORY_KEY, JSON.stringify(iaMessages));
+        localStorage.setItem(getIAHistKey(), JSON.stringify(iaMessages));
         loaded = true;
       }
     } catch(e) {}
   }
   if (!loaded) {
     try {
-      const saved = JSON.parse(localStorage.getItem(IA_HISTORY_KEY) || '[]');
+      const saved = JSON.parse(localStorage.getItem(getIAHistKey()) || '[]');
       if (saved.length > 0) { iaMessages = saved; loaded = true; }
     } catch(e) {}
   }
@@ -11499,7 +11644,7 @@ async function iaEnviar() {
 
     // Save history to localStorage + DB
     iaMessages = iaMessages.slice(-20);
-    localStorage.setItem(IA_HISTORY_KEY, JSON.stringify(iaMessages));
+    localStorage.setItem(getIAHistKey(), JSON.stringify(iaMessages));
     if (window._db) window._db.save('ia_historico', { messages: iaMessages }).catch(()=>{});
 
   } catch(e) {
@@ -11627,7 +11772,7 @@ window.iaTrocarModo = iaTrocarModo;
 function iaLimparChat() {
   if (!confirm('Limpar histórico da conversa?')) return;
   iaMessages = [];
-  localStorage.removeItem(IA_HISTORY_KEY);
+  localStorage.removeItem(getIAHistKey());
   if (window._db) window._db.save('ia_historico', { messages: [] }).catch(()=>{});
   const chat = document.getElementById('ia-chat');
   if (chat) chat.innerHTML = '';
@@ -11733,9 +11878,9 @@ function histActivityLoad() {
   }
 
   // CRM
-  const crmB = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_buscador')||'[]'); } catch(e){return[];} })();
-  const crmZ = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_zap')||'[]'); } catch(e){return[];} })();
-  const crmE = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_empresa')||'[]'); } catch(e){return[];} })();
+  const crmB = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador')||'[]'); } catch(e){return[];} })();
+  const crmZ = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap')||'[]'); } catch(e){return[];} })();
+  const crmE = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa')||'[]'); } catch(e){return[];} })();
   const allCRM = [...crmB,...crmZ,...crmE].sort((a,b)=>(b.criadoEm||0)-(a.criadoEm||0));
   const fechados = allCRM.filter(l=>l.status==='fechado').length;
   safeSet('hist-kpi-leads', allCRM.length);
@@ -11788,9 +11933,9 @@ async function analiseGerar() {
 
   // Collect all data
   const buscas = (() => { try { return JSON.parse(localStorage.getItem('rise_buscador_historico')||'[]'); } catch(e){return[];} })();
-  const crmB = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_buscador')||'[]'); } catch(e){return[];} })();
-  const crmZ = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_zap')||'[]'); } catch(e){return[];} })();
-  const crmE = (() => { try { return JSON.parse(localStorage.getItem('rise_crm_empresa')||'[]'); } catch(e){return[];} })();
+  const crmB = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador')||'[]'); } catch(e){return[];} })();
+  const crmZ = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap')||'[]'); } catch(e){return[];} })();
+  const crmE = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa')||'[]'); } catch(e){return[];} })();
   const allCRM = [...crmB,...crmZ,...crmE];
   const iaMsgs = (() => { try { return JSON.parse(localStorage.getItem('rise_ia_historico')||'[]'); } catch(e){return[];} })();
 

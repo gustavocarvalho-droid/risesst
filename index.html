@@ -1757,93 +1757,151 @@
 
     <!-- VIEW: DASHBOARD -->
     <div id="view-dashboard">
-      <div class="content-header">
-        <div>
-          <div class="page-title">Visão Geral</div>
-          <div class="page-subtitle">Resumo da operação comercial SST</div>
-        </div>
-        <div class="credit-pill" id="dash-credit-pill" onclick="creditsOpenModal()" title="Ver e comprar créditos">
-          <div class="credit-label">💎 CRÉDITOS</div>
-          <div class="credit-val" id="dash-credits">–</div>
-          <div style="font-size:9px;color:var(--muted);margin-top:1px" id="dash-credits-sub">carregando...</div>
-        </div>
-        <div class="credit-pill" id="dash-wa-pill" onclick="waDispOpenModal()" title="Ver e comprar disparos WA" style="background:#f0fff8;border-color:#25D366;cursor:pointer;display:none">
-          <div class="credit-label" style="color:#1a7a46">📱 DISPAROS WA</div>
-          <div class="credit-val" id="dash-wa-disp" style="color:#1a7a46">–</div>
-          <div style="font-size:9px;color:#4a9e6e;margin-top:1px" id="dash-wa-disp-sub">carregando...</div>
-        </div>
-      </div>
 
-      <div class="kpi-row">
-        <div class="kpi-card">
+  <!-- ── HEADER: Pills de créditos ── -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px 8px;flex-shrink:0">
+    <div>
+      <div class="page-title" style="font-size:18px;font-weight:800;color:var(--rise-dark)">Dashboard</div>
+      <div class="page-subtitle">Visão geral da operação comercial</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="credit-pill" id="dash-credit-pill" onclick="creditsOpenModal()" title="Créditos de busca">
+        <div class="credit-label">💎 CRÉDITOS</div>
+        <div class="credit-val" id="dash-credits">–</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:1px" id="dash-credits-sub">carregando...</div>
+      </div>
+      <div class="credit-pill" id="dash-wa-pill" onclick="waDispOpenModal()" title="Disparos WhatsApp" style="background:#f0fff8;border-color:#25D366;cursor:pointer;display:none">
+        <div class="credit-label" style="color:#1a7a46">📱 DISPAROS WA</div>
+        <div class="credit-val" id="dash-wa-disp" style="color:#1a7a46">–</div>
+        <div style="font-size:9px;color:#4a9e6e;margin-top:1px" id="dash-wa-disp-sub">carregando...</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:0 24px 24px;overflow-y:auto;flex:1">
+
+    <!-- ══ SEÇÃO BUSCADOR ══ -->
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:#5B5BAA;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#5B5BAA" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>
+        BUSCADOR DE EMPRESAS
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div class="kpi-card" style="border-left:4px solid #1E1E5C">
           <div class="kpi-label">TOTAL DE LEADS</div>
-          <div class="kpi-val" id="dash-kpi-leads">0</div>
-          <div class="kpi-tag" id="dash-kpi-leads-sub" style="color:var(--muted)">no CRM</div>
+          <div class="kpi-val" id="dash-b-leads">0</div>
+          <div class="kpi-sub" id="dash-b-leads-sub">0 leads no CRM</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left:4px solid #3a4096">
           <div class="kpi-label">PROPOSTAS ENVIADAS</div>
-          <div class="kpi-val" id="dash-kpi-prop">0</div>
-          <div class="kpi-tag" id="dash-kpi-prop-sub" style="color:var(--muted)">no pipeline</div>
+          <div class="kpi-val" id="dash-b-propostas">0</div>
+          <div class="kpi-sub" id="dash-b-propostas-sub">no pipeline</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left:4px solid #3B6D11">
           <div class="kpi-label">FECHAMENTOS</div>
-          <div class="kpi-val" id="dash-kpi-fechado">0</div>
-          <div class="kpi-tag" id="dash-kpi-fechado-sub" style="color:var(--muted)">contratos</div>
+          <div class="kpi-val" id="dash-b-fechamentos">0</div>
+          <div class="kpi-sub" id="dash-b-fechamentos-sub">0 contratos</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" style="border-left:4px solid #00C47C">
           <div class="kpi-label">TAXA DE CONVERSÃO</div>
-          <div class="kpi-val" id="dash-kpi-conv">0%</div>
-          <div class="kpi-tag up">▲ acima da média</div>
+          <div class="kpi-val" id="dash-b-conversao">0%</div>
+          <div class="kpi-sub" id="dash-b-conversao-sub" style="color:#00C47C">▲ acima da média</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SEÇÃO WHATSAPP ══ -->
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:#25D366;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a8.5 8.5 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WHATSAPP DISPAROS
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div class="kpi-card" style="border-left:4px solid #075E54">
+          <div class="kpi-label">TOTAL DE LEADS</div>
+          <div class="kpi-val" id="dash-w-leads">0</div>
+          <div class="kpi-sub" id="dash-w-leads-sub">0 leads no CRM</div>
+        </div>
+        <div class="kpi-card" style="border-left:4px solid #128C7E">
+          <div class="kpi-label">PROPOSTAS ENVIADAS</div>
+          <div class="kpi-val" id="dash-w-propostas">0</div>
+          <div class="kpi-sub" id="dash-w-propostas-sub">no pipeline</div>
+        </div>
+        <div class="kpi-card" style="border-left:4px solid #25D366">
+          <div class="kpi-label">FECHAMENTOS</div>
+          <div class="kpi-val" id="dash-w-fechamentos">0</div>
+          <div class="kpi-sub" id="dash-w-fechamentos-sub">0 contratos</div>
+        </div>
+        <div class="kpi-card" style="border-left:4px solid #34B7F1">
+          <div class="kpi-label">TAXA DE CONVERSÃO</div>
+          <div class="kpi-val" id="dash-w-conversao">0%</div>
+          <div class="kpi-sub" id="dash-w-conversao-sub" style="color:#25D366">▲ acima da média</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GRÁFICOS ══ -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <!-- Gráfico Buscador -->
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#5B5BAA" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>
+          Buscador — Desempenho Mensal
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:8px">
+          <span style="font-size:11px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#1E1E5C;display:inline-block;border-radius:2px"></span>Sem Contato</span>
+          <span style="font-size:11px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#3a4096;display:inline-block;border-radius:2px"></span>Proposta</span>
+          <span style="font-size:11px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#00C47C;display:inline-block;border-radius:2px"></span>Fechadas</span>
+        </div>
+        <canvas id="dash-chart-buscador" height="140"></canvas>
+      </div>
+
+      <!-- Gráfico WhatsApp -->
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a8.5 8.5 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp — Desempenho Mensal
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:8px">
+          <span style="font-size:11px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#075E54;display:inline-block;border-radius:2px"></span>Pendentes</span>
+          <span style="font-size:11px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#128C7E;display:inline-block;border-radius:2px"></span>Enviados</span>
+          <span style="font-size:11px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;background:#25D366;display:inline-block;border-radius:2px"></span>Respondidos</span>
+        </div>
+        <canvas id="dash-chart-whatsapp" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- ══ FUNIS DE CONVERSÃO ══ -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <!-- Funil Buscador -->
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#5B5BAA" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>
+          Buscador — Funil de Conversão
+        </div>
+        <div id="dash-funil-buscador" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid #f0eff8;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:#8892AA">CONVERSÃO GERAL</span>
+          <span style="font-size:20px;font-weight:800;color:#1E1E5C" id="dash-b-conv-total">0%</span>
         </div>
       </div>
 
-      <div class="mid-row">
-        <div class="chart-card">
-          <div class="card-title">Gráfico de Desempenho Mensal</div>
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#1E1E5C"></div> Sem Contato</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#5B5BAA"></div> Proposta Enviada</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#7176b7"></div> Fechadas</div>
-          </div>
-          <div class="bars-container" id="dash-bars">
-            <div class="bar-group"><div class="bar" id="bar-sem-0" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-0" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-0" style="height:0%;background:#7176b7"></div><div class="bar-month">Jan</div></div>
-            <div class="bar-group"><div class="bar" id="bar-sem-1" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-1" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-1" style="height:0%;background:#7176b7"></div><div class="bar-month">Fev</div></div>
-            <div class="bar-group"><div class="bar" id="bar-sem-2" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-2" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-2" style="height:0%;background:#7176b7"></div><div class="bar-month">Mar</div></div>
-            <div class="bar-group"><div class="bar" id="bar-sem-3" style="height:0%;background:#1E1E5C"></div><div class="bar" id="bar-prop-3" style="height:0%;background:#5B5BAA"></div><div class="bar" id="bar-fech-3" style="height:0%;background:#7176b7"></div><div class="bar-month">Abr</div></div>
-          </div>
+      <!-- Funil WhatsApp -->
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a8.5 8.5 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp — Funil de Conversão
         </div>
-
-        <div class="funnel-card">
-          <div class="card-title">Funil de Conversão</div>
-          <div class="funnel-row"><div class="funnel-label"><span>Empresas buscadas</span><span style="color:var(--rise-dark);font-weight:800" id="fn-buscadas">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:#1E1E5C" id="fn-bar-buscadas"></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Leads no CRM</span><span style="color:var(--rise-med);font-weight:800" id="fn-leads">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#3a4096" id="fn-bar-leads""></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Proposta enviada</span><span style="color:var(--rise-mid);font-weight:800" id="fn-prop">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#5B5BAA" id="fn-bar-prop""></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Em negociação</span><span style="color:var(--rise-light);font-weight:800" id="fn-neg">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#7176b7" id="fn-bar-neg""></div></div></div>
-          <div class="funnel-row"><div class="funnel-label"><span>Fechamentos</span><span style="color:var(--muted);font-weight:800" id="fn-fechado">0</span></div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:0%;background:#c2bfe0" id="fn-bar-fechado""></div></div></div>
-          <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--rise-bg);">
-            <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.5px">CONVERSÃO GERAL</div>
-            <div style="font-size:22px;font-weight:800;color:var(--rise-dark)"><span id="fn-conv">0%</span></div>
-          </div>
+        <div id="dash-funil-whatsapp" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid #f0eff8;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:#8892AA">CONVERSÃO GERAL</span>
+          <span style="font-size:20px;font-weight:800;color:#25D366" id="dash-w-conv-total">0%</span>
         </div>
       </div>
+    </div>
 
-      <div class="log-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="card-title" style="margin-bottom:0">Atividade Recente</div>
-          <div class="section-tabs">
-            <button class="tab active" id="dash-tab-leads" onclick="dashSetLogTab('leads',this)">Últimos Leads</button>
-            <button class="tab" id="dash-tab-buscados" onclick="dashSetLogTab('buscados',this)">Buscados</button>
-          </div>
-        </div>
-        <div id="dash-log-content">
-          <div style="text-align:center;padding:32px;color:var(--muted)">
-            <div style="font-size:28px;margin-bottom:8px">📋</div>
-            <div style="font-size:13px;font-weight:600">Nenhuma atividade ainda</div>
-            <div style="font-size:12px;margin-top:4px">Adicione leads no CRM ou busque empresas</div>
-          </div>
-        </div>
-      </div>
-    </div><!-- /view-dashboard -->
+  </div>
+</div><!-- /view-dashboard -->
 
 
     <!-- VIEW: CONFIGURAÇÕES -->
@@ -10104,71 +10162,191 @@ window.waOpenSendModal = openSendModal;
 
 // ── Dashboard KPI updater — reads from CRM real data ──
 function dashUpdKPIs() {
-  try {
-    function safeUpd(id, val) {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    }
-    function safeWidth(id, pct) {
-      const el = document.getElementById(id);
-      if (el) el.style.width = Math.min(100, Math.max(0, pct)) + '%';
-    }
-
-    // ── CRM data ──
-    const crmB = JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador') || '[]');
-    const crmZ = JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap') || '[]');
-    const crmE = JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa') || '[]');
-    const all  = [...crmB, ...crmZ, ...crmE];
-    const total    = all.length;
-    const prop     = all.filter(l => l.status === 'proposta').length;
-    const neg      = all.filter(l => l.status === 'negociacao').length;
-    const fechado  = all.filter(l => l.status === 'fechado').length;
-    const conv     = total ? Math.round(fechado / total * 100) : 0;
-
-    // ── Histórico do buscador ──
-    let buscadas = 0;
-    try {
-      const hist = JSON.parse(localStorage.getItem('rise_buscador_historico') || '[]');
-      buscadas = hist.reduce((a, h) => a + (h.empresas?.length || 0), 0);
-    } catch(e) {}
-
-    // ── KPI cards ──
-    safeUpd('dash-kpi-buscadas',     buscadas);
-    safeUpd('dash-kpi-buscadas-sub', buscadas === 1 ? '1 empresa' : buscadas + ' empresas');
-    safeUpd('dash-kpi-leads',        total);
-    safeUpd('dash-kpi-leads-sub',    total + ' leads no CRM');
-    safeUpd('dash-kpi-prop',         prop);
-    safeUpd('dash-kpi-prop-sub',     'no pipeline');
-    safeUpd('dash-kpi-fechado',      fechado);
-    safeUpd('dash-kpi-fechado-sub',  fechado + ' contratos');
-    safeUpd('dash-kpi-conv',         conv + '%');
-    safeUpd('dash-kpi-conv-sub',     'taxa de conversão');
-
-    // ── Funnel ──
-    const base = Math.max(buscadas, total, 1);
-    safeUpd('fn-buscadas', buscadas);
-    safeUpd('fn-leads',    total);
-    safeUpd('fn-prop',     prop);
-    safeUpd('fn-neg',      neg);
-    safeUpd('fn-fechado',  fechado);
-    safeUpd('fn-conv',     conv + '%');
-    safeWidth('fn-bar-buscadas', 100);
-    safeWidth('fn-bar-leads',    buscadas ? total/buscadas*100 : 0);
-    safeWidth('fn-bar-prop',     total ? prop/total*100 : 0);
-    safeWidth('fn-bar-neg',      total ? neg/total*100 : 0);
-    safeWidth('fn-bar-fechado',  total ? fechado/total*100 : 0);
-
-    // ── WA stats ──
-    const waC = (() => { try { return JSON.parse(localStorage.getItem('rise_wa_contacts')||'[]'); } catch(e){return [];} })();
-    const env = waC.filter ? waC.filter(c => c.status==='enviado').length : 0;
-    safeUpd('s-total', waC.length || 0);
-    safeUpd('s-ok',    env);
-
-    // ── Activity log: últimos leads do CRM ──
-    dashRenderLog('leads');
-
-  } catch(e) { console.warn('dashUpdKPIs:', e); }
+  if (window._dashUpdating) return; // prevent recursion
+  window._dashUpdating = true;
+  try { _dashUpdKPIsInner(); } finally { window._dashUpdating = false; }
 }
+function _dashUpdKPIsInner() {
+  // ── Load data ──
+  let crmB = [], crmZ = [], crmE = [];
+  try {
+    const u = (typeof getCurrentUsername==='function') ? getCurrentUsername() : 'guest';
+    const kb = u+'_rise_crm_buscador', kz = u+'_rise_crm_zap', ke = u+'_rise_crm_empresa';
+    const rb = localStorage.getItem(kb) || localStorage.getItem('rise_crm_buscador');
+    const rz = localStorage.getItem(kz) || localStorage.getItem('rise_crm_zap');
+    const re = localStorage.getItem(ke) || localStorage.getItem('rise_crm_empresa');
+    if (rb) crmB = JSON.parse(rb);
+    if (rz) crmZ = JSON.parse(rz);
+    if (re) crmE = JSON.parse(re);
+  } catch(e) {}
+
+  // ── Buscador KPIs ──
+  const bTotal    = crmB.length;
+  const bProposta = crmB.filter(l=>l.status==='proposta').length;
+  const bFechado  = crmB.filter(l=>l.status==='fechado').length;
+  const bConv     = bTotal ? Math.round(bFechado/bTotal*100) : 0;
+
+  safeSet('dash-b-leads',       bTotal);
+  safeSet('dash-b-leads-sub',   bTotal+' leads no CRM');
+  safeSet('dash-b-propostas',   bProposta);
+  safeSet('dash-b-propostas-sub', bProposta ? 'no pipeline' : 'no pipeline');
+  safeSet('dash-b-fechamentos', bFechado);
+  safeSet('dash-b-fechamentos-sub', bFechado+' contratos');
+  safeSet('dash-b-conversao',   bConv+'%');
+  safeSet('dash-b-conv-total',  bConv+'%');
+
+  // ── WhatsApp KPIs ──
+  const wTotal    = crmZ.length;
+  const wProposta = crmZ.filter(l=>l.status==='proposta').length;
+  const wFechado  = crmZ.filter(l=>l.status==='fechado').length;
+  const wConv     = wTotal ? Math.round(wFechado/wTotal*100) : 0;
+
+  safeSet('dash-w-leads',       wTotal);
+  safeSet('dash-w-leads-sub',   wTotal+' leads no CRM');
+  safeSet('dash-w-propostas',   wProposta);
+  safeSet('dash-w-propostas-sub', wProposta ? 'no pipeline' : 'no pipeline');
+  safeSet('dash-w-fechamentos', wFechado);
+  safeSet('dash-w-fechamentos-sub', wFechado+' contratos');
+  safeSet('dash-w-conversao',   wConv+'%');
+  safeSet('dash-w-conv-total',  wConv+'%');
+
+  // ── Buscador Funnel ──
+  const bFunnel = [
+    { label:'Empresas buscadas', val: (() => { try { const u=(typeof getCurrentUsername==='function')?getCurrentUsername():'guest'; const h=JSON.parse(localStorage.getItem(u+'_rise_buscador_historico')||'[]'); return h.reduce((a,x)=>a+(x.empresas?.length||0),0); } catch(e){ return 0; } })(), color:'#1E1E5C' },
+    { label:'Leads no CRM',      val: bTotal,    color:'#3a4096' },
+    { label:'Proposta enviada',  val: bProposta, color:'#854F0B' },
+    { label:'Em negociação',     val: crmB.filter(l=>l.status==='negociacao').length, color:'#5B5BAA' },
+    { label:'Fechamentos',       val: bFechado,  color:'#3B6D11' },
+  ];
+  dashRenderFunnel('dash-funil-buscador', bFunnel, '#1E1E5C');
+
+  // ── WhatsApp Funnel ──
+  let waTotal = 0, waEnviados = 0, waRespondidos = 0;
+  try {
+    const dbWA = JSON.parse(localStorage.getItem('rise_db_wa')||'{}');
+    const contacts = dbWA.contacts || [];
+    waTotal = contacts.length;
+    waEnviados = contacts.filter(c=>c.status==='enviado').length;
+    waRespondidos = contacts.filter(c=>c.status==='respondido'||c.status==='contato').length;
+  } catch(e) {}
+
+  const wFunnel = [
+    { label:'Contatos na lista', val: waTotal,       color:'#075E54' },
+    { label:'Disparos enviados', val: waEnviados,    color:'#128C7E' },
+    { label:'Leads no CRM',      val: wTotal,        color:'#25D366' },
+    { label:'Proposta enviada',  val: wProposta,     color:'#34B7F1' },
+    { label:'Fechamentos',       val: wFechado,      color:'#00a650' },
+  ];
+  dashRenderFunnel('dash-funil-whatsapp', wFunnel, '#25D366');
+
+  // ── Charts ──
+  dashRenderChart('dash-chart-buscador', crmB, ['#1E1E5C','#3a4096','#00C47C']);
+  dashRenderChart('dash-chart-whatsapp', crmZ, ['#075E54','#128C7E','#25D366']);
+
+  // ── Credits UI (not calling dashUpdKPIs to avoid recursion) ──
+  try {
+    const d = typeof creditsLoad==='function' ? creditsLoad() : null;
+    if (d) {
+      const bal = d.balance;
+      const daysLeft = d.next_grant ? Math.ceil((d.next_grant - Date.now()) / 86400000) : 45;
+      const valEl = document.getElementById('dash-credits');
+      const subEl = document.getElementById('dash-credits-sub');
+      if (valEl) valEl.textContent = bal;
+      if (subEl) subEl.textContent = 'Renova em ' + daysLeft + ' dias';
+    }
+  } catch(e) {}
+  if (typeof waDispUpdUI === 'function') waDispUpdUI();
+}
+
+function dashRenderFunnel(elId, steps, mainColor) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const maxVal = Math.max(...steps.map(s=>s.val), 1);
+  el.innerHTML = steps.map(s => {
+    const pct = Math.round(s.val / maxVal * 100);
+    return `<div style="display:flex;align-items:center;gap:10px">
+      <div style="font-size:11px;color:#8892AA;width:120px;flex-shrink:0;text-align:right">${s.label}</div>
+      <div style="flex:1;background:#F0EFF8;border-radius:4px;height:16px;overflow:hidden">
+        <div style="background:${s.color};width:${pct}%;height:100%;border-radius:4px;transition:width .4s ease"></div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:${s.color};width:28px;text-align:right">${s.val}</div>
+    </div>`;
+  }).join('');
+}
+
+function dashRenderChart(canvasId, leads, colors) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Build monthly data (last 6 months)
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ label: d.toLocaleDateString('pt-BR',{month:'short'}), ts: d.getTime() });
+  }
+
+  const series = [
+    leads.filter(l=>!l.status||l.status==='novo'),
+    leads.filter(l=>l.status==='proposta'),
+    leads.filter(l=>l.status==='fechado'),
+  ];
+
+  const data = months.map(m => {
+    const end = new Date(m.ts).setMonth(new Date(m.ts).getMonth()+1);
+    return series.map(s => s.filter(l => {
+      const t = l.criadoEm || l.ts || 0;
+      return t >= m.ts && t < end;
+    }).length);
+  });
+
+  const W = canvas.offsetWidth || 400;
+  const H = 140;
+  canvas.width = W;
+  canvas.height = H;
+
+  const pad = { top:10, right:10, bottom:24, left:28 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+  const maxY = Math.max(...data.flat(), 1);
+  const barW = chartW / (months.length * 4);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = '#F0EFF8'; ctx.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) {
+    const y = pad.top + chartH - (g/4)*chartH;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W-pad.right, y); ctx.stroke();
+  }
+
+  // Bars
+  months.forEach((m, mi) => {
+    const x0 = pad.left + mi * (chartW / months.length);
+    series.forEach((_, si) => {
+      const val = data[mi][si];
+      const barH = (val / maxY) * chartH;
+      const x = x0 + si * (barW + 2) + 2;
+      const y = pad.top + chartH - barH;
+      ctx.fillStyle = colors[si] + (si===0?'':'aa');
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(x, y, barW, barH, 2) : ctx.rect(x, y, barW, barH);
+      ctx.fill();
+    });
+
+    // Month label
+    ctx.fillStyle = '#8892AA'; ctx.font = '9px Figtree,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(m.label, x0 + (chartW/months.length)/2, H - 6);
+  });
+}
+
+window.dashUpdKPIs = dashUpdKPIs;
+window.dashRenderFunnel = dashRenderFunnel;
+window.dashRenderChart  = dashRenderChart;
+
 
 function dashSetLogTab(tab, btn) {
   document.querySelectorAll('.section-tabs .tab').forEach(b => b.classList.remove('active'));
@@ -10401,8 +10579,7 @@ function creditsUpdUI() {
     else if (bal <= 5) badge.classList.add('low');
   }
 
-  // KPI buscadas — just refresh
-  if (typeof dashUpdKPIs === 'function') dashUpdKPIs();
+  // Note: dashUpdKPIs is NOT called here to avoid recursion
 }
 
 // ── Open / Close modal ──
@@ -10944,37 +11121,89 @@ function crmRenderKanban(tab) {
   }).join('');
 }
 
-// ── Lead card HTML ──
+// ── Lead card HTML (new design) ──
 function crmLeadCard(l, tab) {
-  const tags = (l.servicos||[]).slice(0,3).map(s => {
-    const cls = {PGR:'pgr',LTCAT:'ltcat',PCMSO:'pcmso',PPRA:'ppra'}[s]||'custom';
-    return `<span class="crm-tag crm-tag-${cls}">${esc(s)}</span>`;
-  }).join('');
+  const statusColor = {novo:'#3a4096',contato:'#5B5BAA',proposta:'#854F0B',negociacao:'#854F0B',fechado:'#3B6D11',perdido:'#A32D2D'}[l.status]||'#3a4096';
+  const statusLabel = {novo:'Novo lead',contato:'Em contato',proposta:'Proposta',negociacao:'Negociação',fechado:'Fechado ✓',perdido:'Perdido'}[l.status]||'Novo lead';
+  const initAv = (l.responsavel||l.empresa||l.nome||'?').charAt(0).toUpperCase();
+  const avatarColor = {A:'#e74c3c',B:'#e67e22',C:'#27ae60',D:'#2980b9',E:'#8e44ad',F:'#c0392b',G:'#16a085',H:'#d35400',I:'#2c3e50',J:'#1abc9c',K:'#e74c3c',L:'#3498db',M:'#2ecc71',N:'#9b59b6',O:'#f39c12',P:'#1abc9c',Q:'#e74c3c',R:'#3498db',S:'#27ae60',T:'#e67e22',U:'#8e44ad',V:'#2980b9',W:'#c0392b',X:'#d35400',Y:'#16a085',Z:'#2c3e50'}[initAv]||'#5B5BAA';
+
+  // Notes preview
+  const lastNote = (l.notas||[]).slice(-1)[0];
+  const notePreview = lastNote ? `
+    <div style="background:#1a1a3e;border-radius:8px;padding:8px 10px;margin:8px 0">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:3px">Notas atualizadas</div>
+      <div style="font-size:11px;color:#c2bfe0;line-height:1.4">${esc((lastNote.texto||lastNote.text||lastNote||'').toString().slice(0,60))}</div>
+      <div style="font-size:10px;color:#7878A8;margin-top:4px">${lastNote.ts ? new Date(lastNote.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</div>
+    </div>` : '';
+
+  // Horário / info
+  const infoLine = [l.horario, l.segmento, l.atividade].filter(Boolean).join(' ');
+
+  // Action buttons row
   const proxLabel = l.proxAcaoTs ? new Date(l.proxAcaoTs).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
-  const overdue   = l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status!=='fechado' && l.status!=='perdido';
-  return `<div class="crm-lead-card priority-${l.prioridade||'baixa'}" onclick="crmOpenLead('${l.id}','${tab}')">
-    <div class="crm-lead-name">${esc(l.nome||'Lead sem nome')}</div>
-    <div class="crm-lead-empresa">${esc(l.empresa||'')}</div>
-    ${tags?`<div class="crm-lead-tags">${tags}</div>`:''}
-    <div class="crm-lead-meta">
-      <div class="crm-lead-tel">${esc(l.tel||'')}</div>
-      ${l.valor?`<div class="crm-lead-val">${fmtVal(l.valor)}</div>`:''}
+  const overdue   = l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status!=='fechado';
+
+  return `<div class="crm-lead-card priority-${l.prioridade||'baixa'}" style="background:#12123a;border:1px solid #2a2a5a;border-radius:12px;padding:0;overflow:hidden;cursor:default">
+    <!-- Header: avatar + status badges -->
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 6px">
+      <div style="width:36px;height:36px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${initAv}-</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#2a2a5a;color:#c2bfe0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px">Novo lead</span>
+        <span style="background:#1a3a2a;color:#4ade80;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;cursor:pointer" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">Notas</span>
+      </div>
     </div>
-    <div class="crm-lead-footer">
-      <div class="crm-lead-resp">
-        <div class="crm-lead-avatar">${initials(l.responsavel)}</div>
-        ${esc(l.responsavel?l.responsavel.split(' ')[0]:'—')}
-      </div>
-      ${proxLabel?`<div style="font-size:10px;font-weight:600;color:${overdue?'#A32D2D':'#7878A8'}">${overdue?'⚠':'📅'} ${proxLabel}</div>`:''}
-      <div class="crm-lead-actions">
-        <button class="crm-lead-action-btn" onclick="event.stopPropagation();crmQuickStatus('${l.id}','${tab}')" title="Avançar etapa">→</button>
-        <button class="crm-lead-action-btn" onclick="event.stopPropagation();crmDelLead('${l.id}','${tab}')" title="Excluir">🗑</button>
-      </div>
+
+    <!-- Empresa / nome -->
+    <div style="padding:2px 12px 4px">
+      <div style="font-size:13px;font-weight:800;color:#fff;line-height:1.3">${esc(l.empresa||l.nome||'Lead sem nome')}</div>
+      ${l.empresa&&l.nome?`<div style="font-size:11px;color:#7878A8;margin-top:1px">${esc(l.nome)}</div>`:''}
+      ${l.segmento?`<div style="font-size:10px;color:#7878A8;margin-top:1px">${esc(l.segmento)}</div>`:''}
+    </div>
+
+    <!-- Info: responsável, tel, horário -->
+    <div style="padding:4px 12px;display:flex;flex-direction:column;gap:2px">
+      ${l.responsavel?`<div style="font-size:11px;color:#9090c0">Usuário: ${esc(l.responsavel)}</div>`:''}
+      ${l.tel?`<div style="font-size:11px;color:#7878A8">${esc(l.tel)}</div>`:''}
+      ${infoLine?`<div style="font-size:11px;color:#7878A8">${esc(infoLine)}</div>`:''}
+    </div>
+
+    <!-- Note preview -->
+    <div style="padding:0 10px">${notePreview}</div>
+
+    <!-- Quick action buttons -->
+    <div style="padding:6px 10px;display:flex;flex-direction:column;gap:5px">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#c2bfe0;padding:5px 8px;background:#1a1a3e;border:1px solid #2a2a5a;border-radius:6px">
+        <input type="checkbox" style="width:13px;height:13px" ${l.selecionado?'checked':''} onclick="event.stopPropagation();crmToggleSel('${l.id}','${tab}',this.checked)"> Selecionar
+      </label>
+      ${proxLabel?`<button style="padding:5px 8px;background:#1a1a3e;border:1px solid ${overdue?'#A32D2D':'#2a2a5a'};border-radius:6px;color:${overdue?'#ff7070':'#c2bfe0'};font-size:11px;text-align:left;cursor:pointer;font-family:inherit" onclick="event.stopPropagation()">
+        ${overdue?'⚠':'📅'} ${proxLabel}
+      </button>`:''}
+      ${l.gmb_url||l.cnpj?`<button style="padding:5px 8px;background:#1a1a3e;border:1px solid #2a2a5a;border-radius:6px;color:#c2bfe0;font-size:11px;text-align:left;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();${l.gmb_url?`window.open('${l.gmb_url}','_blank')`:`window.open('https://maps.google.com/?q=${encodeURIComponent(l.empresa||'')}','_blank')`}">
+        🗺 Google Meu Negócio
+      </button>`:''}
+    </div>
+
+    <!-- Main action buttons -->
+    <div style="padding:6px 10px 10px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <button style="padding:8px;background:#3a3aaa;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">
+        Abrir lead
+      </button>
+      <button style="padding:8px;background:#1a1a3e;border:1px solid #A32D2D33;border-radius:8px;color:#ff7070;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmDelLead('${l.id}','${tab}')">
+        Excluir lead
+      </button>
     </div>
   </div>`;
 }
 
 // ── Render table for tab ──
+function crmToggleSel(id, tab, checked) {
+  const list = crmData[tab] || [];
+  const lead = list.find(l=>l.id===id);
+  if (lead) { lead.selecionado = checked; crmSave(); }
+}
+window.crmToggleSel = crmToggleSel;
+
 function crmRenderTable(tab) {
   const board = document.getElementById('crm-board-'+tab);
   if (board) board.style.display = 'none';

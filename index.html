@@ -4231,6 +4231,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
+<script>
 // ═══════════════════════════════════════════════════════════════
 //   RISE SST — POPUP MÓDULO BLOQUEADO
 // ═══════════════════════════════════════════════════════════════
@@ -4288,6 +4289,7 @@ if (!document.getElementById('locked-popup-css')) {
   document.head.appendChild(s);
 }
 window.showModuleLockedPopup = showModuleLockedPopup;
+</script>
 
 
 <script>
@@ -11179,9 +11181,9 @@ function crmLeadCard(l, tab) {
       ${proxLabel?`<button style="padding:5px 8px;background:#1a1a3e;border:1px solid ${overdue?'#A32D2D':'#2a2a5a'};border-radius:6px;color:${overdue?'#ff7070':'#c2bfe0'};font-size:11px;text-align:left;cursor:pointer;font-family:inherit" onclick="event.stopPropagation()">
         ${overdue?'⚠':'📅'} ${proxLabel}
       </button>`:''}
-      ${l.gmb_url||l.cnpj?`<button style="padding:5px 8px;background:#1a1a3e;border:1px solid #2a2a5a;border-radius:6px;color:#c2bfe0;font-size:11px;text-align:left;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();${l.gmb_url?`window.open('${l.gmb_url}','_blank')`:`window.open('https://maps.google.com/?q=${encodeURIComponent(l.empresa||'')}','_blank')`}">
+      <button style="padding:5px 8px;background:#1a1a3e;border:1px solid #2a2a5a;border-radius:6px;color:#c2bfe0;font-size:11px;text-align:left;cursor:pointer;font-family:inherit;width:100%" onclick="event.stopPropagation();crmOpenGMB('${esc(l.gmb_url||'')}','${esc(l.cnpj||'')}','${esc(l.empresa||l.nome||'')}','${esc(l.cidade||l.municipio||'')}')">
         🗺 Google Meu Negócio
-      </button>`:''}
+      </button>
     </div>
 
     <!-- Main action buttons -->
@@ -11203,6 +11205,24 @@ function crmToggleSel(id, tab, checked) {
   if (lead) { lead.selecionado = checked; crmSave(); }
 }
 window.crmToggleSel = crmToggleSel;
+
+function crmOpenGMB(gmbUrl, cnpj, empresa, cidade) {
+  // 1. Use direct GMB URL if available (from enrichment)
+  if (gmbUrl && gmbUrl.startsWith('http')) {
+    window.open(gmbUrl, '_blank');
+    return;
+  }
+  // 2. Search by CNPJ on Google Maps
+  if (cnpj) {
+    const cleanCNPJ = cnpj.replace(/\D/g, '');
+    window.open('https://www.google.com/maps/search/' + encodeURIComponent(cleanCNPJ + ' ' + empresa), '_blank');
+    return;
+  }
+  // 3. Search by name + city
+  const q = [empresa, cidade].filter(Boolean).join(' ');
+  window.open('https://www.google.com/maps/search/' + encodeURIComponent(q || empresa), '_blank');
+}
+window.crmOpenGMB = crmOpenGMB;
 
 function crmRenderTable(tab) {
   const board = document.getElementById('crm-board-'+tab);

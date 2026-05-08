@@ -1,9 +1,14 @@
 {
-  "name": "dev-swg",
-  "version": "1.0.0",
+  "name": "rise-sst",
+  "version": "2.0.0",
+  "description": "RISE SST — Ecossistema completo de ferramentas para SST",
   "private": true,
-  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4"
-  }
+    "@vercel/kv": "^1.0.0"
+  },
+  "engines": { "node": ">=18" }
 }

@@ -1,10 +1,6 @@
 {
-  "cleanUrls": true,
-  "outputDirectory": "public",
-  "rewrites": [
-    {
-      "source": "/favicon.ico",
-      "destination": "/api/favicon.ico"
-    }
-  ]
+  "version": 2,
+  "functions": {
+    "api/*.js": { "maxDuration": 120 }
+  }
 }

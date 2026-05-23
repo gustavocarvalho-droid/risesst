@@ -195,13 +195,13 @@ module.exports = async (req, res) => {
           `INSERT INTO rise_users
             (username,password,nome,email,empresa,logo_url,plano,
              acesso_buscador,acesso_whatsapp,acesso_crm,acesso_ia,
-             limite_busca,limite_disparo,obs,criado_por)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+             limite_busca,limite_disparo,obs,branding,criado_por)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
           [username, password, nome, email||null, empresa||null, logo_url||null,
            plano||"starter",
            acesso_buscador!==false, acesso_whatsapp!==false,
            acesso_crm!==false, acesso_ia!==false,
-           limite_busca||25, limite_disparo||200, obs||null, criado_por||"master"]
+           limite_busca||25, limite_disparo||200, obs||null, body.branding||null, criado_por||"master"]
         );
         try {
           await query(
@@ -223,7 +223,7 @@ module.exports = async (req, res) => {
       if (!username) return res.status(400).json({ error: "username obrigatório" });
       const allowed = ["nome","email","empresa","logo_url","plano","ativo",
         "acesso_buscador","acesso_whatsapp","acesso_crm","acesso_ia",
-        "limite_busca","limite_disparo","obs","password"];
+        "limite_busca","limite_disparo","obs","password","branding"];
       const sets = [], vals = [];
       allowed.forEach(f => {
         if (body[f] !== undefined) { sets.push(`${f}=$${vals.length+1}`); vals.push(body[f]); }

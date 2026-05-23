@@ -2040,132 +2040,284 @@
     <!-- /view-usuarios -->
 
     <!-- MODAL: Criar/Editar Usuário -->
-    <div id="usuarios-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:center;justify-content:center;padding:16px">
-      <div style="background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-        <div style="background:#1E1E5C;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0">
+    <div id="usuarios-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto">
+      <div style="background:#fff;border-radius:16px;width:100%;max-width:720px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+
+        <!-- Header -->
+        <div style="background:#1E1E5C;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0;position:sticky;top:0;z-index:1">
           <div style="font-size:16px;font-weight:800;color:#fff" id="usuarios-modal-title">Novo Usuário</div>
-          <button onclick="usuariosCloseModal()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer;padding:0 4px">×</button>
+          <button onclick="usuariosCloseModal()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:22px;cursor:pointer">×</button>
         </div>
+
+        <!-- Tabs -->
+        <div style="display:flex;border-bottom:2px solid #E7E6F4;padding:0 24px;background:#F8F7FC">
+          <button id="utab-dados" onclick="usuariosSetTab('dados')"
+            style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:700;color:#1E1E5C;border-bottom:2px solid #1E1E5C;margin-bottom:-2px;cursor:pointer;font-family:inherit">
+            👤 Dados
+          </button>
+          <button id="utab-brand" onclick="usuariosSetTab('brand')"
+            style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:600;color:#8892AA;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit">
+            🎨 White-Label
+          </button>
+        </div>
+
         <div style="padding:24px">
 
-          <!-- Logo da empresa -->
-          <div style="text-align:center;margin-bottom:20px">
-            <div id="usuarios-logo-preview" style="width:80px;height:80px;border-radius:12px;background:#E7E6F4;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden">
-              🏢
+          <!-- ═══ TAB: DADOS ═══ -->
+          <div id="upanel-dados">
+
+            <!-- Logo + empresa -->
+            <div style="text-align:center;margin-bottom:20px">
+              <div id="usuarios-logo-preview" style="width:80px;height:80px;border-radius:12px;background:#E7E6F4;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden">🏢</div>
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:4px">LOGO DA EMPRESA</label>
+              <input type="file" id="usuarios-logo-file" accept="image/png,image/jpg,image/jpeg,image/webp,image/svg+xml" onchange="usuariosPreviewLogo(this)" style="font-size:11px;font-family:inherit">
             </div>
-            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:4px">LOGO DA EMPRESA</label>
-            <input type="file" id="usuarios-logo-file" accept="image/*" onchange="usuariosPreviewLogo(this)"
-              style="font-size:11px;font-family:inherit">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div style="grid-column:1/-1">
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME DA EMPRESA *</label>
+                <input id="u-empresa" type="text" placeholder="Ex: Construtora ABC Ltda"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'" oninput="brandPreviewUpdate()">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">USUÁRIO *</label>
+                <input id="u-username" type="text" placeholder="usuario123"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">SENHA *</label>
+                <input id="u-password" type="text" placeholder="senha123"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME DO RESPONSÁVEL</label>
+                <input id="u-nome" type="text" placeholder="João Silva"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">EMAIL</label>
+                <input id="u-email" type="email" placeholder="email@empresa.com"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">PLANO</label>
+                <select id="u-plano" onchange="usuariosApplyPlan(this.value)"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none">
+                  <option value="starter">🥉 Starter</option>
+                  <option value="profissional">🥈 Profissional</option>
+                  <option value="business">🥇 Business</option>
+                  <option value="enterprise">🏆 Enterprise</option>
+                  <option value="personalizado">⚙️ Personalizado</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Produtos -->
+            <div style="margin-top:16px;padding:14px;background:#F8F7FC;border-radius:10px">
+              <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:10px">ACESSO AOS PRODUTOS</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="checkbox" id="u-buscador" checked style="width:16px;height:16px">🔍 Buscador de Empresas</label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="checkbox" id="u-whatsapp" checked style="width:16px;height:16px">📱 WhatsApp Disparos</label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="checkbox" id="u-crm" checked style="width:16px;height:16px">📋 CRM</label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type="checkbox" id="u-ia" checked style="width:16px;height:16px">🤖 RISE IA</label>
+              </div>
+            </div>
+
+            <!-- Limites -->
+            <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">💎 LIMITE BUSCAS / 45 DIAS</label>
+                <input id="u-limite-busca" type="number" value="25"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">📱 LIMITE DISPAROS / MÊS</label>
+                <input id="u-limite-disparo" type="number" value="200"
+                  style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                  onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+              </div>
+            </div>
+
+            <!-- Obs -->
+            <div style="margin-top:12px">
+              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">OBSERVAÇÕES</label>
+              <textarea id="u-obs" rows="2" placeholder="Notas internas..."
+                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none;resize:vertical"
+                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'"></textarea>
+            </div>
+
+            <!-- Usuários extras -->
+            <div style="margin-top:16px;padding:14px;background:#F0EFF8;border-radius:10px">
+              <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+                👥 Usuários da Empresa
+                <span style="font-size:10px;font-weight:400;color:#8892AA">(até 4 usuários adicionais)</span>
+              </div>
+              <div style="font-size:11px;color:#8892AA;margin-bottom:10px">Cada usuário terá login próprio com os mesmos créditos e módulos.</div>
+              <div id="u-extra-users" style="display:flex;flex-direction:column;gap:8px"></div>
+              <button type="button" onclick="usuariosAddUserRow()" id="u-add-user-btn"
+                style="margin-top:8px;padding:7px 14px;background:#fff;border:1.5px dashed #C2BFE0;border-radius:7px;font-size:11px;font-weight:600;color:#5B5BAA;cursor:pointer;font-family:inherit;width:100%">
+                + Adicionar usuário
+              </button>
+            </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div style="grid-column:1/-1">
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME DA EMPRESA *</label>
-              <input id="u-empresa" type="text" placeholder="Ex: Construtora ABC Ltda"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+          <!-- ═══ TAB: WHITE-LABEL ═══ -->
+          <div id="upanel-brand" style="display:none">
+
+            <!-- Identidade -->
+            <div style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+                🏢 Identidade da Empresa
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                  <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME EXIBIDO NO SISTEMA</label>
+                  <input id="b-displayName" type="text" placeholder="Ex: Satra Retec"
+                    style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                    onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'" oninput="brandPreviewUpdate()">
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">SITE DA EMPRESA</label>
+                  <input id="b-website" type="url" placeholder="https://suaempresa.com.br"
+                    style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                    onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">SEGMENTO</label>
+                  <select id="b-industry"
+                    style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none">
+                    <option value="">— Selecionar —</option>
+                    <option value="sst">SST / Segurança do Trabalho</option>
+                    <option value="saude">Saúde Ocupacional</option>
+                    <option value="consultoria">Consultoria</option>
+                    <option value="industria">Indústria</option>
+                    <option value="construcao">Construção Civil</option>
+                    <option value="logistica">Logística / Transportes</option>
+                    <option value="tecnologia">Tecnologia</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">FAVICON (URL ou upload)</label>
+                  <input id="b-faviconUrl" type="text" placeholder="https://... ou deixe em branco"
+                    style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
+                    onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                </div>
+              </div>
             </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">USUÁRIO *</label>
-              <input id="u-username" type="text" placeholder="usuario123"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+
+            <!-- Cores -->
+            <div style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:12px">🎨 Cores da Marca</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                <div>
+                  <label style="font-size:10px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">COR PRIMÁRIA</label>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <input type="color" id="b-primaryColor" value="#1E1E5C" onchange="brandPreviewUpdate()" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px">
+                    <input type="text" id="b-primaryColor-hex" value="#1E1E5C" placeholder="#1E1E5C" maxlength="7"
+                      style="flex:1;padding:8px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:monospace;color:#1E1E5C;outline:none"
+                      oninput="brandSyncColor('primaryColor',this.value)" onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:10px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">COR SECUNDÁRIA</label>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <input type="color" id="b-secondaryColor" value="#3a4096" onchange="brandPreviewUpdate()" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px">
+                    <input type="text" id="b-secondaryColor-hex" value="#3a4096" maxlength="7"
+                      style="flex:1;padding:8px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:monospace;color:#1E1E5C;outline:none"
+                      oninput="brandSyncColor('secondaryColor',this.value)" onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:10px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">COR DE DESTAQUE</label>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <input type="color" id="b-accentColor" value="#00C47C" onchange="brandPreviewUpdate()" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px">
+                    <input type="text" id="b-accentColor-hex" value="#00C47C" maxlength="7"
+                      style="flex:1;padding:8px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:monospace;color:#1E1E5C;outline:none"
+                      oninput="brandSyncColor('accentColor',this.value)" onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:10px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">FUNDO DO MENU</label>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <input type="color" id="b-sidebarColor" value="#0D0D3A" onchange="brandPreviewUpdate()" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px">
+                    <input type="text" id="b-sidebarColor-hex" value="#0D0D3A" maxlength="7"
+                      style="flex:1;padding:8px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:monospace;color:#1E1E5C;outline:none"
+                      oninput="brandSyncColor('sidebarColor',this.value)" onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:10px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">COR DOS BOTÕES</label>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <input type="color" id="b-buttonColor" value="#1E1E5C" onchange="brandPreviewUpdate()" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px">
+                    <input type="text" id="b-buttonColor-hex" value="#1E1E5C" maxlength="7"
+                      style="flex:1;padding:8px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:monospace;color:#1E1E5C;outline:none"
+                      oninput="brandSyncColor('buttonColor',this.value)" onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:10px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">COR DOS TEXTOS</label>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <input type="color" id="b-textColor" value="#1E1E5C" onchange="brandPreviewUpdate()" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px">
+                    <input type="text" id="b-textColor-hex" value="#1E1E5C" maxlength="7"
+                      style="flex:1;padding:8px;border:1.5px solid #E7E6F4;border-radius:6px;font-size:12px;font-family:monospace;color:#1E1E5C;outline:none"
+                      oninput="brandSyncColor('textColor',this.value)" onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick presets -->
+              <div style="margin-top:12px">
+                <div style="font-size:10px;font-weight:700;color:#8892AA;margin-bottom:6px">PALETAS RÁPIDAS</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button onclick="brandApplyPreset('rise')" style="padding:5px 12px;border:1px solid #E7E6F4;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;font-family:inherit">⬤ RISE SST</button>
+                  <button onclick="brandApplyPreset('green')" style="padding:5px 12px;border:1px solid #E7E6F4;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;font-family:inherit">⬤ Verde SST</button>
+                  <button onclick="brandApplyPreset('orange')" style="padding:5px 12px;border:1px solid #E7E6F4;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;font-family:inherit">⬤ Laranja</button>
+                  <button onclick="brandApplyPreset('dark')" style="padding:5px 12px;border:1px solid #E7E6F4;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;font-family:inherit">⬤ Dark</button>
+                </div>
+              </div>
             </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">SENHA *</label>
-              <input id="u-password" type="text" placeholder="senha123"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">NOME DO RESPONSÁVEL</label>
-              <input id="u-nome" type="text" placeholder="João Silva"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">EMAIL</label>
-              <input id="u-email" type="email" placeholder="email@empresa.com"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">PLANO</label>
-              <select id="u-plano" onchange="usuariosApplyPlan(this.value)"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none">
-                <option value="starter">🥉 Starter</option>
-                <option value="profissional">🥈 Profissional</option>
-                <option value="business">🥇 Business</option>
-                <option value="enterprise">🏆 Enterprise</option>
-                <option value="personalizado">⚙️ Personalizado</option>
-              </select>
+
+            <!-- Preview -->
+            <div style="background:#F8F7FC;border:1px solid #E7E6F4;border-radius:12px;padding:16px">
+              <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:12px">👁 Preview da Marca</div>
+              <div style="display:flex;gap:12px;align-items:stretch">
+                <!-- Mini sidebar preview -->
+                <div id="brand-prev-sidebar" style="width:80px;border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;gap:6px;background:#0D0D3A;flex-shrink:0">
+                  <div id="brand-prev-logo" style="width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:4px">🏢</div>
+                  <div id="brand-prev-name" style="font-size:8px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px">RISE</div>
+                  <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.15)"></div>
+                  <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.3)"></div>
+                  <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.15)"></div>
+                  <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.15)"></div>
+                </div>
+                <!-- Preview cards -->
+                <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                  <div id="brand-prev-card" style="background:#fff;border:1px solid #E7E6F4;border-radius:8px;padding:10px;border-left:4px solid #1E1E5C">
+                    <div style="font-size:10px;font-weight:700;color:#8892AA;margin-bottom:3px">CARD DE EXEMPLO</div>
+                    <div id="brand-prev-card-val" style="font-size:20px;font-weight:800;color:#1E1E5C">42</div>
+                    <div style="font-size:9px;color:#8892AA">leads no pipeline</div>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <button id="brand-prev-btn" style="padding:7px 14px;border:none;border-radius:6px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;background:#1E1E5C">Botão principal</button>
+                    <button id="brand-prev-btn2" style="padding:7px 14px;border:1.5px solid #1E1E5C;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#1E1E5C">Secundário</button>
+                  </div>
+                  <div style="font-size:10px;color:#8892AA">
+                    <span id="brand-prev-company" style="font-weight:700;color:#1E1E5C">Nome da Empresa</span> · Sistema White-Label
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Produtos -->
-          <div style="margin-top:16px;padding:14px;background:#F8F7FC;border-radius:10px">
-            <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:10px">ACESSO AOS PRODUTOS</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-                <input type="checkbox" id="u-buscador" checked style="width:16px;height:16px;cursor:pointer">
-                🔍 Buscador de Empresas
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-                <input type="checkbox" id="u-whatsapp" checked style="width:16px;height:16px;cursor:pointer">
-                📱 WhatsApp Disparos
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-                <input type="checkbox" id="u-crm" checked style="width:16px;height:16px;cursor:pointer">
-                📋 CRM
-              </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-                <input type="checkbox" id="u-ia" checked style="width:16px;height:16px;cursor:pointer">
-                🤖 RISE IA
-              </label>
-            </div>
-          </div>
-
-          <!-- Limites de crédito -->
-          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">💎 LIMITE BUSCAS / 45 DIAS</label>
-              <input id="u-limite-busca" type="number" value="25" min="0" max="999999"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">📱 LIMITE DISPAROS / MÊS</label>
-              <input id="u-limite-disparo" type="number" value="200" min="0" max="999999"
-                style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none"
-                onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'">
-            </div>
-          </div>
-
-          <div style="margin-top:12px">
-            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:5px">OBSERVAÇÕES</label>
-            <textarea id="u-obs" rows="2" placeholder="Notas internas sobre este cliente..."
-              style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-family:inherit;color:#1E1E5C;outline:none;resize:vertical"
-              onfocus="this.style.borderColor='#1E1E5C'" onblur="this.style.borderColor='#E7E6F4'"></textarea>
-          </div>
-
-          <!-- Multi-user section -->
-          <div style="margin-top:16px;padding:14px;background:#F0EFF8;border-radius:10px">
-            <div style="font-size:12px;font-weight:700;color:#1E1E5C;margin-bottom:4px;display:flex;align-items:center;gap:6px">
-              👥 Usuários da Empresa
-              <span style="font-size:10px;font-weight:400;color:#8892AA">(opcional — até 4 usuários adicionais)</span>
-            </div>
-            <div style="font-size:11px;color:#8892AA;margin-bottom:10px">Cada usuário terá login próprio com os mesmos créditos e módulos da empresa.</div>
-            <div id="u-extra-users" style="display:flex;flex-direction:column;gap:8px">
-              <!-- Extra user rows added by JS -->
-            </div>
-            <button type="button" onclick="usuariosAddUserRow()" id="u-add-user-btn"
-              style="margin-top:8px;padding:7px 14px;background:#fff;border:1.5px dashed #C2BFE0;border-radius:7px;font-size:11px;font-weight:600;color:#5B5BAA;cursor:pointer;font-family:inherit;width:100%">
-              + Adicionar usuário
-            </button>
-          </div>
-
-          <div id="usuarios-modal-msg" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
-
+          <!-- Messages + Save -->
+          <div id="usuarios-modal-msg" style="display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
           <div style="display:flex;gap:10px;margin-top:18px">
             <button onclick="usuariosCloseModal()"
               style="flex:1;padding:11px;background:#fff;color:#8892AA;border:1.5px solid #E7E6F4;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
@@ -4084,6 +4236,9 @@ async function usuariosSave() {
   const msg = document.getElementById('usuarios-modal-msg');
   const isEdit = !!_usuariosEditingId;
 
+  // Collect branding
+  const _brand = (typeof brandGetFromForm === 'function') ? brandGetFromForm() : null;
+
   const payload = {
     action: isEdit ? 'update' : 'create',
     username:    isEdit ? _usuariosEditingId : document.getElementById('u-username').value.trim(),
@@ -4100,6 +4255,7 @@ async function usuariosSave() {
     limite_busca:    parseInt(document.getElementById('u-limite-busca').value)||25,
     limite_disparo:  parseInt(document.getElementById('u-limite-disparo').value)||200,
     obs:             document.getElementById('u-obs').value.trim(),
+    branding:        (typeof brandGetFromForm==="function") ? JSON.stringify(brandGetFromForm()) : null,
     criado_por:      'gustavo1996c',
   };
 
@@ -4420,6 +4576,305 @@ window.usuariosSave = async function() {
       });
     } catch(e) { console.warn('Extra user create error:', e.message); }
   }
+};
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   RISE SST — WHITE-LABEL / BRANDING SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
+const BRAND_DEFAULTS = {
+  displayName:    '',
+  website:        '',
+  industry:       '',
+  faviconUrl:     '',
+  primaryColor:   '#1E1E5C',
+  secondaryColor: '#3a4096',
+  accentColor:    '#00C47C',
+  sidebarColor:   '#0D0D3A',
+  buttonColor:    '#1E1E5C',
+  textColor:      '#1E1E5C',
+  logoUrl:        '',
+};
+
+const BRAND_PRESETS = {
+  rise:   { primaryColor:'#1E1E5C', secondaryColor:'#3a4096', accentColor:'#00C47C', sidebarColor:'#0D0D3A', buttonColor:'#1E1E5C', textColor:'#1E1E5C' },
+  green:  { primaryColor:'#065A35', secondaryColor:'#128C5E', accentColor:'#25D366', sidebarColor:'#042d1a', buttonColor:'#065A35', textColor:'#042d1a' },
+  orange: { primaryColor:'#B84D00', secondaryColor:'#E06000', accentColor:'#FF8C00', sidebarColor:'#5c2600', buttonColor:'#B84D00', textColor:'#5c2600' },
+  dark:   { primaryColor:'#111111', secondaryColor:'#333333', accentColor:'#00C47C', sidebarColor:'#000000', buttonColor:'#222222', textColor:'#111111' },
+};
+
+// ── Tab switching ──
+function usuariosSetTab(tab) {
+  ['dados','brand'].forEach(t => {
+    const btn   = document.getElementById('utab-' + t);
+    const panel = document.getElementById('upanel-' + t);
+    const active = t === tab;
+    if (btn) {
+      btn.style.color = active ? '#1E1E5C' : '#8892AA';
+      btn.style.borderBottomColor = active ? '#1E1E5C' : 'transparent';
+      btn.style.fontWeight = active ? '700' : '600';
+    }
+    if (panel) panel.style.display = active ? '' : 'none';
+  });
+}
+window.usuariosSetTab = usuariosSetTab;
+
+// ── Sync color picker ↔ hex input ──
+function brandSyncColor(field, hex) {
+  if (hex.length === 7 && hex.startsWith('#')) {
+    const picker = document.getElementById('b-' + field);
+    if (picker) picker.value = hex;
+    brandPreviewUpdate();
+  }
+}
+window.brandSyncColor = brandSyncColor;
+
+// ── Update preview ──
+function brandPreviewUpdate() {
+  const get = id => {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+  };
+  const primary   = get('b-primaryColor')   || '#1E1E5C';
+  const sidebar   = get('b-sidebarColor')   || '#0D0D3A';
+  const button    = get('b-buttonColor')    || '#1E1E5C';
+  const accent    = get('b-accentColor')    || '#00C47C';
+  const name      = get('b-displayName')    || get('u-empresa') || 'Empresa';
+
+  // Sync hex inputs from pickers
+  ['primaryColor','secondaryColor','accentColor','sidebarColor','buttonColor','textColor'].forEach(f => {
+    const picker = document.getElementById('b-' + f);
+    const hexIn  = document.getElementById('b-' + f + '-hex');
+    if (picker && hexIn && hexIn !== document.activeElement) hexIn.value = picker.value;
+  });
+
+  // Apply to preview elements
+  const prevSidebar = document.getElementById('brand-prev-sidebar');
+  const prevName    = document.getElementById('brand-prev-name');
+  const prevCard    = document.getElementById('brand-prev-card');
+  const prevCardVal = document.getElementById('brand-prev-card-val');
+  const prevBtn     = document.getElementById('brand-prev-btn');
+  const prevBtn2    = document.getElementById('brand-prev-btn2');
+  const prevComp    = document.getElementById('brand-prev-company');
+  const prevLogo    = document.getElementById('brand-prev-logo');
+
+  if (prevSidebar) prevSidebar.style.background = sidebar;
+  if (prevName) prevName.textContent = name.split(' ')[0].toUpperCase();
+  if (prevCard) prevCard.style.borderLeftColor = primary;
+  if (prevCardVal) prevCardVal.style.color = primary;
+  if (prevBtn) { prevBtn.style.background = button; prevBtn.style.color = '#fff'; }
+  if (prevBtn2) { prevBtn2.style.borderColor = primary; prevBtn2.style.color = primary; }
+  if (prevComp) { prevComp.textContent = name; prevComp.style.color = primary; }
+
+  // Update logo preview if available
+  const logoPreview = document.getElementById('usuarios-logo-preview');
+  if (logoPreview && prevLogo) {
+    const img = logoPreview.querySelector('img');
+    if (img) {
+      prevLogo.innerHTML = '';
+      const cl = img.cloneNode();
+      cl.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:4px';
+      prevLogo.appendChild(cl);
+    }
+  }
+}
+window.brandPreviewUpdate = brandPreviewUpdate;
+
+// ── Apply preset ──
+function brandApplyPreset(name) {
+  const p = BRAND_PRESETS[name];
+  if (!p) return;
+  Object.entries(p).forEach(([field, val]) => {
+    const picker = document.getElementById('b-' + field);
+    const hexIn  = document.getElementById('b-' + field + '-hex');
+    if (picker) picker.value = val;
+    if (hexIn)  hexIn.value  = val;
+  });
+  brandPreviewUpdate();
+}
+window.brandApplyPreset = brandApplyPreset;
+
+// ── Get branding from form ──
+function brandGetFromForm() {
+  const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  return {
+    displayName:    get('b-displayName'),
+    website:        get('b-website'),
+    industry:       get('b-industry'),
+    faviconUrl:     get('b-faviconUrl'),
+    primaryColor:   get('b-primaryColor'),
+    secondaryColor: get('b-secondaryColor'),
+    accentColor:    get('b-accentColor'),
+    sidebarColor:   get('b-sidebarColor'),
+    buttonColor:    get('b-buttonColor'),
+    textColor:      get('b-textColor'),
+    logoUrl:        window._usuariosLogoBase64 || get('b-faviconUrl') || '',
+  };
+}
+
+// ── Set branding in form ──
+function brandSetInForm(brand) {
+  if (!brand) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  const cols = ['primaryColor','secondaryColor','accentColor','sidebarColor','buttonColor','textColor'];
+  set('b-displayName', brand.displayName);
+  set('b-website',     brand.website);
+  set('b-industry',    brand.industry);
+  set('b-faviconUrl',  brand.faviconUrl);
+  cols.forEach(f => {
+    const val = brand[f];
+    if (val) {
+      set('b-' + f, val);
+      set('b-' + f + '-hex', val);
+    }
+  });
+  setTimeout(brandPreviewUpdate, 50);
+}
+
+// ── Apply branding to the whole UI ──
+function brandApplyToUI(brand, logoUrl) {
+  if (!brand) return;
+
+  const root = document.documentElement;
+
+  // Apply CSS variables
+  const p = brand.primaryColor   || BRAND_DEFAULTS.primaryColor;
+  const s = brand.secondaryColor || BRAND_DEFAULTS.secondaryColor;
+  const a = brand.accentColor    || BRAND_DEFAULTS.accentColor;
+  const sb = brand.sidebarColor  || BRAND_DEFAULTS.sidebarColor;
+  const b  = brand.buttonColor   || BRAND_DEFAULTS.buttonColor;
+  const t  = brand.textColor     || BRAND_DEFAULTS.textColor;
+
+  root.style.setProperty('--brand-primary',   p);
+  root.style.setProperty('--brand-secondary', s);
+  root.style.setProperty('--brand-accent',    a);
+  root.style.setProperty('--brand-sidebar',   sb);
+  root.style.setProperty('--brand-button',    b);
+  root.style.setProperty('--brand-text',      t);
+
+  // Apply sidebar background
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) sidebar.style.background = sb;
+
+  // Apply button colors
+  document.querySelectorAll('.btn-primary, [data-brand-btn]').forEach(el => {
+    el.style.background = b;
+  });
+
+  // Nav active item
+  const style = document.getElementById('brand-style') || document.createElement('style');
+  style.id = 'brand-style';
+  style.textContent = `
+    .nav-item.active { background: ${p}22 !important; color: #fff !important; }
+    .nav-item.active svg { stroke: ${a} !important; }
+    .credit-pill { border-color: ${p}44 !important; }
+    .kpi-card { border-top: 3px solid ${p} !important; }
+    .login-btn { background: ${a} !important; }
+    .credit-val { color: ${p} !important; }
+    body { --rise-dark: ${sb}; --rise-accent: ${a}; }
+  `;
+  document.head.appendChild(style);
+
+  // Logo
+  const logo = logoUrl || brand.logoUrl;
+  if (logo) {
+    document.querySelectorAll('.sidebar img[alt="RISE SST"], #sidebar-rise-logo').forEach(el => {
+      el.src = logo;
+    });
+    // Login screen logo
+    const loginLogo = document.querySelector('.login-logo-img');
+    if (loginLogo) loginLogo.src = logo;
+  }
+
+  // Display name in sidebar
+  const displayName = brand.displayName;
+  if (displayName) {
+    const riseEl = document.querySelector('.sidebar div[style*="font-size:19px"]');
+    if (riseEl) riseEl.textContent = displayName.split(' ')[0].toUpperCase();
+    const sst = document.querySelector('.sidebar span[style*="background:#fff"]');
+    if (sst) {
+      const rest = displayName.split(' ').slice(1).join(' ');
+      if (rest) sst.textContent = rest.slice(0, 6);
+    }
+  }
+
+  // Favicon
+  if (brand.faviconUrl) {
+    let link = document.querySelector("link[rel='icon']");
+    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = brand.faviconUrl;
+  }
+
+  // Company name in sidebar bottom
+  const nameEl = document.getElementById('dash-username');
+  const companyEl = document.querySelector('.sidebar-company');
+  if (nameEl && displayName) nameEl.textContent = displayName;
+}
+window.brandApplyToUI = brandApplyToUI;
+
+// ── Reset to default RISE SST branding ──
+function brandReset() {
+  const root = document.documentElement;
+  Object.keys(BRAND_DEFAULTS).forEach(k => root.style.removeProperty('--brand-' + k.replace(/Color/,'').toLowerCase()));
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) sidebar.style.background = '';
+  const styleEl = document.getElementById('brand-style');
+  if (styleEl) styleEl.remove();
+}
+window.brandReset = brandReset;
+
+// ── Load branding on login ──
+// Called by usuariosInitSession after loading user data
+const _origApplyAccess = window.usuariosApplyAccess;
+window.usuariosApplyAccess = function(user) {
+  if (_origApplyAccess) _origApplyAccess(user);
+  // Apply brand if user has branding data
+  if (user && user.branding) {
+    try {
+      const brand = typeof user.branding === 'string' ? JSON.parse(user.branding) : user.branding;
+      brandApplyToUI(brand, user.logo_url);
+    } catch(e) { console.warn('brandApplyToUI error:', e.message); }
+  }
+};
+
+// ── Save branding in usuariosSave ──
+// Patch: add branding to the payload
+const _origUsuariosSave = window.usuariosSave;
+window.usuariosSave = async function() {
+  // Inject branding into the form before saving
+  const brand = brandGetFromForm();
+  window._pendingBrand = brand;
+  if (_origUsuariosSave) await _origUsuariosSave();
+};
+
+// ── Edit: load branding into form ──
+const _origUsuariosEdit = window.usuariosEdit;
+window.usuariosEdit = async function(username) {
+  if (_origUsuariosEdit) await _origUsuariosEdit(username);
+  // Load branding from user data
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'get', username })
+    });
+    const d = await r.json();
+    if (d.user && d.user.branding) {
+      const brand = typeof d.user.branding === 'string' ? JSON.parse(d.user.branding) : d.user.branding;
+      brandSetInForm(brand);
+    }
+  } catch(e) {}
+};
+
+// ── Open create: reset brand form ──
+const _origOpenCreate2 = window.usuariosOpenCreate;
+window.usuariosOpenCreate = function() {
+  if (_origOpenCreate2) _origOpenCreate2();
+  // Reset to defaults
+  brandSetInForm(BRAND_DEFAULTS);
+  usuariosSetTab('dados');
 };
 </script>
 

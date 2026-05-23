@@ -64,6 +64,8 @@ async function query(sql, params = []) {
 
 async function initTables() {
   const sqls = [
+    // Add branding column if it doesn't exist (migration)
+    `ALTER TABLE rise_users ADD COLUMN IF NOT EXISTS branding TEXT`,
     `CREATE TABLE IF NOT EXISTS rise_users (
       id SERIAL PRIMARY KEY,
       username VARCHAR(100) UNIQUE NOT NULL,
@@ -284,6 +286,24 @@ module.exports = async (req, res) => {
          ORDER BY criado_em DESC LIMIT 20`
       );
       return res.status(200).json({ alerts: r.rows || [] });
+    }
+
+    // ── DELETE ──
+    if (action === "delete") {
+      const { username, permanent } = body;
+      if (!username) return res.status(400).json({ error: "username obrigatório" });
+      if (permanent) {
+        await query("DELETE FROM rise_users WHERE username=$1 AND is_master=FALSE", [username]);
+        try {
+          await query(
+            "INSERT INTO rise_user_activity (username,tipo,descricao) VALUES ('MASTER','excluir_usuario',$1)",
+            ["Excluiu permanentemente: " + username]
+          );
+        } catch(e) {}
+      } else {
+        await query("UPDATE rise_users SET ativo=FALSE WHERE username=$1", [username]);
+      }
+      return res.status(200).json({ ok: true });
     }
 
     return res.status(400).json({ error: "Ação desconhecida: " + action });

@@ -1746,7 +1746,7 @@
       </div>
       <div class="user-area">
         <div class="user-role">MASTER / USUÁRIO</div>
-        <div class="user-name"><span id="dash-username">João Silva</span></div>
+        <div class="user-name"><span id="dash-username">–</span></div>
         <button class="btn-sair" onclick="loginLogout()">
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6"/></svg>
           Sair
@@ -4045,18 +4045,22 @@ async function usuariosLoad() {
         </div>
         <!-- Actions -->
         ${!isMaster ? `
-        <div style="padding:10px 16px;display:flex;gap:8px;border-top:1px solid #F0EFF8">
+        <div style="padding:10px 16px;display:flex;gap:6px;border-top:1px solid #F0EFF8;flex-wrap:wrap">
           <button onclick="usuariosEdit('${u.username}')"
-            style="flex:1;padding:7px;background:#F8F7FC;border:1px solid #E7E6F4;border-radius:7px;font-size:11px;font-weight:600;color:#1E1E5C;cursor:pointer;font-family:inherit">
+            style="flex:1;min-width:70px;padding:7px;background:#F8F7FC;border:1px solid #E7E6F4;border-radius:7px;font-size:11px;font-weight:600;color:#1E1E5C;cursor:pointer;font-family:inherit">
             ✏️ Editar
           </button>
           <button onclick="usuariosAddCredit('${u.username}','${u.nome||u.empresa}')"
-            style="flex:1;padding:7px;background:#eaf3de;border:1px solid #3B6D1133;border-radius:7px;font-size:11px;font-weight:600;color:#3B6D11;cursor:pointer;font-family:inherit">
+            style="flex:1;min-width:80px;padding:7px;background:#eaf3de;border:1px solid #3B6D1133;border-radius:7px;font-size:11px;font-weight:600;color:#3B6D11;cursor:pointer;font-family:inherit">
             💎 + Créditos
           </button>
           <button onclick="usuariosToggleAtivo('${u.username}',${u.ativo})"
             style="padding:7px 10px;background:${u.ativo?'#FCEBEB':'#eaf3de'};border:1px solid ${u.ativo?'#A32D2D33':'#3B6D1133'};border-radius:7px;font-size:11px;font-weight:600;color:${u.ativo?'#A32D2D':'#3B6D11'};cursor:pointer;font-family:inherit">
             ${u.ativo?'⏸ Pausar':'▶ Ativar'}
+          </button>
+          <button onclick="usuariosExcluir('${u.username}','${u.empresa||u.nome}')"
+            style="padding:7px 10px;background:#fff;border:1px solid #A32D2D44;border-radius:7px;font-size:11px;font-weight:600;color:#A32D2D;cursor:pointer;font-family:inherit" title="Excluir permanentemente">
+            🗑 Excluir
           </button>
         </div>` : ''}
       </div>`;
@@ -4305,6 +4309,30 @@ async function usuariosToggleAtivo(username, currentAtivo) {
 }
 window.usuariosToggleAtivo = usuariosToggleAtivo;
 
+async function usuariosExcluir(username, empresa) {
+  if (!confirm(`⚠️ ATENÇÃO!\n\nExcluir o usuário "${username}" (${empresa}) permanentemente?\n\nEsta ação NÃO pode ser desfeita.`)) return;
+  if (!confirm(`Confirmar exclusão de "${username}"?`)) return;
+  try {
+    const r = await fetch('/api/usuarios', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'delete', username, permanent: true })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      // Show success toast
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;top:20px;right:20px;background:#3B6D11;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+      t.textContent = `✓ Usuário ${username} excluído.`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+      usuariosLoad();
+    } else {
+      alert('Erro: ' + (d.error || 'Não foi possível excluir'));
+    }
+  } catch(e) { alert('Erro de conexão: ' + e.message); }
+}
+window.usuariosExcluir = usuariosExcluir;
+
 // ── Add credits ──
 async function usuariosAddCredit(username, nome) {
   const tipo = prompt(`Adicionar créditos para ${nome}:\n\nDigite: busca ou disparo`);
@@ -4365,6 +4393,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Show Usuarios nav immediately for master user (no API wait)
   try {
     const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    if (sess.user) {
+      // Set sidebar name from session immediately
+      const nameEl = document.getElementById('dash-username');
+      const displayName = sess.empresa || sess.user;
+      if (nameEl) nameEl.textContent = displayName;
+    }
     if (sess.user === 'gustavo1996c') {
       const navU = document.getElementById('nav-usuarios');
       if (navU) navU.style.display = '';
@@ -4374,7 +4408,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (waPill)  waPill.style.display  = '';
       if (waBadge) waBadge.style.display = '';
     } else if (sess.acesso_whatsapp) {
-      // Cached session has WA access
       const waPill  = document.getElementById('dash-wa-pill');
       const waBadge = document.getElementById('wa-disp-badge');
       if (waPill)  waPill.style.display  = '';
@@ -12328,10 +12361,22 @@ async function loginDoLogin() {
         const navU = document.getElementById('nav-usuarios');
         if(navU) navU.style.display = '';
       }
-      // Update sidebar name
-      if(dbUser?.empresa) {
-        const nameEl = document.getElementById('dash-username');
-        if(nameEl) nameEl.textContent = dbUser.empresa;
+      // Update sidebar: company name takes priority over personal name
+      const _displayName = dbUser?.empresa || dbUser?.nome || user;
+      const nameEl = document.getElementById('dash-username');
+      if(nameEl) nameEl.textContent = _displayName;
+      // Save empresa in session for future page loads
+      try {
+        const _sess = JSON.parse(localStorage.getItem(LOGIN_SESSION_KEY)||'{}');
+        _sess.empresa = _displayName;
+        localStorage.setItem(LOGIN_SESSION_KEY, JSON.stringify(_sess));
+      } catch(e) {}
+      // Apply branding if available
+      if(dbUser?.branding && typeof brandApplyToUI === 'function') {
+        try {
+          const _b = typeof dbUser.branding === 'string' ? JSON.parse(dbUser.branding) : dbUser.branding;
+          brandApplyToUI(_b, dbUser.logo_url);
+        } catch(e) {}
       }
     }, 600);
   } else {

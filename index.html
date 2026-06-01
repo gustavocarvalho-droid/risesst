@@ -38,7 +38,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    body { overflow-x:hidden;
       background: var(--rise-surf);
       color: var(--text);
       font-family: var(--sans);
@@ -86,7 +86,7 @@
     .main-layout { display: flex; flex: 1; min-height: 100vh; }
 
     /* ── SIDEBAR ── */
-    .sidebar {
+    .sidebar {overflow-x:hidden;
       background: var(--rise-dark);
       width: 200px;
       min-height: 100vh;
@@ -3640,6 +3640,38 @@ window.waDispUpdUI     = waDispUpdUI;
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(waDispUpdUI, 700);
 });
+
+// ── Centralized API caller ──
+async function apiCall(endpoint, payload, opts = {}) {
+  try {
+    const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-caller-user': sess.user || '',
+        ...(opts.headers || {}),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'HTTP ' + res.status }));
+      throw new Error(err.error || 'HTTP ' + res.status);
+    }
+    return await res.json();
+  } catch(e) {
+    if (!opts.silent) console.warn(`API ${endpoint}:`, e.message);
+    throw e;
+  }
+}
+window.apiCall = apiCall;
+
+// ── Global error handler ──
+window.addEventListener('unhandledrejection', function(e) {
+  if (e.reason?.message?.includes('fetch')) return; // ignore network
+  console.warn('Unhandled promise:', e.reason?.message);
+});
+
 </script>
 
     <!-- ══ MODAL DE DISPAROS WA ══ -->
@@ -4101,12 +4133,7 @@ async function usuariosLoad() {
   const list = document.getElementById('usuarios-list');
   if (!list) return;
   try {
-    const r = await fetch('/api/usuarios', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'list' })
-    });
-    const d = await r.json();
+    const d = await apiCall('/api/usuarios', { action: 'list' }).catch(() => ({ users: [] }));
     const users = d.users || [];
     
     if (!users.length) {
@@ -6936,7 +6963,27 @@ window.precosShowClienteModal = precosShowClienteModal;
     @keyframes loginFadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
     .login-box { animation: loginFadeIn .35s ease; }
 
-  </style>
+  
+    /* ── Responsive improvements ── */
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; }
+      .main-layout { margin-left: 200px; }
+      .content-area { padding: 12px; }
+      .kpi-card { min-width: 140px; }
+    }
+    @media (max-width: 480px) {
+      .sidebar { display: none; }
+      .main-layout { margin-left: 0; }
+    }
+    /* ── Prevent horizontal scroll ── */
+    html, body { overflow-x: hidden; max-width: 100vw; }
+    .main-layout { overflow-x: hidden; }
+    /* ── CRM card indicator dot pulse ── */
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:.6; transform:scale(1.2); }
+    }
+    </style>
 </head>
 <body>
 
@@ -12071,6 +12118,18 @@ function crmRenderKanban(tab) {
 }
 
 // ── Lead card HTML (new design) ──
+function daysSince(ts) {
+  if (!ts) return 999;
+  return Math.floor((Date.now() - ts) / 86400000);
+}
+
+function contactIndicator(l) {
+  const days = daysSince(l.ultimoContato || l.updatedAt || l.criadoEm);
+  if (days <= 2)  return { color:'#00C47C', bg:'#eaffef', label:'Contato recente',    dot:'🟢' };
+  if (days <= 6)  return { color:'#E89B00', bg:'#fffaeb', label: days + 'd sem contato', dot:'🟡' };
+  return           { color:'#A32D2D', bg:'#FCEBEB', label: days + 'd sem contato',   dot:'🔴' };
+}
+
 function crmLeadCard(l, tab) {
   const statusColor = {novo:'#3a4096',contato:'#5B5BAA',proposta:'#854F0B',negociacao:'#854F0B',fechado:'#3B6D11',perdido:'#A32D2D'}[l.status]||'#3a4096';
   const statusLabel = {novo:'Novo lead',contato:'Em contato',proposta:'Proposta',negociacao:'Negociação',fechado:'Fechado ✓',perdido:'Perdido'}[l.status]||'Novo lead';
@@ -12093,13 +12152,27 @@ function crmLeadCard(l, tab) {
   const proxLabel = l.proxAcaoTs ? new Date(l.proxAcaoTs).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
   const overdue   = l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status!=='fechado';
 
-  return `<div class="crm-lead-card priority-${l.prioridade||'baixa'}" style="background:#12123a;border:1px solid #2a2a5a;border-radius:12px;padding:0;overflow:hidden;cursor:default">
+  const indicator = contactIndicator(l);
+  const lastContactStr = l.ultimoContato
+    ? new Date(l.ultimoContato).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
+    : (l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—');
+
+  return `<div class="crm-lead-card priority-${l.prioridade||'baixa'}" style="background:#12123a;border:1.5px solid ${indicator.color}44;border-radius:12px;padding:0;overflow:hidden;cursor:default">
+    <!-- Indicator strip -->
+    <div style="height:3px;background:${indicator.color};width:100%"></div>
     <!-- Header: avatar + status badges -->
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 6px">
-      <div style="width:36px;height:36px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${initAv}-</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div style="position:relative">
+        <div style="width:36px;height:36px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${initAv}</div>
+        <div style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:${indicator.color};border:1.5px solid #12123a"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
         <span style="background:#2a2a5a;color:#c2bfe0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px">Novo lead</span>
         <span style="background:#1a3a2a;color:#4ade80;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;cursor:pointer" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">Notas</span>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:9px;color:${indicator.color};font-weight:700">${indicator.label}</div>
+        <div style="font-size:9px;color:#7878A8">📅 ${lastContactStr}</div>
       </div>
     </div>
 

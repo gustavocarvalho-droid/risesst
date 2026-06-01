@@ -968,7 +968,7 @@
     .crm-board::-webkit-scrollbar-thumb { background:#c2bfe0; border-radius:3px; }
 
     .crm-col {
-      min-width:250px; max-width:280px; flex-shrink:0;
+      min-width:300px; max-width:340px; flex-shrink:0;
       background:#f0eff8; border-radius:12px; border:1px solid #e0dfef;
       display:flex; flex-direction:column; max-height:calc(100vh - 280px);
     }
@@ -1101,7 +1101,7 @@
     @media(max-width:900px) {
       .crm-kpis { grid-template-columns:repeat(3,1fr); }
       .crm-board { min-height:auto; }
-      .crm-col { min-width:220px; }
+      .crm-col { min-width:280px; }
       .crm-form-row, .crm-form-row3 { grid-template-columns:1fr; }
     }
 
@@ -8565,7 +8565,7 @@ function crmRenderKanban(tab) {
   }).join('');
 }
 
-// ── Lead card HTML (new design) ──
+// ── Lead card HTML (SWG-style) ──
 function daysSince(ts) {
   if (!ts) return 999;
   return Math.floor((Date.now() - ts) / 86400000);
@@ -8573,101 +8573,131 @@ function daysSince(ts) {
 
 function contactIndicator(l) {
   const days = daysSince(l.ultimoContato || l.updatedAt || l.criadoEm);
-  if (days <= 2)  return { color:'#00C47C', bg:'#eaffef', label:'Contato recente',    dot:'🟢' };
-  if (days <= 6)  return { color:'#E89B00', bg:'#fffaeb', label: days + 'd sem contato', dot:'🟡' };
-  return           { color:'#A32D2D', bg:'#FCEBEB', label: days + 'd sem contato',   dot:'🔴' };
+  if (days <= 2)  return { color:'#00C47C', label:'Contato recente', dot:'🟢' };
+  if (days <= 6)  return { color:'#E89B00', label: days + 'd sem contato', dot:'🟡' };
+  return           { color:'#A32D2D', label: days + 'd sem contato', dot:'🔴' };
 }
 
 function crmLeadCard(l, tab) {
-  const statusColor = {novo:'#3a4096',contato:'#5B5BAA',proposta:'#854F0B',negociacao:'#854F0B',fechado:'#3B6D11',perdido:'#A32D2D'}[l.status]||'#3a4096';
-  const statusLabel = {novo:'Novo lead',contato:'Em contato',proposta:'Proposta',negociacao:'Negociação',fechado:'Fechado ✓',perdido:'Perdido'}[l.status]||'Novo lead';
-  const initAv = (l.responsavel||l.empresa||l.nome||'?').charAt(0).toUpperCase();
-  const avatarColor = {A:'#e74c3c',B:'#e67e22',C:'#27ae60',D:'#2980b9',E:'#8e44ad',F:'#c0392b',G:'#16a085',H:'#d35400',I:'#2c3e50',J:'#1abc9c',K:'#e74c3c',L:'#3498db',M:'#2ecc71',N:'#9b59b6',O:'#f39c12',P:'#1abc9c',Q:'#e74c3c',R:'#3498db',S:'#27ae60',T:'#e67e22',U:'#8e44ad',V:'#2980b9',W:'#c0392b',X:'#d35400',Y:'#16a085',Z:'#2c3e50'}[initAv]||'#5B5BAA';
+  const statusLabelMap = {novo:'Novo Lead',contato:'Em Contato',proposta:'Proposta Enviada',negociacao:'Em Negociação',fechado:'Fechado ✓',perdido:'Perdido'};
+  const statusBgMap    = {novo:'#E8ECFF',contato:'#E8F4FF',proposta:'#FFF3E0',negociacao:'#FFF8E1',fechado:'#E8F5E9',perdido:'#FFEBEE'};
+  const statusClrMap   = {novo:'#3a4096',contato:'#185FA5',proposta:'#854F0B',negociacao:'#6D4C00',fechado:'#2E7D32',perdido:'#A32D2D'};
 
-  // Notes preview
-  const lastNote = (l.notas||[]).slice(-1)[0];
-  const notePreview = lastNote ? `
-    <div style="background:#1a1a3e;border-radius:8px;padding:8px 10px;margin:8px 0">
-      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:3px">Notas atualizadas</div>
-      <div style="font-size:11px;color:#c2bfe0;line-height:1.4">${esc((lastNote.texto||lastNote.text||lastNote||'').toString().slice(0,60))}</div>
-      <div style="font-size:10px;color:#7878A8;margin-top:4px">${lastNote.ts ? new Date(lastNote.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</div>
-    </div>` : '';
+  const sl  = statusLabelMap[l.status] || 'Novo Lead';
+  const sbg = statusBgMap[l.status]    || '#E8ECFF';
+  const sc  = statusClrMap[l.status]   || '#3a4096';
 
-  // Horário / info
-  const infoLine = [l.horario, l.segmento, l.atividade].filter(Boolean).join(' ');
+  const initAv = ((l.empresa||l.nome||'?').trim()).charAt(0).toUpperCase();
+  const avatarColors = {A:'#e74c3c',B:'#e67e22',C:'#27ae60',D:'#2980b9',E:'#8e44ad',F:'#c0392b',G:'#16a085',H:'#d35400',I:'#2c3e50',J:'#1abc9c',K:'#e74c3c',L:'#3498db',M:'#2ecc71',N:'#9b59b6',O:'#f39c12',P:'#1abc9c',Q:'#e74c3c',R:'#3498db',S:'#27ae60',T:'#e67e22',U:'#8e44ad',V:'#2980b9',W:'#c0392b',X:'#d35400',Y:'#16a085',Z:'#2c3e50'};
+  const avatarColor = avatarColors[initAv] || '#5B5BAA';
 
-  // Action buttons row
-  const proxLabel = l.proxAcaoTs ? new Date(l.proxAcaoTs).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
-  const overdue   = l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status!=='fechado';
-
-  const indicator = contactIndicator(l);
+  const indicator     = contactIndicator(l);
   const lastContactStr = l.ultimoContato
     ? new Date(l.ultimoContato).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
     : (l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—');
 
-  return `<div class="crm-lead-card priority-${l.prioridade||'baixa'}" style="background:#12123a;border:1.5px solid ${indicator.color}44;border-radius:12px;padding:0;overflow:hidden;cursor:default">
-    <!-- Indicator strip -->
-    <div style="height:3px;background:${indicator.color};width:100%"></div>
-    <!-- Header: avatar + status badges -->
-    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 6px">
-      <div style="position:relative">
-        <div style="width:36px;height:36px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${initAv}</div>
-        <div style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:${indicator.color};border:1.5px solid #12123a"></div>
+  const proxLabel = l.proxAcaoTs ? new Date(l.proxAcaoTs).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
+  const overdue   = l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status !== 'fechado';
+
+  // Last note
+  const lastNote    = (l.notas||[]).slice(-1)[0];
+  const noteText    = lastNote ? (lastNote.texto||lastNote.text||lastNote||'').toString().slice(0,80) : '';
+
+  // Services tags
+  const servicos = (l.servicos||[]).slice(0,4);
+
+  // Segmento / atividade info line
+  const segLine = [l.segmento, l.atividade].filter(Boolean).join(' · ');
+
+  // WhatsApp link
+  const waTel = (l.tel||'').replace(/\D/g,'');
+  const waLink = waTel ? 'https://wa.me/55' + waTel : '';
+
+  return \`<div class="crm-lead-card priority-\${l.prioridade||'baixa'}" style="background:#fff;border:1px solid #e0dfef;border-radius:12px;padding:0;overflow:hidden;cursor:default;box-shadow:0 1px 4px rgba(30,30,92,.06)">
+
+    <!-- Top strip: avatar + nome + status badge + indicator -->
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px 8px">
+      <!-- Avatar with dot -->
+      <div style="position:relative;flex-shrink:0">
+        <div style="width:40px;height:40px;border-radius:50%;background:\${avatarColor};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff">\${initAv}</div>
+        <div style="position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;background:\${indicator.color};border:2px solid #fff"></div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
-        <span style="background:#2a2a5a;color:#c2bfe0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px">Novo lead</span>
-        <span style="background:#1a3a2a;color:#4ade80;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;cursor:pointer" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">Notas</span>
+      <!-- Name + sub -->
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:800;color:#1E1E5C;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">\${esc(l.empresa||l.nome||'Lead sem nome')}</div>
+        \${l.empresa&&l.nome ? \`<div style="font-size:11px;color:#5B5BAA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">\${esc(l.nome)}</div>\` : ''}
+        <!-- Status badge -->
+        <span style="display:inline-block;margin-top:4px;background:\${sbg};color:\${sc};font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px">\${sl}</span>
       </div>
+      <!-- Indicator label + date -->
       <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:9px;color:${indicator.color};font-weight:700">${indicator.label}</div>
-        <div style="font-size:9px;color:#7878A8">📅 ${lastContactStr}</div>
+        <div style="font-size:9px;color:\${indicator.color};font-weight:700">\${indicator.dot} \${indicator.label}</div>
+        <div style="font-size:9px;color:#9090b8;margin-top:2px">📅 \${lastContactStr}</div>
       </div>
     </div>
 
-    <!-- Empresa / nome -->
-    <div style="padding:2px 12px 4px">
-      <div style="font-size:13px;font-weight:800;color:#fff;line-height:1.3">${esc(l.empresa||l.nome||'Lead sem nome')}</div>
-      ${l.empresa&&l.nome?`<div style="font-size:11px;color:#7878A8;margin-top:1px">${esc(l.nome)}</div>`:''}
-      ${l.segmento?`<div style="font-size:10px;color:#7878A8;margin-top:1px">${esc(l.segmento)}</div>`:''}
+    <!-- Segment / info -->
+    \${segLine ? \`<div style="padding:0 14px 6px"><div style="font-size:10px;color:#7878A8;background:#f5f4fb;border-radius:6px;padding:3px 8px;display:inline-block">\${esc(segLine)}</div></div>\` : ''}
+
+    <!-- Data rows -->
+    <div style="padding:0 14px 8px;display:flex;flex-direction:column;gap:3px">
+      \${l.cnpj  ? \`<div style="font-size:11px;color:#5B5BAA;display:flex;align-items:center;gap:5px">🏢 <span>\${esc(l.cnpj)}</span></div>\` : ''}
+      \${l.tel   ? \`<div style="font-size:11px;color:#5B5BAA;display:flex;align-items:center;gap:5px">📞 <span>\${esc(l.tel)}</span></div>\` : ''}
+      \${l.email ? \`<div style="font-size:11px;color:#5B5BAA;display:flex;align-items:center;gap:5px">✉️ <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">\${esc(l.email)}</span></div>\` : ''}
+      \${(l.cidade||l.municipio) ? \`<div style="font-size:11px;color:#5B5BAA;display:flex;align-items:center;gap:5px">📍 <span>\${esc(l.cidade||l.municipio)}\${l.uf?' – '+esc(l.uf):''}</span></div>\` : ''}
+      \${l.responsavel ? \`<div style="font-size:11px;color:#5B5BAA;display:flex;align-items:center;gap:5px">👤 <span>\${esc(l.responsavel)}</span></div>\` : ''}
+      \${l.valor ? \`<div style="font-size:11px;color:#2E7D32;font-weight:700;display:flex;align-items:center;gap:5px">💰 <span>\${fmtVal(l.valor)}</span></div>\` : ''}
     </div>
 
-    <!-- Info: responsável, tel, horário -->
-    <div style="padding:4px 12px;display:flex;flex-direction:column;gap:2px">
-      ${l.responsavel?`<div style="font-size:11px;color:#9090c0">Usuário: ${esc(l.responsavel)}</div>`:''}
-      ${l.tel?`<div style="font-size:11px;color:#7878A8">${esc(l.tel)}</div>`:''}
-      ${infoLine?`<div style="font-size:11px;color:#7878A8">${esc(infoLine)}</div>`:''}
-    </div>
+    <!-- Service tags -->
+    \${servicos.length ? \`<div style="padding:0 14px 8px;display:flex;flex-wrap:wrap;gap:4px">
+      \${servicos.map(s=>\`<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:#E8ECFF;color:#3a4096;border:1px solid #c2bfe0">\${esc(s)}</span>\`).join('')}
+    </div>\` : ''}
 
     <!-- Note preview -->
-    <div style="padding:0 10px">${notePreview}</div>
+    \${noteText ? \`<div style="margin:0 14px 8px;background:#f5f4fb;border-radius:8px;padding:7px 10px">
+      <div style="font-size:10px;font-weight:700;color:#3a4096;margin-bottom:2px">📝 Nota</div>
+      <div style="font-size:11px;color:#5B5BAA;line-height:1.4">\${esc(noteText)}\${noteText.length>=80?'…':''}</div>
+    </div>\` : ''}
 
-    <!-- Quick action buttons -->
-    <div style="padding:6px 10px;display:flex;flex-direction:column;gap:5px">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#c2bfe0;padding:5px 8px;background:#1a1a3e;border:1px solid #2a2a5a;border-radius:6px">
-        <input type="checkbox" style="width:13px;height:13px" ${l.selecionado?'checked':''} onclick="event.stopPropagation();crmToggleSel('${l.id}','${tab}',this.checked)"> Selecionar
-      </label>
-      ${proxLabel?`<button style="padding:5px 8px;background:#1a1a3e;border:1px solid ${overdue?'#A32D2D':'#2a2a5a'};border-radius:6px;color:${overdue?'#ff7070':'#c2bfe0'};font-size:11px;text-align:left;cursor:pointer;font-family:inherit" onclick="event.stopPropagation()">
-        ${overdue?'⚠':'📅'} ${proxLabel}
-      </button>`:''}
-      <button style="padding:5px 8px;background:#1a1a3e;border:1px solid #2a2a5a;border-radius:6px;color:#c2bfe0;font-size:11px;text-align:left;cursor:pointer;font-family:inherit;width:100%" onclick="event.stopPropagation();crmOpenGMB('${esc(l.gmb_url||'')}','${esc(l.cnpj||'')}','${esc(l.empresa||l.nome||'')}','${esc(l.cidade||l.municipio||'')}')">
-        🗺 Google Meu Negócio
-      </button>
+    <!-- Próxima ação -->
+    \${proxLabel ? \`<div style="margin:0 14px 8px;padding:5px 10px;background:\${overdue?'#FFEBEE':'#f5f4fb'};border-radius:8px;font-size:11px;color:\${overdue?'#A32D2D':'#5B5BAA'};font-weight:600">
+      \${overdue?'⚠️':'📅'} Próx. ação: \${proxLabel}
+    </div>\` : ''}
+
+    <!-- Quick action buttons (SWG style) -->
+    <div style="padding:0 14px 8px;display:flex;gap:5px;flex-wrap:wrap">
+      <button style="flex:1;padding:6px 4px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:7px;color:#2E7D32;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="event.stopPropagation();crmQuickAction('atendeu','${l.id}','${tab}')">✅ Atendeu</button>
+      <button style="flex:1;padding:6px 4px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:7px;color:#E65100;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="event.stopPropagation();crmQuickAction('sem_sucesso','${l.id}','${tab}')">❌ Sem sucesso</button>
+      <button style="flex:1;padding:6px 4px;background:#E3F2FD;border:1px solid #90CAF9;border-radius:7px;color:#1565C0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" onclick="event.stopPropagation();crmQuickAction('reuniao','${l.id}','${tab}')">📅 Reunião</button>
+      \${l.tel ? \`<button style="flex:1;padding:6px 4px;background:#F3E5F5;border:1px solid #CE93D8;border-radius:7px;color:#6A1B9A;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();window.open('tel:\${esc(l.tel)}','_self')">📞 Ligar</button>\` : ''}
     </div>
 
-    <!-- Main action buttons -->
-    <div style="padding:6px 10px 10px;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px">
-      <button style="padding:8px 10px;background:#1a1a3e;border:1px solid #3a3a6a;border-radius:8px;color:#c2bfe0;font-size:14px;cursor:pointer;font-family:inherit" title="Editar informações" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">
-        ✏️
-      </button>
-      <button style="padding:8px;background:#3a3aaa;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">
-        Abrir lead
-      </button>
-      <button style="padding:8px;background:#1a1a3e;border:1px solid #A32D2D33;border-radius:8px;color:#ff7070;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmDelLead('${l.id}','${tab}')">
-        Excluir lead
-      </button>
+    <!-- Footer: edit / maps / whatsapp / delete -->
+    <div style="padding:0 14px 12px;display:flex;gap:5px;flex-wrap:wrap">
+      <button style="flex:1;padding:6px 4px;background:#f5f4fb;border:1px solid #e0dfef;border-radius:7px;color:#3a4096;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenLead('\${l.id}','\${tab}')">✏️ Editar lead</button>
+      <button style="flex:1;padding:6px 4px;background:#f5f4fb;border:1px solid #e0dfef;border-radius:7px;color:#3a4096;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenGMB('\${esc(l.gmb_url||'')}','\${esc(l.cnpj||'')}','\${esc(l.empresa||l.nome||'')}','\${esc(l.cidade||l.municipio||'')}')">🗺 Google Maps</button>
+      \${waLink ? \`<button style="flex:1;padding:6px 4px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:7px;color:#2E7D32;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();window.open('\${waLink}','_blank')">💬 WhatsApp</button>\` : ''}
+      <button style="flex:1;padding:6px 4px;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:7px;color:#A32D2D;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmDelLead('\${l.id}','\${tab}')">🗑 Excluir</button>
     </div>
-  </div>`;
+  </div>\`;
 }
+
+// ── Quick action (Atendeu / Sem sucesso / Reunião) ──
+function crmQuickAction(action, id, tab) {
+  const list = crmData[tab] || [];
+  const lead = list.find(l => l.id === id);
+  if (!lead) return;
+  const ts = Date.now();
+  lead.ultimoContato = ts;
+  const nota = { ts, texto: action === 'atendeu' ? '✅ Atendeu' : action === 'sem_sucesso' ? '❌ Sem sucesso' : '📅 Reunião agendada', auto: true };
+  lead.notas = [...(lead.notas || []), nota];
+  if (action === 'atendeu' && lead.status === 'novo') lead.status = 'contato';
+  crmSave();
+  crmRenderKanban(tab);
+  crmUpdKPIs(tab);
+}
+window.crmQuickAction = crmQuickAction;
 
 // ── Render table for tab ──
 function crmToggleSel(id, tab, checked) {

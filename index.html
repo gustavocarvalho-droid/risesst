@@ -970,7 +970,7 @@
     .crm-col {
       min-width:300px; max-width:340px; flex-shrink:0;
       background:#f0eff8; border-radius:12px; border:1px solid #e0dfef;
-      display:flex; flex-direction:column; max-height:calc(100vh - 280px);
+      display:flex; flex-direction:column; max-height:calc(100vh - 200px);
     }
     .crm-col-header {
       padding:12px 14px; border-bottom:1px solid #e0dfef;
@@ -9297,6 +9297,24 @@ function loginHideScreen() {
   if (scr) scr.classList.add('hidden');
   if (top) top.style.display = '';
   if (lay) lay.style.display = '';
+  // Restaurar menu de Usuários se for master (ao recarregar página)
+  try {
+    const sess = JSON.parse(localStorage.getItem(LOGIN_SESSION_KEY) || '{}');
+    const isMaster = sess.is_master || sess.user === 'gustavo1996c';
+    if (isMaster) {
+      const navU = document.getElementById('nav-usuarios');
+      if (navU) navU.style.display = '';
+    }
+    // Restaurar nome/empresa no sidebar
+    if (sess.empresa) {
+      const nameEl = document.getElementById('dash-username');
+      if (nameEl) nameEl.textContent = sess.empresa;
+    }
+    // Restaurar branding se houver
+    if (sess.branding && typeof brandApplyToUI === 'function') {
+      brandApplyToUI(sess.branding, sess.logoUrl || '');
+    }
+  } catch(e) {}
 }
 
 function loginSetTab(tab) {
@@ -9350,6 +9368,7 @@ async function loginDoLogin() {
     localStorage.setItem(LOGIN_SESSION_KEY, JSON.stringify({
       user,
       isMaster,
+      is_master: isMaster,
       empresa:  dbUser?.empresa || (isMaster ? 'RISE SST' : user),
       logo_url: dbUser?.logo_url || '',
       branding: _bc,

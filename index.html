@@ -4860,10 +4860,29 @@ const WA_INSTANCES_KEY = 'rise_wa_master_instances'; // { username: { instanceNa
 function waMasterGetInstances() {
   try { return JSON.parse(localStorage.getItem(WA_INSTANCES_KEY) || '{}'); } catch(e) { return {}; }
 }
+// Carregar instâncias do banco shared (para usuários não-master acessarem)
+async function waMasterLoadInstancesFromDB() {
+  try {
+    const r = await fetch('/api/dados', { headers: { 'x-user-key': 'shared', 'x-store-key': 'wa_master_instances' } });
+    if (r.ok) {
+      const data = await r.json();
+      if (data && typeof data === 'object' && Object.keys(data).length) {
+        localStorage.setItem(WA_INSTANCES_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch(e) {}
+  return waMasterGetInstances();
+}
+window.waMasterLoadInstancesFromDB = waMasterLoadInstancesFromDB;
 function waMasterSaveInstances(data) {
   localStorage.setItem(WA_INSTANCES_KEY, JSON.stringify(data));
-  // Persistir no DB para usuários padrão acessarem
-  if (window._db) window._db.save('wa_master_instances', data).catch(()=>{});
+  // Salvar em chave SHARED no banco (acessível por todos os usuários)
+  fetch('/api/dados', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-key': 'shared', 'x-store-key': 'wa_master_instances' },
+    body: JSON.stringify(data),
+  }).catch(() => {});
 }
 window.waMasterGetInstances = waMasterGetInstances;
 
@@ -4892,8 +4911,26 @@ function waInitConfigPanel() {
   } else {
     masterArea.style.display = 'none';
     userArea.style.display   = '';
-    // Aplicar e mostrar instância do usuário atual
-    applyUserInstanceConfig();
+    // Aplicar e mostrar instância do usuário atual (async - carrega do banco)
+    const infoElInit = document.getElementById('wa-user-inst-info');
+    if (infoElInit) { infoElInit.textContent = 'Carregando...'; infoElInit.style.color = '#854F0B'; }
+    applyUserInstanceConfig().then(() => {
+      const cfg2 = typeof getCfg === 'function' ? getCfg() : JSON.parse(localStorage.getItem(CFG_KEY||'rise_wa_config')||'{}');
+      const infoEl2 = document.getElementById('wa-user-inst-info');
+      const testEl2 = document.getElementById('wa-user-inst-test');
+      if (infoEl2) {
+        if (cfg2.inst) {
+          infoEl2.textContent = cfg2.inst;
+          infoEl2.style.color = '#237CA3';
+          if (testEl2) testEl2.textContent = cfg2.url ? `API: ${cfg2.url}` : '';
+          if (typeof loadCfgToForm === 'function') loadCfgToForm();
+          if (typeof checkNum === 'function') setTimeout(checkNum, 500);
+        } else {
+          infoEl2.textContent = 'Não configurada — contate o administrador';
+          infoEl2.style.color = '#A32D2D';
+        }
+      }
+    });
     const cfg = typeof getCfg === 'function' ? getCfg() : JSON.parse(localStorage.getItem(CFG_KEY||'rise_wa_config')||'{}');
     const infoEl = document.getElementById('wa-user-inst-info');
     const testEl = document.getElementById('wa-user-inst-test');
@@ -4913,23 +4950,26 @@ window.waInitConfigPanel = waInitConfigPanel;
 
 // Botão recarregar configuração para usuário padrão
 function waUserReloadConfig() {
-  applyUserInstanceConfig();
-  const cfg = typeof getCfg === 'function' ? getCfg() : JSON.parse(localStorage.getItem(CFG_KEY||'rise_wa_config')||'{}');
   const infoEl = document.getElementById('wa-user-inst-info');
   const testEl = document.getElementById('wa-user-inst-test');
-  if (infoEl) {
-    if (cfg.inst) {
-      infoEl.textContent = cfg.inst;
-      infoEl.style.color = '#237CA3';
-      if (testEl) testEl.textContent = `✓ Instância aplicada. API: ${cfg.url||'—'}`;
-    } else {
-      infoEl.textContent = 'Não configurada';
-      infoEl.style.color = '#A32D2D';
-      if (testEl) testEl.textContent = 'Nenhuma instância foi configurada pelo administrador para este usuário.';
+  if (infoEl) { infoEl.textContent = 'Carregando...'; infoEl.style.color = '#854F0B'; }
+  applyUserInstanceConfig().then(() => {
+    const cfg = typeof getCfg === 'function' ? getCfg() : JSON.parse(localStorage.getItem(CFG_KEY||'rise_wa_config')||'{}');
+    if (infoEl) {
+      if (cfg.inst) {
+        infoEl.textContent = cfg.inst;
+        infoEl.style.color = '#237CA3';
+        if (testEl) testEl.textContent = `✓ Instância aplicada. API: ${cfg.url||'—'}`;
+      } else {
+        infoEl.textContent = 'Não configurada';
+        infoEl.style.color = '#A32D2D';
+        if (testEl) testEl.textContent = 'Nenhuma instância foi configurada pelo administrador para este usuário.';
+      }
     }
-  }
-  if (typeof loadCfgToForm === 'function') loadCfgToForm();
-  if (typeof toast === 'function') toast(cfg.inst ? `✓ Instância "${cfg.inst}" carregada` : '⚠ Instância não configurada', cfg.inst ? 'ok' : 'warn');
+    if (typeof loadCfgToForm === 'function') loadCfgToForm();
+    if (typeof checkNum === 'function') setTimeout(checkNum, 500);
+    if (typeof toast === 'function') toast(cfg.inst ? `✓ Instância "${cfg.inst}" carregada` : '⚠ Instância não configurada');
+  });
 }
 window.waUserReloadConfig = waUserReloadConfig;
 
@@ -5156,8 +5196,14 @@ window.addEventListener('DOMContentLoaded', function() {
 
 // Aplicar config da instância do usuário atual ao inicializar WA
 // ── Aplicar instância do Master para o usuário atual ──
-function applyUserInstanceConfig() {
-  const instances = waMasterGetInstances();
+async function applyUserInstanceConfig() {
+  // Carregar do banco shared primeiro (garante dados atualizados mesmo em outro device)
+  let instances;
+  try {
+    instances = await waMasterLoadInstancesFromDB();
+  } catch(e) {
+    instances = waMasterGetInstances();
+  }
   if (!instances || !Object.keys(instances).length) return;
 
   // Coletar possíveis chaves do usuário atual
@@ -8138,7 +8184,12 @@ window.waBootApp = function() {
   }
 
   // Aplicar instância do master para este usuário (agora que wa_currentUser está setado)
-  if (typeof applyUserInstanceConfig === 'function') applyUserInstanceConfig();
+  if (typeof applyUserInstanceConfig === 'function') {
+    applyUserInstanceConfig().then(() => {
+      if (typeof loadCfgToForm === 'function') loadCfgToForm();
+      if (typeof checkNum === 'function') setTimeout(checkNum, 1000);
+    }).catch(() => {});
+  }
 
   // All WA functions are now global — call directly
   if (typeof loadCfgToForm  === 'function') loadCfgToForm();

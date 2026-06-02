@@ -4855,8 +4855,10 @@ window.waMasterGetInstances = waMasterGetInstances;
 
 // Inicializar painel config (mostra master vs user)
 function waInitConfigPanel() {
-  const isMaster = window._currentUser?.is_master ||
-    (typeof getCurrentUsername === 'function' && getCurrentUsername() === 'gustavo1996c');
+  // Detectar master: via wa_currentUser (WA próprio) ou via _currentUser (login principal)
+  const isMaster = (typeof wa_currentUser !== 'undefined' && wa_currentUser?.master)
+    || window._currentUser?.is_master
+    || (typeof getCurrentUsername === 'function' && getCurrentUsername() === 'gustavo1996c');
 
   const masterArea = document.getElementById('wa-config-master-area');
   const userArea   = document.getElementById('wa-config-user-area');
@@ -4865,20 +4867,31 @@ function waInitConfigPanel() {
   if (isMaster) {
     masterArea.style.display = '';
     userArea.style.display   = 'none';
+    // Carregar URL/Key global nos campos
+    const cfg = JSON.parse(localStorage.getItem(CFG_KEY || 'rise_wa_config') || '{}');
+    const urlEl = document.getElementById('wa-cf-url');
+    const keyEl = document.getElementById('wa-cf-key');
+    if (urlEl && cfg.url) urlEl.value = cfg.url;
+    if (keyEl && cfg.key) keyEl.value = cfg.key;
+    // Popular seletor de usuários
     waMasterPopulateUserSel();
   } else {
     masterArea.style.display = 'none';
     userArea.style.display   = '';
     // Mostrar instância do usuário atual
-    const username = typeof getCurrentUsername === 'function' ? getCurrentUsername() : '';
+    const username = wa_currentUser?.key
+      || (typeof getCurrentUsername === 'function' ? getCurrentUsername() : '');
     const instances = waMasterGetInstances();
     const inst = instances[username];
     const infoEl = document.getElementById('wa-user-inst-info');
     if (infoEl) infoEl.textContent = inst?.instanceName || 'Não configurada';
     // Aplicar config do Master para este usuário
     if (inst) {
-      const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
-      if (!cfg.url && inst.apiUrl) { cfg.url = inst.apiUrl; cfg.key = inst.apiKey || cfg.key; cfg.inst = inst.instanceName; localStorage.setItem('rise_wa_config', JSON.stringify(cfg)); }
+      const cfg = JSON.parse(localStorage.getItem(CFG_KEY || 'rise_wa_config') || '{}');
+      if (inst.apiUrl) cfg.url = inst.apiUrl;
+      if (inst.apiKey) cfg.key = inst.apiKey;
+      cfg.inst = inst.instanceName;
+      localStorage.setItem(CFG_KEY || 'rise_wa_config', JSON.stringify(cfg));
     }
   }
 }
@@ -4888,18 +4901,25 @@ window.waInitConfigPanel = waInitConfigPanel;
 function waMasterPopulateUserSel() {
   const sel = document.getElementById('wa-inst-user-sel');
   if (!sel) return;
-  // Pegar lista de usuários do sistema
-  const users = ['gustavo1996c'];
+  // Pegar lista de usuários: getUsers() do WA + cache do DB
+  let userKeys = [];
   try {
-    const db = JSON.parse(localStorage.getItem('rise_users_cache') || '[]');
-    db.forEach(u => { if (u.username && !users.includes(u.username)) users.push(u.username); });
+    const waUsers = typeof getUsers === 'function' ? getUsers() : {};
+    userKeys = Object.keys(waUsers);
+  } catch(e) {}
+  if (!userKeys.length) userKeys = [wa_currentUser?.key || 'gustavo1996c'];
+  // Adicionar usuários do DB se disponíveis
+  try {
+    const dbUsers = JSON.parse(localStorage.getItem('rise_users_cache') || '[]');
+    dbUsers.forEach(u => { if (u.username && !userKeys.includes(u.username)) userKeys.push(u.username); });
   } catch(e) {}
   const instances = waMasterGetInstances();
   sel.innerHTML = '<option value="">— Selecionar usuário —</option>' +
-    users.map(u => {
+    userKeys.map(u => {
       const inst = instances[u];
-      const tag = inst?.instanceName ? ` (${inst.instanceName})` : '';
-      return `<option value="${u}">${u}${tag}</option>`;
+      const tag = inst?.instanceName ? ` ✓ ${inst.instanceName}` : '';
+      const isMe = u === (wa_currentUser?.key || '');
+      return `<option value="${u}">${u}${isMe?' (você)':''}${tag}</option>`;
     }).join('');
 }
 window.waMasterPopulateUserSel = waMasterPopulateUserSel;
@@ -5064,16 +5084,16 @@ async function waMasterConnectInst() {
 }
 window.waMasterConnectInst = waMasterConnectInst;
 
-// Ao carregar a aba config, inicializar
-(function() {
+// Override do waGo para inicializar painel config
+window.addEventListener('DOMContentLoaded', function() {
   const origWaGo = window.waGo;
   if (origWaGo) {
     window.waGo = function(tab) {
       origWaGo(tab);
-      if (tab === 'config') setTimeout(waInitConfigPanel, 100);
+      if (tab === 'config') setTimeout(waInitConfigPanel, 150);
     };
   }
-})();
+});
 
 // Aplicar config da instância do usuário atual ao inicializar WA
 (function applyUserInstance() {
@@ -6671,6 +6691,8 @@ async function _doWipe() {
 }
 function renderConfig() {
   loadCfgToForm();
+  // Inicializar painel master/usuário
+  if (typeof waInitConfigPanel === 'function') setTimeout(waInitConfigPanel, 50);
   const users=getUsers();
   const wrap=wGet('users-list');
   if(wrap) {
@@ -7967,6 +7989,28 @@ async function loadAllChats() {
 
 // Boot the WA module directly (no login)
 window.waBootApp = function() {
+  // ── Setar wa_currentUser a partir da sessão do login principal ──
+  if (!wa_currentUser) {
+    try {
+      const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+      const username = sess.user || '';
+      const isMaster = sess.is_master || sess.isMaster || (username === 'gustavo1996c');
+      if (username) {
+        // Tentar obter do sistema de usuários WA
+        const waUsers = typeof getUsers === 'function' ? getUsers() : {};
+        // Mapear username do sistema principal para key do WA
+        const waKey = Object.keys(waUsers).find(k =>
+          k === username ||
+          waUsers[k].name?.toLowerCase().includes(username.split(/[_0-9]/)[0].toLowerCase())
+        ) || (isMaster ? 'gustavoc' : username);
+        const waUser = waUsers[waKey] || { name: sess.empresa || username, role: isMaster ? 'Master' : 'Usuário', master: isMaster };
+        wa_currentUser = { key: waKey, ...waUser, master: isMaster };
+        // Se master, garantir flag master=true no objeto
+        if (isMaster) wa_currentUser.master = true;
+      }
+    } catch(e) {}
+  }
+
   // All WA functions are now global — call directly
   if (typeof loadCfgToForm  === 'function') loadCfgToForm();
   if (typeof carregarDados  === 'function') {
@@ -7976,6 +8020,13 @@ window.waBootApp = function() {
       if (typeof updBadges    === 'function') updBadges();
       if (typeof startAgTimer === 'function') startAgTimer();
       if (typeof checkNum     === 'function') checkNum();
+      // Verificar se já estava na aba config
+      if (typeof waInitConfigPanel === 'function') {
+        const activePanel = document.querySelector('.wa-panel[style*="display: block"], .wa-panel:not([style*="display"])');
+        if (document.getElementById('wa-panel-config')?.style.display !== 'none') {
+          setTimeout(waInitConfigPanel, 200);
+        }
+      }
     }).catch(function() {
       if (typeof renderC   === 'function') renderC();
       if (typeof updBadges === 'function') updBadges();

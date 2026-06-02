@@ -3020,40 +3020,95 @@
 
             <!-- CONFIG -->
             <div class="wa-panel" id="wa-panel-config">
-              <div class="wa-card">
-                <div class="wa-card-title"><span class="wa-icon">🔌</span>Evolution API — Configuração Global</div>
-                <div style="background:#e7e6f4;border:1px solid #c2bfe0;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:#3a4096">
-                  💡 A <b>URL</b> e <b>API Key</b> são compartilhadas. Cada usuário configura sua própria <b>Instância (número)</b>.
+
+              <!-- ÁREA MASTER ONLY -->
+              <div id="wa-config-master-area" style="display:none">
+                <div class="wa-card">
+                  <div class="wa-card-title"><span class="wa-icon">🔌</span>Evolution API — URL e Chave Global</div>
+                  <div style="background:#fffbe7;border:1px solid #ffe082;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:#7a5700">
+                    🔒 <b>Apenas o Master</b> pode alterar estas configurações. Usuários padrão usam automaticamente.
+                  </div>
+                  <div class="wa-field-row">
+                    <div class="wa-field">
+                      <label>URL da API Evolution</label>
+                      <div style="display:flex;gap:6px">
+                        <input type="text" id="wa-cf-url" class="wa-inp" placeholder="https://sua-api.dominio.com" style="flex:1">
+                        <button class="wa-btn wa-btn-xs wa-btn-danger" onclick="waMasterDelURL()" title="Excluir URL">🗑</button>
+                      </div>
+                    </div>
+                    <div class="wa-field">
+                      <label>API Key (global)</label>
+                      <input type="password" id="wa-cf-key" class="wa-inp" placeholder="••••••••••••">
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+                    <button class="wa-btn wa-btn-sm wa-btn-blue" onclick="waTestConn()">🧪 Testar conexão</button>
+                    <button class="wa-btn wa-btn-rise wa-btn-sm" onclick="waSaveConf()">💾 Salvar URL e Key</button>
+                    <button class="wa-btn wa-btn-sm wa-btn-amber" onclick="waSetupWebhook()">🔔 Webhook</button>
+                  </div>
+                  <div id="wa-cf-status" style="font-size:12px;margin-bottom:10px"></div>
                 </div>
-                <div class="wa-field-row">
-                  <div class="wa-field"><label>URL da API (global)</label><input type="text" id="wa-cf-url" class="wa-inp" placeholder="https://sua-api.dominio.com"></div>
-                  <div class="wa-field"><label>API Key (global)</label><input type="password" id="wa-cf-key" class="wa-inp" placeholder="••••••••••••"></div>
+
+                <div class="wa-card">
+                  <div class="wa-card-title"><span class="wa-icon">📱</span>Gerenciar Instâncias por Usuário</div>
+                  <div style="background:#e8f5f7;border:1px solid #b8dde7;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:#1a6389">
+                    ℹ️ Selecione o usuário, crie a instância e conecte. Apenas o Master pode alterar.
+                  </div>
+
+                  <!-- Seletor de usuário -->
+                  <div class="wa-field" style="margin-bottom:12px">
+                    <label>Usuário</label>
+                    <select id="wa-inst-user-sel" class="wa-sel" onchange="waMasterRenderUserInst()">
+                      <option value="">— Selecionar usuário —</option>
+                    </select>
+                  </div>
+
+                  <!-- Painel de instâncias do usuário selecionado -->
+                  <div id="wa-master-inst-panel" style="display:none">
+                    <div class="wa-field-row">
+                      <div class="wa-field">
+                        <label>Nome da Instância</label>
+                        <input type="text" id="wa-inst-new-name" class="wa-inp" placeholder="ex: empresa_joao">
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+                      <button class="wa-btn wa-btn-sm wa-btn-rise" onclick="waMasterCreateInst()">➕ Criar Instância</button>
+                      <button class="wa-btn wa-btn-sm wa-btn-blue" onclick="waMasterTestInst()">🧪 Testar</button>
+                      <button class="wa-btn wa-btn-sm wa-btn-amber" onclick="waMasterConnectInst()">🔗 Conectar QR</button>
+                    </div>
+                    <div id="wa-master-inst-list" style="margin-top:8px"></div>
+                    <div id="wa-master-inst-status" style="font-size:12px;margin-top:8px;color:#1a6389"></div>
+                    <!-- QR Code área -->
+                    <div id="wa-master-qr-area" style="display:none;text-align:center;padding:16px;background:#f5fbfc;border-radius:10px;margin-top:10px">
+                      <div style="font-size:12px;color:#1a6389;margin-bottom:8px">📱 Escaneie o QR Code com o WhatsApp</div>
+                      <div id="wa-master-qr-img"></div>
+                    </div>
+                  </div>
                 </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-                  <button class="wa-btn wa-btn-sm wa-btn-blue" onclick="waTestConn()">🧪 Testar conexão</button>
-                  <button class="wa-btn wa-btn-rise wa-btn-sm" onclick="waSaveConf()">💾 Salvar global</button>
-                  <button class="wa-btn wa-btn-sm wa-btn-amber" onclick="waSetupWebhook()">🔔 Configurar Webhook</button>
+
+                <div class="wa-card">
+                  <div class="wa-card-title"><span class="wa-icon">🗄️</span>Banco de Dados</div>
+                  <p style="font-size:13px;color:#7878A8;margin-bottom:12px">Neon PostgreSQL (variável DATABASE_URL).</p>
+                  <div style="display:flex;gap:8px">
+                    <button class="wa-btn wa-btn-sm" onclick="waTestDB()">🔍 Testar DB</button>
+                    <button class="wa-btn wa-btn-sm wa-btn-danger" onclick="waWipeDB()">⚠️ Apagar dados</button>
+                  </div>
+                  <div id="wa-db-status" style="margin-top:10px;font-size:12px"></div>
                 </div>
-                <div id="wa-cf-status" style="font-size:12px;margin-bottom:10px"></div>
-                <hr style="border:none;border-top:1px solid #e7e6f4;margin:14px 0">
-                <div class="wa-card-title" style="margin-bottom:10px"><span class="wa-icon">📱</span>Instâncias por Usuário</div>
-                <div id="wa-user-instances-list"></div>
               </div>
-              <div class="wa-card">
-                <div class="wa-card-title"><span class="wa-icon">👥</span>Usuários do Sistema</div>
-                <p style="font-size:13px;color:#7878A8">Senhas são armazenadas apenas no navegador (localStorage).</p>
-                <div id="wa-users-list" style="margin-top:14px"></div>
-                <button class="wa-btn wa-btn-sm" style="margin-top:10px" onclick="waOpenAddUser()">+ Adicionar usuário</button>
-              </div>
-              <div class="wa-card">
-                <div class="wa-card-title"><span class="wa-icon">🗄️</span>Banco de Dados</div>
-                <p style="font-size:13px;color:#7878A8;margin-bottom:12px">Neon PostgreSQL na Vercel (variável DATABASE_URL).</p>
-                <div style="display:flex;gap:8px">
-                  <button class="wa-btn wa-btn-sm" onclick="waTestDB()">🔍 Testar DB</button>
-                  <button class="wa-btn wa-btn-sm wa-btn-danger" onclick="waWipeDB()">⚠️ Apagar dados</button>
+
+              <!-- ÁREA USUÁRIO PADRÃO -->
+              <div id="wa-config-user-area">
+                <div class="wa-card" style="text-align:center;padding:40px 24px">
+                  <div style="font-size:48px;margin-bottom:12px">🔒</div>
+                  <div style="font-size:15px;font-weight:700;color:#1E1E5C;margin-bottom:6px">Configurações Restritas</div>
+                  <div style="font-size:13px;color:#7878A8">As configurações de instância WhatsApp são gerenciadas pelo administrador do sistema.</div>
+                  <div style="margin-top:16px;padding:12px;background:#f5f4fb;border-radius:8px;font-size:12px;color:#5B5BAA">
+                    Sua instância: <span id="wa-user-inst-info" style="font-weight:700;color:#1E1E5C">—</span>
+                  </div>
                 </div>
-                <div id="wa-db-status" style="margin-top:10px;font-size:12px"></div>
               </div>
+
             </div>
 
           </div><!-- /wa-content -->
@@ -3577,6 +3632,26 @@
       if (newEmpresas.length > 0) {
         histAddBatch(q, newEmpresas);
         histUpdCount();
+      }
+
+      // ── AUTO-ADD AO CRM BUSCADOR + LISTA WA ──
+      if (newEmpresas.length > 0 && typeof window.crmAddLeadFromSource === 'function') {
+        let addedCRM = 0, addedWA = 0;
+        newEmpresas.forEach(e => {
+          if (!e.cnpj && !e.telefone) return; // sem identificador, pula
+          // Adicionar ao CRM (dedup por CNPJ/telefone já está em crmAddLeadFromSource)
+          const wasAdded = bAutoAddToCRM(e);
+          if (wasAdded) addedCRM++;
+          // Adicionar à lista WA "Buscador"
+          const waAdded = bAutoAddToWA(e);
+          if (waAdded) addedWA++;
+        });
+        if (addedCRM > 0 || addedWA > 0) {
+          const msgs = [];
+          if (addedCRM > 0) msgs.push(`${addedCRM} no CRM`);
+          if (addedWA > 0)  msgs.push(`${addedWA} na lista WA`);
+          if (typeof toast === 'function') toast(`✓ ${msgs.join(' e ')} Buscador`);
+        }
       }
 
     } catch (e) {
@@ -4283,6 +4358,86 @@
   window.bExportCSV   = bExportCSV;
   window.bEnrichar    = bEnrichar;
   window.bAddToCRMEnriched     = bAddToCRMEnriched;
+
+  // ── Auto-add silencioso ao CRM Buscador ──
+  function bAutoAddToCRM(e) {
+    if (typeof window.crmAddLeadFromSource !== 'function') return false;
+    // Verificar se já existe por CNPJ ou tel antes de chamar
+    if (typeof crmData !== 'undefined') {
+      const list = crmData['buscador'] || [];
+      const cnpjDigits = (e.cnpj||'').replace(/\D/g,'');
+      const telDigits  = (e.telefone||e.whatsapp||'').replace(/\D/g,'');
+      const dup = list.find(l => {
+        if (cnpjDigits && l.cnpj && l.cnpj.replace(/\D/g,'') === cnpjDigits) return true;
+        if (telDigits  && l.tel  && l.tel.replace(/\D/g,'')  === telDigits)  return true;
+        return false;
+      });
+      if (dup) return false; // já existe
+    }
+    window.crmAddLeadFromSource('buscador', {
+      empresa:    e.nome || e.nome_fantasia || '',
+      nome:       e.nome_fantasia || '',
+      cnpj:       e.cnpj || '',
+      tel:        e.whatsapp || e.telefone || '',
+      email:      e.email || '',
+      cidade:     e.municipio || '',
+      segmento:   e.atividade || '',
+      site:       e.site || '',
+      status:     'novo',
+      prioridade: 'baixa',
+      obs:        e.obs || '',
+      _autoAdded: true,
+    });
+    return true;
+  }
+  window.bAutoAddToCRM = bAutoAddToCRM;
+
+  // ── Auto-add silencioso à lista WA "Buscador" ──
+  function bAutoAddToWA(e) {
+    const telRaw = (e.whatsapp || e.telefone || '').replace(/\D/g,'');
+    if (!telRaw) return false;
+    if (typeof wa_contacts === 'undefined' || typeof wa_listas === 'undefined') return false;
+
+    // Normalizar número
+    let tel = telRaw;
+    if (tel.length === 10 || tel.length === 11) tel = '55' + tel;
+
+    // Dedup: verificar se já existe nos contatos WA
+    let contato = wa_contacts.find(c => c.tel === tel);
+    if (!contato) {
+      // Criar contato
+      contato = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        tel,
+        nome:    e.nome_fantasia || e.nome || '',
+        empresa: e.nome || e.nome_fantasia || '',
+        cidade:  e.municipio || '',
+        status:  'pendente',
+        addedAt: Date.now(),
+        _source: 'buscador',
+      };
+      wa_contacts.push(contato);
+    }
+
+    // Garantir que lista "Buscador" existe
+    const LISTA_NOME = 'Buscador';
+    let lista = wa_listas.find(l => l.nome === LISTA_NOME);
+    if (!lista) {
+      lista = { id: Date.now(), nome: LISTA_NOME, contatos: [], createdAt: Date.now() };
+      wa_listas.unshift(lista);
+    }
+
+    // Dedup: verificar se contato já está na lista
+    if (lista.contatos.includes(contato.id)) return false;
+    lista.contatos.push(contato.id);
+
+    // Salvar
+    if (typeof salvarImediato === 'function') salvarImediato();
+    else if (typeof salvarDados === 'function') salvarDados();
+    if (typeof updBadges === 'function') updBadges();
+    return true;
+  }
+  window.bAutoAddToWA = bAutoAddToWA;
   window.bAddToCRMEnrichedHist = bAddToCRMEnrichedHist;
   window.bCopy        = bCopy;
   window.bCardId      = bCardId;
@@ -4682,6 +4837,257 @@ function iniciarApp() {
   window.waRenderAgendamentos = window.warenderAgendamentos;
   window.waCriarLista = window.wacriarLista;
   window.waRenderListas = window.warenderListas;
+
+// ══════════════════════════════════════════════════
+//   MASTER: Gerenciamento de Instâncias WA
+// ══════════════════════════════════════════════════
+const WA_INSTANCES_KEY = 'rise_wa_master_instances'; // { username: { instanceName, apiUrl, apiKey } }
+
+function waMasterGetInstances() {
+  try { return JSON.parse(localStorage.getItem(WA_INSTANCES_KEY) || '{}'); } catch(e) { return {}; }
+}
+function waMasterSaveInstances(data) {
+  localStorage.setItem(WA_INSTANCES_KEY, JSON.stringify(data));
+  // Persistir no DB para usuários padrão acessarem
+  if (window._db) window._db.save('wa_master_instances', data).catch(()=>{});
+}
+window.waMasterGetInstances = waMasterGetInstances;
+
+// Inicializar painel config (mostra master vs user)
+function waInitConfigPanel() {
+  const isMaster = window._currentUser?.is_master ||
+    (typeof getCurrentUsername === 'function' && getCurrentUsername() === 'gustavo1996c');
+
+  const masterArea = document.getElementById('wa-config-master-area');
+  const userArea   = document.getElementById('wa-config-user-area');
+  if (!masterArea || !userArea) return;
+
+  if (isMaster) {
+    masterArea.style.display = '';
+    userArea.style.display   = 'none';
+    waMasterPopulateUserSel();
+  } else {
+    masterArea.style.display = 'none';
+    userArea.style.display   = '';
+    // Mostrar instância do usuário atual
+    const username = typeof getCurrentUsername === 'function' ? getCurrentUsername() : '';
+    const instances = waMasterGetInstances();
+    const inst = instances[username];
+    const infoEl = document.getElementById('wa-user-inst-info');
+    if (infoEl) infoEl.textContent = inst?.instanceName || 'Não configurada';
+    // Aplicar config do Master para este usuário
+    if (inst) {
+      const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
+      if (!cfg.url && inst.apiUrl) { cfg.url = inst.apiUrl; cfg.key = inst.apiKey || cfg.key; cfg.inst = inst.instanceName; localStorage.setItem('rise_wa_config', JSON.stringify(cfg)); }
+    }
+  }
+}
+window.waInitConfigPanel = waInitConfigPanel;
+
+// Popular seletor de usuários
+function waMasterPopulateUserSel() {
+  const sel = document.getElementById('wa-inst-user-sel');
+  if (!sel) return;
+  // Pegar lista de usuários do sistema
+  const users = ['gustavo1996c'];
+  try {
+    const db = JSON.parse(localStorage.getItem('rise_users_cache') || '[]');
+    db.forEach(u => { if (u.username && !users.includes(u.username)) users.push(u.username); });
+  } catch(e) {}
+  const instances = waMasterGetInstances();
+  sel.innerHTML = '<option value="">— Selecionar usuário —</option>' +
+    users.map(u => {
+      const inst = instances[u];
+      const tag = inst?.instanceName ? ` (${inst.instanceName})` : '';
+      return `<option value="${u}">${u}${tag}</option>`;
+    }).join('');
+}
+window.waMasterPopulateUserSel = waMasterPopulateUserSel;
+
+// Renderizar instâncias do usuário selecionado
+function waMasterRenderUserInst() {
+  const sel = document.getElementById('wa-inst-user-sel');
+  const panel = document.getElementById('wa-master-inst-panel');
+  const listEl = document.getElementById('wa-master-inst-list');
+  if (!sel || !panel || !listEl) return;
+  const username = sel.value;
+  if (!username) { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+
+  const instances = waMasterGetInstances();
+  const inst = instances[username];
+
+  if (inst) {
+    listEl.innerHTML = `
+      <div style="background:#f5fbfc;border:1px solid #b8dde7;border-radius:10px;padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:#237CA3">📱 ${inst.instanceName}</div>
+            <div style="font-size:11px;color:#8892AA;margin-top:2px">API: ${inst.apiUrl || '—'}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="wa-btn wa-btn-xs wa-btn-amber" onclick="waMasterEditInst('${username}')">✏️ Editar URL</button>
+            <button class="wa-btn wa-btn-xs wa-btn-danger" onclick="waMasterDelInst('${username}')">🗑 Excluir</button>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    listEl.innerHTML = '<div style="font-size:12px;color:#A09FA3;padding:8px 0">Nenhuma instância configurada para este usuário.</div>';
+  }
+}
+window.waMasterRenderUserInst = waMasterRenderUserInst;
+
+// Criar instância para o usuário
+function waMasterCreateInst() {
+  const username = document.getElementById('wa-inst-user-sel')?.value;
+  const instName = document.getElementById('wa-inst-new-name')?.value?.trim();
+  const statusEl = document.getElementById('wa-master-inst-status');
+  if (!username) { if(statusEl) statusEl.textContent = '❌ Selecione um usuário.'; return; }
+  if (!instName) { if(statusEl) statusEl.textContent = '❌ Informe o nome da instância.'; return; }
+
+  const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
+  const apiUrl = cfg.url || '';
+  const apiKey = cfg.key || '';
+
+  const instances = waMasterGetInstances();
+  instances[username] = { instanceName: instName, apiUrl, apiKey, createdAt: Date.now(), createdBy: 'master' };
+  waMasterSaveInstances(instances);
+
+  // Se for o usuário atual, aplicar imediatamente na config WA
+  const curUser = typeof getCurrentUsername === 'function' ? getCurrentUsername() : '';
+  if (username === curUser) {
+    cfg.inst = instName; localStorage.setItem('rise_wa_config', JSON.stringify(cfg));
+  }
+
+  if (statusEl) statusEl.innerHTML = `<span style="color:#3B6D11">✓ Instância <b>${instName}</b> configurada para <b>${username}</b></span>`;
+  waMasterRenderUserInst();
+  waMasterPopulateUserSel();
+  if (typeof toast === 'function') toast(`✓ Instância ${instName} criada para ${username}`);
+}
+window.waMasterCreateInst = waMasterCreateInst;
+
+// Excluir instância
+function waMasterDelInst(username) {
+  if (!confirm(`Excluir instância de "${username}"?`)) return;
+  const instances = waMasterGetInstances();
+  delete instances[username];
+  waMasterSaveInstances(instances);
+  waMasterRenderUserInst();
+  waMasterPopulateUserSel();
+  if (typeof toast === 'function') toast(`Instância de ${username} removida`);
+}
+window.waMasterDelInst = waMasterDelInst;
+
+// Editar URL da API de uma instância
+function waMasterEditInst(username) {
+  const instances = waMasterGetInstances();
+  const inst = instances[username];
+  if (!inst) return;
+  const newUrl = prompt('URL da Evolution API para ' + username + ':', inst.apiUrl || '');
+  if (newUrl === null) return;
+  const newKey = prompt('API Key para ' + username + ':', inst.apiKey || '');
+  if (newKey === null) return;
+  instances[username].apiUrl = newUrl.trim();
+  instances[username].apiKey = newKey.trim();
+  waMasterSaveInstances(instances);
+  waMasterRenderUserInst();
+  if (typeof toast === 'function') toast(`✓ URL/Key atualizada para ${username}`);
+}
+window.waMasterEditInst = waMasterEditInst;
+
+// Excluir URL da API
+function waMasterDelURL() {
+  if (!confirm('Excluir a URL da API? Instâncias existentes manterão suas URLs individuais.')) return;
+  const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
+  delete cfg.url; delete cfg.key;
+  localStorage.setItem('rise_wa_config', JSON.stringify(cfg));
+  const urlEl = document.getElementById('wa-cf-url');
+  const keyEl = document.getElementById('wa-cf-key');
+  if (urlEl) urlEl.value = '';
+  if (keyEl) keyEl.value = '';
+  if (typeof toast === 'function') toast('URL da API removida');
+}
+window.waMasterDelURL = waMasterDelURL;
+
+// Testar instância do usuário selecionado
+async function waMasterTestInst() {
+  const username = document.getElementById('wa-inst-user-sel')?.value;
+  const statusEl = document.getElementById('wa-master-inst-status');
+  const instances = waMasterGetInstances();
+  const inst = instances[username];
+  if (!inst) { if(statusEl) statusEl.textContent = '❌ Nenhuma instância configurada.'; return; }
+  const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
+  const url = inst.apiUrl || cfg.url;
+  const key = inst.apiKey || cfg.key;
+  if (!url) { if(statusEl) statusEl.textContent = '❌ URL não configurada.'; return; }
+  if (statusEl) statusEl.textContent = '🔍 Testando...';
+  try {
+    const res = await fetch(`${url}/instance/fetchInstances`, { headers: { apikey: key } });
+    const arr = await res.json();
+    const found = arr.find ? arr.find(i => (i.instance?.instanceName || i.instanceName) === inst.instanceName) : null;
+    const status = found?.instance?.status || found?.status || 'não encontrada';
+    if (statusEl) statusEl.innerHTML = `<span style="color:${status==='open'?'#3B6D11':'#854F0B'}">Status: <b>${status}</b></span>`;
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '❌ Erro: ' + e.message;
+  }
+}
+window.waMasterTestInst = waMasterTestInst;
+
+// Conectar instância (gerar QR)
+async function waMasterConnectInst() {
+  const username = document.getElementById('wa-inst-user-sel')?.value;
+  const statusEl = document.getElementById('wa-master-inst-status');
+  const qrArea   = document.getElementById('wa-master-qr-area');
+  const qrImg    = document.getElementById('wa-master-qr-img');
+  const instances = waMasterGetInstances();
+  const inst = instances[username];
+  if (!inst) { if(statusEl) statusEl.textContent = '❌ Crie a instância primeiro.'; return; }
+  const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
+  const url = inst.apiUrl || cfg.url;
+  const key = inst.apiKey || cfg.key;
+  if (!url) { if(statusEl) statusEl.textContent = '❌ URL não configurada.'; return; }
+  if (statusEl) statusEl.textContent = '🔗 Gerando QR Code...';
+  try {
+    const res = await fetch(`${url}/instance/connect/${inst.instanceName}`, { headers: { apikey: key } });
+    const data = await res.json();
+    const qrBase64 = data.base64 || data.qrcode?.base64 || data.qr;
+    if (qrBase64) {
+      qrArea.style.display = '';
+      qrImg.innerHTML = `<img src="${qrBase64.startsWith('data:') ? qrBase64 : 'data:image/png;base64,'+qrBase64}" style="max-width:220px;border-radius:8px">`;
+      if (statusEl) statusEl.textContent = '';
+    } else {
+      if (statusEl) statusEl.innerHTML = '<span style="color:#3B6D11">✓ Instância já conectada ou resposta sem QR.</span>';
+    }
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '❌ Erro: ' + e.message;
+  }
+}
+window.waMasterConnectInst = waMasterConnectInst;
+
+// Ao carregar a aba config, inicializar
+(function() {
+  const origWaGo = window.waGo;
+  if (origWaGo) {
+    window.waGo = function(tab) {
+      origWaGo(tab);
+      if (tab === 'config') setTimeout(waInitConfigPanel, 100);
+    };
+  }
+})();
+
+// Aplicar config da instância do usuário atual ao inicializar WA
+(function applyUserInstance() {
+  const username = typeof getCurrentUsername === 'function' ? getCurrentUsername() : '';
+  if (!username) return;
+  const instances = waMasterGetInstances();
+  const inst = instances[username];
+  if (!inst) return;
+  const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
+  if (inst.instanceName) cfg.inst = inst.instanceName;
+  if (inst.apiUrl && !cfg.url) cfg.url = inst.apiUrl;
+  if (inst.apiKey && !cfg.key) cfg.key = inst.apiKey;
+  localStorage.setItem('rise_wa_config', JSON.stringify(cfg));
+})();
   window.waRenderChatList = window.warenderChatList;
   window.waSendChatMsg = sendChatMsg; window.wasendChatMsg = sendChatMsg;
   window.waOpenSendModal = window.waopenSendModal;
@@ -4776,6 +5182,19 @@ async function carregarDados() {
     wa_savedMsg = d.savedmsg||'';
     if(d.config?.wa_tpls) wa_tpls = d.config.tpls;
     renderC(); renderListas(); updBadges(); renderAgendamentos();
+    // Carregar lista de usuários do DB para o seletor master
+    if (window._currentUser?.is_master && typeof usuariosLoad === 'function') {
+      try {
+        const r = await fetch('/api/usuarios', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', masterKey: localStorage.getItem('rise_master_key')||'' }) });
+        if (r.ok) {
+          const d = await r.json();
+          if (d.users) {
+            localStorage.setItem('rise_users_cache', JSON.stringify(d.users));
+            if (typeof waMasterPopulateUserSel === 'function') waMasterPopulateUserSel();
+          }
+        }
+      } catch(e) {}
+    }
     loadAllChats();
   } catch(e) {
     console.warn('Load error:', e);
@@ -8486,6 +8905,9 @@ function crmRenderToolbar(tab) {
       </div>
       <button class="crm-btn crm-btn-sm" onclick="crmAddCol()">+ Coluna</button>
       <button class="crm-btn crm-btn-sm crm-btn-primary" onclick="crmOpenNew('novo','${tab}')">+ Lead</button>
+      <button class="crm-btn crm-btn-sm" style="background:#E8ECFF;color:#3a4096;border-color:#c2bfe0" onclick="crmSelectAll('${tab}')">☑ Todos</button>
+      <button class="crm-btn crm-btn-sm" style="background:#FFF3E0;color:#E65100;border-color:#FFCC80" onclick="crmDelSelected('${tab}')">✂ Selecionados</button>
+      <button class="crm-btn crm-btn-sm" style="background:#FFEBEE;color:#A32D2D;border-color:#FFCDD2" onclick="crmDelAll('${tab}')">🗑 Excluir tudo</button>
     </div>`;
 }
 
@@ -8690,6 +9112,51 @@ function crmToggleSel(id, tab, checked) {
   if (lead) { lead.selecionado = checked; crmSave(); }
 }
 window.crmToggleSel = crmToggleSel;
+
+// ── Selecionar Todos ──
+function crmSelectAll(tab) {
+  tab = tab || activeTab;
+  crmLoad();
+  const list = crmData[tab] || [];
+  const allSel = list.every(l => l._sel);
+  list.forEach(l => l._sel = !allSel); // toggle: se todos selecionados, desmarca
+  crmSave();
+  crmRenderKanban(tab);
+  if (typeof toast === 'function') toast(allSel ? 'Seleção removida' : `${list.length} leads selecionados`);
+}
+window.crmSelectAll = crmSelectAll;
+
+// ── Excluir Selecionados ──
+function crmDelSelected(tab) {
+  tab = tab || activeTab;
+  crmLoad();
+  const sel = (crmData[tab] || []).filter(l => l._sel);
+  if (!sel.length) { if (typeof toast === 'function') toast('Nenhum lead selecionado','warn'); return; }
+  if (!confirm(`Excluir ${sel.length} lead(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
+  const selIds = new Set(sel.map(l => l.id));
+  crmData[tab] = (crmData[tab] || []).filter(l => !selIds.has(l.id));
+  crmSave();
+  crmRenderTab(tab);
+  crmUpdKPIs(tab);
+  if (typeof toast === 'function') toast(`🗑 ${sel.length} lead(s) excluído(s)`);
+}
+window.crmDelSelected = crmDelSelected;
+
+// ── Excluir Todos ──
+function crmDelAll(tab) {
+  tab = tab || activeTab;
+  crmLoad();
+  const count = (crmData[tab] || []).length;
+  if (!count) { if (typeof toast === 'function') toast('Nenhum lead nesta aba','warn'); return; }
+  if (!confirm(`⚠️ Excluir TODOS os ${count} leads desta aba? Esta ação é irreversível!`)) return;
+  if (!confirm(`Confirmar: excluir todos os ${count} leads permanentemente?`)) return;
+  crmData[tab] = [];
+  crmSave();
+  crmRenderTab(tab);
+  crmUpdKPIs(tab);
+  if (typeof toast === 'function') toast(`⚠️ Todos os ${count} leads excluídos`);
+}
+window.crmDelAll = crmDelAll;
 
 function crmOpenGMB(gmbUrl, cnpj, empresa, cidade) {
   // 1. Use direct GMB URL if available (from enrichment)

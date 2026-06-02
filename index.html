@@ -3661,6 +3661,7 @@
           ${e.atividade  ? bRow('Atividade', `<span class="emp-val">${bEsc(e.atividade)}</span>`) : ''}
           ${e.email      ? bRow('Email',     `<span class="emp-val ok">${bEsc(e.email)}</span>${bCp(e.email)}`) : ''}
           ${e.telefone   ? bRow('Telefone',  `<span class="emp-val">${bEsc(e.telefone)}</span>${bCp(e.telefone)}`) : ''}
+          ${e.whatsapp   ? bRow('WhatsApp',  `<a href="https://wa.me/${(e.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:700">${bEsc(e.whatsapp)}</a>${bCp(e.whatsapp)}`) : ''}
           ${e.site       ? bRow('Site',      `<span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,''))}</a></span>`) : ''}
           ${e.obs        ? `<div class="emp-obs">${bEsc(e.obs)}</div>` : ''}
           <div id="enrich-${bCardId(e)}" class="enrich-row" style="display:none"></div>
@@ -3774,7 +3775,7 @@
     const enrichWrap = document.getElementById('enrich-' + cardId);
     if (enrichWrap) {
       enrichWrap.style.display = 'block';
-      enrichWrap.innerHTML = '<div class="enrich-loading">🔍 Buscando dados no Google e Google Meu Negócio...</div>';
+      enrichWrap.innerHTML = '<div class="enrich-loading">🔍 Buscando telefone, email e Google Meu Negócio... (pode levar 15-30s)</div>';
     }
 
     try {
@@ -3786,6 +3787,7 @@
           cnpj:     empresa.cnpj || '',
           cidade:   empresa.municipio || '',
           atividade:empresa.atividade || '',
+          site:     empresa.site || '',
         })
       });
 
@@ -3905,8 +3907,8 @@
       empresa:    enriched.receita_razao_social || enriched.gmb_nome || enriched.nome || enriched.nome_fantasia || '',
       nome:       enriched.receita_nome_fantasia || enriched.nome_fantasia || '',
       cnpj:       enriched.cnpj        || '',
-      tel:        enriched.gmb_whatsapp || enriched.receita_telefone || enriched.gmb_telefone || enriched.telefone || '',
-      email:      enriched.receita_email   || enriched.gmb_email   || enriched.email    || '',
+      tel:        enriched.gmb_whatsapp || enriched.whatsapp || enriched.gmb_telefone || enriched.telefone || enriched.receita_telefone || '',
+      email:      enriched.email || enriched.gmb_email || enriched.receita_email || '',
       cidade:     enriched.gmb_cidade  || enriched.municipio || '',
       segmento:   enriched.gmb_categoria || enriched.cnae_descricao || enriched.atividade || '',
       site:       enriched.gmb_site    || enriched.site || '',
@@ -3940,7 +3942,7 @@
       empresa:    empresa.nome || empresa.nome_fantasia || '',
       nome:       empresa.nome_fantasia || '',
       cnpj:       empresa.cnpj || '',
-      tel:        empresa.telefone || '',
+      tel:        empresa.whatsapp || empresa.telefone || '',
       email:      empresa.email || '',
       cidade:     empresa.municipio || '',
       segmento:   empresa.atividade || '',

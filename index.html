@@ -4937,24 +4937,36 @@ window.waUserReloadConfig = waUserReloadConfig;
 function waMasterPopulateUserSel() {
   const sel = document.getElementById('wa-inst-user-sel');
   if (!sel) return;
-  // Pegar lista de usuários: getUsers() do WA + cache do DB
-  let userKeys = [];
+  
+  const userKeys = new Set();
+  // 1. Usuários do WA local (gustavoc, giuliab, larissap)
   try {
     const waUsers = typeof getUsers === 'function' ? getUsers() : {};
-    userKeys = Object.keys(waUsers);
+    Object.keys(waUsers).forEach(k => userKeys.add(k));
   } catch(e) {}
-  if (!userKeys.length) userKeys = [wa_currentUser?.key || 'gustavo1996c'];
-  // Adicionar usuários do DB se disponíveis
+  // 2. Usuários do DB (usernames do login principal — mais confiáveis)
   try {
     const dbUsers = JSON.parse(localStorage.getItem('rise_users_cache') || '[]');
-    dbUsers.forEach(u => { if (u.username && !userKeys.includes(u.username)) userKeys.push(u.username); });
+    dbUsers.forEach(u => { if (u.username) userKeys.add(u.username); });
   } catch(e) {}
+  // 3. Garantir master
+  userKeys.add('gustavo1996c');
+  userKeys.add('gustavoc');
+
   const instances = waMasterGetInstances();
+  const myKey = wa_currentUser?.key || '';
+  
   sel.innerHTML = '<option value="">— Selecionar usuário —</option>' +
-    userKeys.map(u => {
-      const inst = instances[u];
+    [...userKeys].map(u => {
+      // Verificar se tem instância (exato ou parcial)
+      const uNorm = u.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const instKey = Object.keys(instances).find(ik => {
+        const ikNorm = ik.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return ik === u || uNorm.includes(ikNorm) || ikNorm.includes(uNorm);
+      });
+      const inst = instKey ? instances[instKey] : null;
       const tag = inst?.instanceName ? ` ✓ ${inst.instanceName}` : '';
-      const isMe = u === (wa_currentUser?.key || '');
+      const isMe = u === myKey;
       return `<option value="${u}">${u}${isMe?' (você)':''}${tag}</option>`;
     }).join('');
 }
@@ -5165,12 +5177,23 @@ function applyUserInstanceConfig() {
   if (typeof wa_currentUser !== 'undefined' && wa_currentUser?.key) keys.add(wa_currentUser.key);
   // 3. getCurrentUsername
   if (typeof getCurrentUsername === 'function') { const u = getCurrentUsername(); if (u) keys.add(u); }
-  // 4. Busca parcial: se não achar exato, tentar instância cujo key está contido no username ou vice-versa
+  // 4. Busca parcial: normaliza o username removendo caracteres especiais
   if (![...keys].some(k => instances[k])) {
     const allInstKeys = Object.keys(instances);
     for (const k of keys) {
-      const found = allInstKeys.find(ik => k.includes(ik) || ik.includes(k.split(/[_0-9]/)[0]));
+      const kNorm = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const found = allInstKeys.find(ik => {
+        const ikNorm = ik.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return kNorm.includes(ikNorm) || ikNorm.includes(kNorm) || ikNorm.startsWith(kNorm.slice(0,5));
+      });
       if (found) { keys.add(found); break; }
+    }
+  }
+  // 5. Último recurso: se houver apenas UMA instância no sistema, usar ela
+  if (![...keys].some(k => instances[k])) {
+    const allInstKeys = Object.keys(instances);
+    if (allInstKeys.length === 1) {
+      keys.add(allInstKeys[0]);
     }
   }
 
@@ -8883,19 +8906,20 @@ function crmLoad() {
   try { crmCols = JSON.parse(localStorage.getItem(KEYS.cols)) || [...CRM_DEFAULT_COLS]; } catch(e) { crmCols = [...CRM_DEFAULT_COLS]; }
   try { empresaName = localStorage.getItem(KEYS.empName) || 'Minha Empresa'; } catch(e) {}
 }
-function crmSave() {
+function crmSave(immediate) {
   CRM_TABS.forEach(t => localStorage.setItem(KEYS[t], JSON.stringify(crmData[t])));
   localStorage.setItem(KEYS.cols, JSON.stringify(crmCols));
   localStorage.setItem(KEYS.empName, empresaName);
-  // Sync to Neon DB
+  // Sync to Neon DB — imediato em deleções, 2s debounce em edições
   clearTimeout(window._crmSyncTimer);
+  const delay = immediate ? 0 : 2000;
   window._crmSyncTimer = setTimeout(() => {
     if (window._db) {
       window._db.crmSaveDB(crmData, crmCols, empresaName).catch(()=>{});
     } else {
       crmServerSync();
     }
-  }, 2000);
+  }, delay);
 }
 
 async function crmServerSync() {
@@ -8909,24 +8933,26 @@ async function crmServerSync() {
 }
 
 async function crmServerLoad() {
+  // REGRA: localStorage é a fonte de verdade após interação do usuário.
+  // Servidor só sobrescreve se o localStorage está vazio (primeiro acesso / outro dispositivo).
+  // Nunca sobrescreve dados locais existentes para evitar ressurgimento de leads deletados.
   try {
     const r = await fetch('/api/dados', { headers: { 'x-user-key': 'crm' } });
     if (!r.ok) return;
     const d = await r.json();
     if (d && d.crmData) {
-      // Merge server data with local (server wins if newer)
       CRM_TABS.forEach(t => {
-        if (d.crmData[t]?.length) {
-          // Only overwrite if server has more data
-          const local = crmData[t] || [];
-          if (d.crmData[t].length >= local.length) {
-            crmData[t] = d.crmData[t];
-            localStorage.setItem(KEYS[t], JSON.stringify(crmData[t]));
-          }
+        const local = crmData[t] || [];
+        const remote = d.crmData[t] || [];
+        // Só usa dado do servidor se local está COMPLETAMENTE vazio
+        if (local.length === 0 && remote.length > 0) {
+          crmData[t] = remote;
+          localStorage.setItem(KEYS[t], JSON.stringify(crmData[t]));
         }
+        // Se local tem dados, não sobrescreve — local é mais recente
       });
-      if (d.crmCols?.length) crmCols = d.crmCols;
-      if (d.empresaName)     empresaName = d.empresaName;
+      if (d.crmCols?.length && !localStorage.getItem(KEYS.cols)) crmCols = d.crmCols;
+      if (d.empresaName && !empresaName) empresaName = d.empresaName;
     }
   } catch(e) { /* use localStorage */ }
 }
@@ -9292,7 +9318,7 @@ function crmDelSelected(tab) {
   if (!confirm(`Excluir ${sel.length} lead(s) selecionado(s)? Esta ação não pode ser desfeita.`)) return;
   const selIds = new Set(sel.map(l => l.id));
   crmData[tab] = (crmData[tab] || []).filter(l => !selIds.has(l.id));
-  crmSave();
+  crmSave(true);
   crmRenderTab(tab);
   crmUpdKPIs(tab);
   if (typeof toast === 'function') toast(`🗑 ${sel.length} lead(s) excluído(s)`);
@@ -9308,7 +9334,7 @@ function crmDelAll(tab) {
   if (!confirm(`⚠️ Excluir TODOS os ${count} leads desta aba? Esta ação é irreversível!`)) return;
   if (!confirm(`Confirmar: excluir todos os ${count} leads permanentemente?`)) return;
   crmData[tab] = [];
-  crmSave();
+  crmSave(true);
   crmRenderTab(tab);
   crmUpdKPIs(tab);
   if (typeof toast === 'function') toast(`⚠️ Todos os ${count} leads excluídos`);
@@ -9611,7 +9637,7 @@ function crmDelLead(id, tab, fromModal) {
   if (!confirm('Excluir este lead?')) return;
   crmLoad();
   crmData[tab] = (crmData[tab]||[]).filter(l=>l.id!==id);
-  crmSave();
+  crmSave(true); // imediato para evitar ressurgimento
   if (fromModal) crmCloseModal();
   crmRenderTab(tab);
 }
@@ -9733,20 +9759,33 @@ window.crmAddLeadFromSource = function(tab, data) {
 
 // ── Init ──
 window.crmInit = async function() {
-  // Load from DB first (overrides localStorage)
+  // Carregar do DB APENAS se localStorage local estiver vazio (primeiro acesso)
   if (window._db) {
     window._db.crmLoadDB().then(dbData => {
       if (dbData) {
+        let updated = false;
         CRM_TABS.forEach(t => {
-          if (Array.isArray(dbData[t]) && dbData[t].length >= (crmData[t]||[]).length) {
-            crmData[t] = dbData[t];
+          const local = crmData[t] || [];
+          const remote = Array.isArray(dbData[t]) ? dbData[t] : [];
+          // Só sobrescreve se local VAZIO — nunca sobrescreve dados locais existentes
+          if (local.length === 0 && remote.length > 0) {
+            crmData[t] = remote;
             localStorage.setItem(KEYS[t], JSON.stringify(crmData[t]));
+            updated = true;
           }
         });
-        if (dbData.cols?.length) { crmCols = dbData.cols; localStorage.setItem(KEYS.cols, JSON.stringify(crmCols)); }
-        if (dbData.empresaName)  { empresaName = dbData.empresaName; localStorage.setItem(KEYS.empName, empresaName); }
-        CRM_TABS.forEach(t => crmUpdKPIs(t));
-        if (document.getElementById('crm-panel-buscador')?.classList.contains('active')) crmRenderTab('buscador');
+        if (!localStorage.getItem(KEYS.cols) && dbData.cols?.length) {
+          crmCols = dbData.cols;
+          localStorage.setItem(KEYS.cols, JSON.stringify(crmCols));
+        }
+        if (!empresaName && dbData.empresaName) {
+          empresaName = dbData.empresaName;
+          localStorage.setItem(KEYS.empName, empresaName);
+        }
+        if (updated) {
+          CRM_TABS.forEach(t => crmUpdKPIs(t));
+          if (document.getElementById('crm-panel-buscador')?.classList.contains('active')) crmRenderTab('buscador');
+        }
       }
     }).catch(()=>{});
   }

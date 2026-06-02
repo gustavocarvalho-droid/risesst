@@ -3099,12 +3099,26 @@
 
               <!-- ÁREA USUÁRIO PADRÃO -->
               <div id="wa-config-user-area">
-                <div class="wa-card" style="text-align:center;padding:40px 24px">
-                  <div style="font-size:48px;margin-bottom:12px">🔒</div>
-                  <div style="font-size:15px;font-weight:700;color:#1E1E5C;margin-bottom:6px">Configurações Restritas</div>
-                  <div style="font-size:13px;color:#7878A8">As configurações de instância WhatsApp são gerenciadas pelo administrador do sistema.</div>
-                  <div style="margin-top:16px;padding:12px;background:#f5f4fb;border-radius:8px;font-size:12px;color:#5B5BAA">
-                    Sua instância: <span id="wa-user-inst-info" style="font-weight:700;color:#1E1E5C">—</span>
+                <div class="wa-card">
+                  <div class="wa-card-title"><span class="wa-icon">📱</span>Configuração da sua Instância WhatsApp</div>
+                  <div id="wa-user-inst-status-block" style="margin-bottom:16px">
+                    <div style="padding:14px;background:#f5f4fb;border-radius:10px;border:1px solid #e0dfef">
+                      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                        <span style="font-size:24px">📱</span>
+                        <div>
+                          <div style="font-size:13px;font-weight:700;color:#1E1E5C">Instância atribuída</div>
+                          <div id="wa-user-inst-info" style="font-size:15px;font-weight:800;color:#237CA3;margin-top:2px">Carregando...</div>
+                        </div>
+                      </div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button class="wa-btn wa-btn-sm wa-btn-blue" onclick="waUserReloadConfig()">🔄 Recarregar configuração</button>
+                        <button class="wa-btn wa-btn-sm" onclick="waTestConn()">🧪 Testar conexão</button>
+                      </div>
+                      <div id="wa-user-inst-test" style="font-size:12px;margin-top:8px;color:#5B5BAA"></div>
+                    </div>
+                  </div>
+                  <div style="font-size:12px;color:#A09FA3;background:#fff9f0;border:1px solid #ffe082;border-radius:8px;padding:10px">
+                    🔒 As configurações de URL e chave são gerenciadas pelo administrador. Entre em contato se precisar de alterações.
                   </div>
                 </div>
               </div>
@@ -4878,24 +4892,46 @@ function waInitConfigPanel() {
   } else {
     masterArea.style.display = 'none';
     userArea.style.display   = '';
-    // Mostrar instância do usuário atual
-    const username = wa_currentUser?.key
-      || (typeof getCurrentUsername === 'function' ? getCurrentUsername() : '');
-    const instances = waMasterGetInstances();
-    const inst = instances[username];
+    // Aplicar e mostrar instância do usuário atual
+    applyUserInstanceConfig();
+    const cfg = typeof getCfg === 'function' ? getCfg() : JSON.parse(localStorage.getItem(CFG_KEY||'rise_wa_config')||'{}');
     const infoEl = document.getElementById('wa-user-inst-info');
-    if (infoEl) infoEl.textContent = inst?.instanceName || 'Não configurada';
-    // Aplicar config do Master para este usuário
-    if (inst) {
-      const cfg = JSON.parse(localStorage.getItem(CFG_KEY || 'rise_wa_config') || '{}');
-      if (inst.apiUrl) cfg.url = inst.apiUrl;
-      if (inst.apiKey) cfg.key = inst.apiKey;
-      cfg.inst = inst.instanceName;
-      localStorage.setItem(CFG_KEY || 'rise_wa_config', JSON.stringify(cfg));
+    const testEl = document.getElementById('wa-user-inst-test');
+    if (infoEl) {
+      if (cfg.inst) {
+        infoEl.textContent = cfg.inst;
+        infoEl.style.color = '#237CA3';
+        if (testEl) testEl.textContent = cfg.url ? `API: ${cfg.url}` : '';
+      } else {
+        infoEl.textContent = 'Não configurada — contate o administrador';
+        infoEl.style.color = '#A32D2D';
+      }
     }
   }
 }
 window.waInitConfigPanel = waInitConfigPanel;
+
+// Botão recarregar configuração para usuário padrão
+function waUserReloadConfig() {
+  applyUserInstanceConfig();
+  const cfg = typeof getCfg === 'function' ? getCfg() : JSON.parse(localStorage.getItem(CFG_KEY||'rise_wa_config')||'{}');
+  const infoEl = document.getElementById('wa-user-inst-info');
+  const testEl = document.getElementById('wa-user-inst-test');
+  if (infoEl) {
+    if (cfg.inst) {
+      infoEl.textContent = cfg.inst;
+      infoEl.style.color = '#237CA3';
+      if (testEl) testEl.textContent = `✓ Instância aplicada. API: ${cfg.url||'—'}`;
+    } else {
+      infoEl.textContent = 'Não configurada';
+      infoEl.style.color = '#A32D2D';
+      if (testEl) testEl.textContent = 'Nenhuma instância foi configurada pelo administrador para este usuário.';
+    }
+  }
+  if (typeof loadCfgToForm === 'function') loadCfgToForm();
+  if (typeof toast === 'function') toast(cfg.inst ? `✓ Instância "${cfg.inst}" carregada` : '⚠ Instância não configurada', cfg.inst ? 'ok' : 'warn');
+}
+window.waUserReloadConfig = waUserReloadConfig;
 
 // Popular seletor de usuários
 function waMasterPopulateUserSel() {
@@ -4970,13 +5006,24 @@ function waMasterCreateInst() {
   const apiKey = cfg.key || '';
 
   const instances = waMasterGetInstances();
-  instances[username] = { instanceName: instName, apiUrl, apiKey, createdAt: Date.now(), createdBy: 'master' };
+  const instData = { instanceName: instName, apiUrl, apiKey, createdAt: Date.now(), createdBy: 'master' };
+  instances[username] = instData;
+  // Salvar também em variações do username para garantir matching
+  // (ex: gustavo1996c → gustavoc, satra_retec → satra_retec)
+  const usernameAlt = username.replace(/[0-9]+.*$/, '').toLowerCase().replace(/_/g,'') + 'c';
+  if (usernameAlt !== username && usernameAlt.length > 2) {
+    instances[usernameAlt] = instData;
+  }
   waMasterSaveInstances(instances);
 
-  // Se for o usuário atual, aplicar imediatamente na config WA
+  // Aplicar imediatamente para o usuário (independente de quem for)
+  if (typeof applyUserInstanceConfig === 'function') applyUserInstanceConfig();
+  
+  // Se for o usuário atual, aplicar também na config WA diretamente
   const curUser = typeof getCurrentUsername === 'function' ? getCurrentUsername() : '';
-  if (username === curUser) {
+  if (username === curUser || (typeof wa_currentUser !== 'undefined' && wa_currentUser?.key === username)) {
     cfg.inst = instName; localStorage.setItem('rise_wa_config', JSON.stringify(cfg));
+    if (typeof loadCfgToForm === 'function') loadCfgToForm();
   }
 
   if (statusEl) statusEl.innerHTML = `<span style="color:#3B6D11">✓ Instância <b>${instName}</b> configurada para <b>${username}</b></span>`;
@@ -5096,17 +5143,73 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // Aplicar config da instância do usuário atual ao inicializar WA
-(function applyUserInstance() {
-  const username = typeof getCurrentUsername === 'function' ? getCurrentUsername() : '';
-  if (!username) return;
+// ── Aplicar instância do Master para o usuário atual ──
+function applyUserInstanceConfig() {
   const instances = waMasterGetInstances();
-  const inst = instances[username];
-  if (!inst) return;
-  const cfg = JSON.parse(localStorage.getItem('rise_wa_config') || '{}');
-  if (inst.instanceName) cfg.inst = inst.instanceName;
-  if (inst.apiUrl && !cfg.url) cfg.url = inst.apiUrl;
-  if (inst.apiKey && !cfg.key) cfg.key = inst.apiKey;
-  localStorage.setItem('rise_wa_config', JSON.stringify(cfg));
+  if (!instances || !Object.keys(instances).length) return;
+
+  // Coletar possíveis chaves do usuário atual
+  const keys = new Set();
+  try {
+    // 1. Sessão do login principal (RISE SST)
+    const sess = JSON.parse(localStorage.getItem('rise_session_v1') || '{}');
+    if (sess.user) {
+      keys.add(sess.user);
+      // variações: remover números do fim, lowercase
+      const base = sess.user.replace(/[0-9]+$/, '').toLowerCase();
+      if (base !== sess.user) keys.add(base);
+      keys.add(base + 'c');
+    }
+  } catch(e) {}
+  // 2. wa_currentUser.key (WA local)
+  if (typeof wa_currentUser !== 'undefined' && wa_currentUser?.key) keys.add(wa_currentUser.key);
+  // 3. getCurrentUsername
+  if (typeof getCurrentUsername === 'function') { const u = getCurrentUsername(); if (u) keys.add(u); }
+  // 4. Busca parcial: se não achar exato, tentar instância cujo key está contido no username ou vice-versa
+  if (![...keys].some(k => instances[k])) {
+    const allInstKeys = Object.keys(instances);
+    for (const k of keys) {
+      const found = allInstKeys.find(ik => k.includes(ik) || ik.includes(k.split(/[_0-9]/)[0]));
+      if (found) { keys.add(found); break; }
+    }
+  }
+
+  // Encontrar instância que bate com alguma das chaves
+  let inst = null;
+  let matchKey = null;
+  for (const k of keys) {
+    if (instances[k]) { inst = instances[k]; matchKey = k; break; }
+  }
+  if (!inst) return; // nenhuma instância configurada para este usuário
+
+  // Montar config completa
+  const globalCfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+  const newCfg = {
+    url:  inst.apiUrl  || globalCfg.url  || '',
+    key:  inst.apiKey  || globalCfg.key  || '',
+    inst: inst.instanceName || '',
+  };
+
+  // Salvar na chave do usuário WA (para getCfg()) E na global (fallback)
+  if (typeof wa_currentUser !== 'undefined' && wa_currentUser?.key) {
+    const waKey = CFG_KEY + '_' + wa_currentUser.key;
+    const existing = JSON.parse(localStorage.getItem(waKey) || '{}');
+    localStorage.setItem(waKey, JSON.stringify({...existing, ...newCfg}));
+  }
+  // Sempre salvar globalmente também
+  localStorage.setItem(CFG_KEY, JSON.stringify({...globalCfg, ...newCfg}));
+
+  // Atualizar form se visível
+  if (typeof loadCfgToForm === 'function') loadCfgToForm();
+
+  console.log(`[RISE WA] Instância "${inst.instanceName}" aplicada para "${matchKey}"`);
+}
+window.applyUserInstanceConfig = applyUserInstanceConfig;
+
+// Chamar imediatamente e também após o boot do WA
+(function applyUserInstance() {
+  // Tentar aplicar agora (pode não ter wa_currentUser ainda)
+  applyUserInstanceConfig();
 })();
   window.waRenderChatList = window.warenderChatList;
   window.waSendChatMsg = sendChatMsg; window.wasendChatMsg = sendChatMsg;
@@ -8010,6 +8113,9 @@ window.waBootApp = function() {
       }
     } catch(e) {}
   }
+
+  // Aplicar instância do master para este usuário (agora que wa_currentUser está setado)
+  if (typeof applyUserInstanceConfig === 'function') applyUserInstanceConfig();
 
   // All WA functions are now global — call directly
   if (typeof loadCfgToForm  === 'function') loadCfgToForm();

@@ -973,56 +973,43 @@
     .crm-col {
       min-width:360px; max-width:420px; flex-shrink:0;
       background:#f0eff8; border-radius:12px; border:1px solid #e0dfef;
-      display:flex; flex-direction:column; max-height:calc(100vh - 13rem);
+      display:flex; flex-direction:column;
     }
     .crm-col-header {
       padding:12px 14px; border-bottom:1px solid #e0dfef;
       display:flex; align-items:center; gap:8px;
-      position:sticky; top:0; background:#f0eff8;
+      position:sticky; top:0; background:#f0fafb;
       border-radius:12px 12px 0 0;
     }
     .crm-col-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .crm-col-name { font-size:0.85rem; font-weight:700; color:#1E1E5C; flex:1; }
+    .crm-col-name { font-size:0.85rem; font-weight:700; color:#237CA3; flex:1; }
     .crm-col-count {
       font-size:0.7rem; font-weight:700; padding:2px 8px;
-      border-radius:999px; background:#e7e6f4; color:#5B5BAA;
+      border-radius:999px; background:#e8f5f7; color:#5ECCD8;
     }
     .crm-col-add { padding:0; background:none; border:none; color:#7878A8; cursor:pointer; font-size:18px; line-height:1; transition:color .15s; flex-shrink:0; }
     .crm-col-add:hover { color:#3a4096; }
-    .crm-col-body { flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; }
+    .crm-col-body { flex:1; overflow-y:auto; padding:10px; display:block; max-height:calc(100vh - 240px); }
     .crm-col-body::-webkit-scrollbar { width:3px; }
-    .crm-col-body::-webkit-scrollbar-thumb { background:#c2bfe0; border-radius:2px; }
+    .crm-col-body::-webkit-scrollbar-thumb { background:#5ECCD8; border-radius:2px; }
 
-    /* LEAD CARD */
+    /* LEAD CARD — SWG Style */
     .crm-lead-card {
-      background:#ffffff; border:1px solid #c2bfe0; border-radius:10px;
-      padding:13px 14px; cursor:pointer; transition:all .15s;
-      position:relative; overflow:hidden;
+      background:#ffffff; border:1px solid #b8dde7; border-radius:10px;
+      padding:14px; cursor:pointer; transition:all .15s;
+      position:relative; overflow:visible;
+      display:block;
+      flex-shrink:0;
+      height:auto !important;
     }
-    .crm-lead-card:hover { border-color:#7176b7; box-shadow:0 3px 12px rgba(30,30,92,.1); transform:translateY(-1px); }
-    .crm-lead-card.priority-alta::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#A32D2D; }
-    .crm-lead-card.priority-media::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#854F0B; }
-    .crm-lead-card.priority-baixa::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#3B6D11; }
-    .crm-lead-name { font-size:13px; font-weight:700; color:#1E1E5C; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .crm-lead-empresa { font-size:11px; color:#5B5BAA; font-weight:500; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .crm-lead-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px; }
-    .crm-tag { font-size:9px; font-weight:700; padding:2px 7px; border-radius:999px; letter-spacing:.3px; }
-    .crm-tag-pgr  { background:rgba(58,64,150,.1);  color:#3a4096; border:1px solid rgba(58,64,150,.2); }
-    .crm-tag-ltcat { background:rgba(133,79,11,.1);  color:#854F0B; border:1px solid rgba(133,79,11,.2); }
-    .crm-tag-pcmso { background:rgba(24,95,165,.1);  color:#185FA5; border:1px solid rgba(24,95,165,.2); }
-    .crm-tag-ppra  { background:rgba(59,109,17,.1);  color:#3B6D11; border:1px solid rgba(59,109,17,.2); }
-    .crm-tag-custom { background:#e7e6f4; color:#5B5BAA; border:1px solid #c2bfe0; }
-    .crm-lead-meta { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
-    .crm-lead-tel  { font-size:10px; color:#7878A8; }
-    .crm-lead-val  { font-size:11px; font-weight:700; color:#3B6D11; }
-    .crm-lead-date { font-size:10px; color:#7878A8; }
-    .crm-lead-footer { display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding-top:8px; border-top:1px solid #f0eff8; }
-    .crm-lead-resp { display:flex; align-items:center; gap:5px; font-size:10px; color:#7878A8; font-weight:500; }
-    .crm-lead-avatar { width:18px; height:18px; border-radius:50%; background:#e7e6f4; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:#3a4096; flex-shrink:0; }
-    .crm-lead-actions { display:flex; gap:3px; opacity:0; transition:opacity .15s; }
+    .crm-lead-card:hover { border-color:#7dd4de; box-shadow:0 3px 12px rgba(35,124,163,.1); transform:translateY(-1px); }
+    .crm-lead-card.priority-alta::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#A32D2D; border-radius:10px 10px 0 0; }
+    .crm-lead-card.priority-media::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#854F0B; border-radius:10px 10px 0 0; }
+    .crm-lead-card.priority-baixa::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#3B6D11; border-radius:10px 10px 0 0; }
     .crm-lead-card:hover .crm-lead-actions { opacity:1; }
-    .crm-lead-action-btn { padding:3px 6px; background:#f0eff8; border:1px solid #c2bfe0; border-radius:5px; cursor:pointer; font-size:10px; color:#5B5BAA; transition:all .15s; }
-    .crm-lead-action-btn:hover { background:#e7e6f4; border-color:#7176b7; color:#3a4096; }
+    .crm-lead-actions { display:flex; gap:3px; opacity:0; transition:opacity .15s; }
+    .crm-lead-action-btn { padding:3px 6px; background:#f0fafb; border:1px solid #b8dde7; border-radius:5px; cursor:pointer; font-size:10px; color:#5ECCD8; transition:all .15s; }
+    .crm-lead-action-btn:hover { background:#e8f5f7; border-color:#7dd4de; color:#1a6389; }
 
     /* EMPTY COL */
     .crm-col-empty { text-align:center; padding:24px 12px; color:#7878A8; font-size:12px; }
@@ -8582,107 +8569,101 @@ function contactIndicator(l) {
 }
 
 function crmLeadCard(l, tab) {
-  const statusLabelMap = {novo:'Novo Lead',contato:'Em Contato',proposta:'Proposta Enviada',negociacao:'Em Negociação',fechado:'Fechado ✓',perdido:'Perdido'};
-  const statusBgMap    = {novo:'#E8ECFF',contato:'#E8F4FF',proposta:'#FFF3E0',negociacao:'#FFF8E1',fechado:'#E8F5E9',perdido:'#FFEBEE'};
-  const statusClrMap   = {novo:'#3a4096',contato:'#185FA5',proposta:'#854F0B',negociacao:'#6D4C00',fechado:'#2E7D32',perdido:'#A32D2D'};
+  const sc = {novo:'#5ECCD8',contato:'#237CA3',proposta:'#854F0B',negociacao:'#E06B2A',fechado:'#3B6D11',perdido:'#A32D2D'};
+  const sl = {novo:'Novo Lead',contato:'Em Contato',proposta:'Proposta Enviada',negociacao:'Em Negociação',fechado:'Fechado ✓',perdido:'Perdido'};
+  const statusColor = sc[l.status]||'#5ECCD8';
+  const statusLabel = sl[l.status]||'Novo Lead';
+  const initAv = (l.empresa||l.nome||'?').charAt(0).toUpperCase();
+  const avC = {A:'#e74c3c',B:'#e67e22',C:'#27ae60',D:'#2980b9',E:'#8e44ad',F:'#16a085',G:'#16a085',H:'#d35400',I:'#1abc9c',J:'#1abc9c',K:'#3498db',L:'#3498db',M:'#2ecc71',N:'#9b59b6',O:'#f39c12',P:'#1abc9c',Q:'#e74c3c',R:'#3498db',S:'#27ae60',T:'#e67e22',U:'#9b59b6',V:'#2980b9',W:'#16a085',X:'#e74c3c',Y:'#e67e22',Z:'#3498db'};
+  const avBg   = avC[initAv]||'#5ECCD8';
+  const seg    = esc(l.segmento||l.atividade||'');
+  const cidade = esc(l.cidade||l.municipio||'');
+  const tel    = esc(l.tel||'');
+  const email  = esc(l.email||'');
+  const resp   = esc(l.responsavel||'');
+  const telRaw = (l.tel||'').replace(/\D/g,'');
+  const waLink = telRaw ? 'https://wa.me/'+(telRaw.startsWith('55')?telRaw:'55'+telRaw) : '';
+  const proxLbl = l.proxAcaoTs ? new Date(l.proxAcaoTs).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
+  const overdue = !!(l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status!=='fechado');
+  const valor   = l.valor ? fmtVal(l.valor) : '';
 
-  const sl  = statusLabelMap[l.status] || 'Novo Lead';
-  const sbg = statusBgMap[l.status]    || '#E8ECFF';
-  const sc  = statusClrMap[l.status]   || '#3a4096';
-
-  const initAv = ((l.empresa||l.nome||'?').trim()).charAt(0).toUpperCase();
-  const avatarColors = {A:'#e74c3c',B:'#e67e22',C:'#27ae60',D:'#2980b9',E:'#8e44ad',F:'#c0392b',G:'#16a085',H:'#d35400',I:'#2c3e50',J:'#1abc9c',K:'#e74c3c',L:'#3498db',M:'#2ecc71',N:'#9b59b6',O:'#f39c12',P:'#1abc9c',Q:'#e74c3c',R:'#3498db',S:'#27ae60',T:'#e67e22',U:'#8e44ad',V:'#2980b9',W:'#c0392b',X:'#d35400',Y:'#16a085',Z:'#2c3e50'};
-  const avatarColor = avatarColors[initAv] || '#5B5BAA';
-
-  const indicator = contactIndicator(l);
-  const lastContactStr = l.ultimoContato
-    ? new Date(l.ultimoContato).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
-    : (l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—');
-
-  const proxLabel = l.proxAcaoTs ? new Date(l.proxAcaoTs).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
-  const overdue   = l.proxAcaoTs && l.proxAcaoTs < Date.now() && l.status !== 'fechado';
-
-  // Note / obs preview (usa obs como fallback)
-  const lastNote = (l.notas||[]).filter(n=>!n.auto).slice(-1)[0];
+  // nota / obs
+  const lastNote = (l.notas||[]).filter(function(n){return !n.auto;}).slice(-1)[0];
   const noteText = lastNote
-    ? (lastNote.texto||lastNote.text||'').toString().slice(0,100)
-    : (l.obs||'').slice(0,100);
+    ? (lastNote.texto||lastNote.text||'').toString().slice(0,80)
+    : (l.obs||'').slice(0,80);
 
-  // Info line
-  const segLine = [l.segmento, l.atividade].filter(Boolean).join(' · ');
-  const infoLine = segLine || l.site || '';
+  // Info rows
+  let infoRows = '';
+  if (seg)    infoRows += '<div style="font-size:11px;color:#5ECCD8;padding:2px 0">\uD83C\uDFE2 '+seg+'</div>';
+  if (tel)    infoRows += '<div style="font-size:12px;color:#237CA3;font-weight:700;padding:2px 0">\uD83D\uDCDE '+tel+'</div>';
+  if (email)  infoRows += '<div style="font-size:11px;color:#8892AA;padding:2px 0">\u2709\uFE0F '+email+'</div>';
+  if (cidade) infoRows += '<div style="font-size:11px;color:#8892AA;padding:2px 0">\uD83D\uDCCD '+cidade+'</div>';
+  if (resp)   infoRows += '<div style="font-size:11px;color:#8892AA;padding:2px 0">\uD83D\uDC64 '+resp+'</div>';
+  if (valor)  infoRows += '<div style="font-size:11px;color:#3B6D11;font-weight:700;padding:2px 0">\uD83D\uDCB0 '+valor+'</div>';
 
-  // Services
-  const servicos = (l.servicos||[]).slice(0,4);
+  const infoSection = infoRows
+    ? '<div style="background:#f5fbfc;border-radius:8px;padding:8px 10px;margin-bottom:10px">'+infoRows+'</div>'
+    : '';
 
-  // WhatsApp
-  const waTel  = (l.tel||'').replace(/\D/g,'');
-  const waLink = waTel ? 'https://wa.me/55' + waTel : '';
+  const noteSection = noteText
+    ? '<div style="background:#f5fbfc;border-radius:8px;padding:7px 10px;margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:#5ECCD8;margin-bottom:2px">\uD83D\uDCDD Nota</div><div style="font-size:11px;color:#1a6389;line-height:1.4">'+esc(noteText)+(noteText.length>=80?'\u2026':'')+'</div></div>'
+    : '';
 
-  return `<div style="background:#fff;border:1px solid #e0dfef;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(30,30,92,.07);margin-bottom:2px">
+  const proxSection = proxLbl
+    ? '<div style="font-size:11px;font-weight:600;color:'+(overdue?'#A32D2D':'#854F0B')+';background:'+(overdue?'#FFF0F0':'#FEF9EE')+';border-radius:6px;padding:5px 9px;margin-bottom:8px">'+(overdue?'\u26A0\uFE0F':'\uD83D\uDCC5')+' Pr\xF3xima a\xE7\xE3o: '+proxLbl+'</div>'
+    : '';
 
-    <!-- Barra de status topo -->
-    <div style="height:4px;background:${indicator.color};width:100%"></div>
+  const telHref = tel
+    ? '<a href="tel:'+tel+'" style="padding:6px 4px;background:#E7F3FF;border:1px solid #237CA3;border-radius:7px;color:#237CA3;font-size:10px;font-weight:700;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation()">\uD83D\uDCDE Ligar</a>'
+    : '<span style="padding:6px 4px;background:#f0fafb;border:1px solid #e8f5f7;border-radius:7px;color:#ccc;font-size:10px;text-align:center">\uD83D\uDCDE Ligar</span>';
 
-    <!-- Cabeçalho: avatar + nome + indicador -->
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px 10px">
-      <div style="position:relative;flex-shrink:0">
-        <div style="width:44px;height:44px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff">${initAv}</div>
-        <div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:${indicator.color};border:2px solid #fff"></div>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:800;color:#1E1E5C;line-height:1.3;word-break:break-word">${esc(l.empresa||l.nome||'Lead sem nome')}</div>
-        ${l.empresa&&l.nome ? `<div style="font-size:12px;color:#5B5BAA;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.nome)}</div>` : ''}
-        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap">
-          <span style="background:${sbg};color:${sc};font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px">${sl}</span>
-          <span style="font-size:10px;color:${indicator.color};font-weight:600">${indicator.dot} ${indicator.label}</span>
-        </div>
-      </div>
-      <div style="text-align:right;flex-shrink:0;font-size:10px;color:#9090b8">📅 ${lastContactStr}</div>
-    </div>
+  const lid = l.id; const tb = tab;
+  const quickBtns = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:8px" onclick="event.stopPropagation()">'
+    + '<button style="padding:6px 4px;background:#eaf3de;border:1px solid #3B6D11;border-radius:7px;color:#3B6D11;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmQuickAction(\'atendeu\',\''+lid+'\',\''+tb+'\')">✅ Atendeu</button>'
+    + '<button style="padding:6px 4px;background:#FFF0F0;border:1px solid #A32D2D;border-radius:7px;color:#A32D2D;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmQuickAction(\'sem_sucesso\',\''+lid+'\',\''+tb+'\')">📵 Sem sucesso</button>'
+    + '<button style="padding:6px 4px;background:#FEF8E7;border:1px solid #EBAE36;border-radius:7px;color:#854F0B;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmQuickAction(\'reuniao\',\''+lid+'\',\''+tb+'\')">📅 Reunião</button>'
+    + telHref
+    + '</div>';
 
-    <!-- Info principal (segmento/site) -->
-    ${infoLine ? `<div style="padding:0 16px 8px"><span style="font-size:11px;color:#5B5BAA;background:#f5f4fb;border-radius:6px;padding:3px 9px;display:inline-block">${esc(infoLine.slice(0,60))}</span></div>` : ''}
+  const gmbSearch = 'https://www.google.com/maps/search/'+encodeURIComponent((l.empresa||l.nome||'')+(l.cidade?' '+l.cidade:''));
+  const gmbFinal  = (l.gmb_url && l.gmb_url.startsWith('http')) ? esc(l.gmb_url) : gmbSearch;
+  const gmbBtn = '<a href="'+gmbFinal+'" target="_blank" onclick="event.stopPropagation()" style="padding:7px 6px;background:#FEF2F2;border:1px solid #EA433533;border-radius:7px;color:#EA4335;font-size:10px;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="#EA4335"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Google Maps</a>';
 
-    <!-- Dados estruturados -->
-    <div style="padding:0 16px 10px;display:flex;flex-direction:column;gap:4px">
-      ${l.cnpj   ? `<div style="font-size:12px;color:#3a4096;display:flex;align-items:center;gap:6px">🏢 <span style="font-weight:600">${esc(l.cnpj)}</span></div>` : ''}
-      ${l.tel    ? `<div style="font-size:12px;color:#5B5BAA;display:flex;align-items:center;gap:6px">📞 <span>${esc(l.tel)}</span></div>` : ''}
-      ${l.email  ? `<div style="font-size:12px;color:#5B5BAA;display:flex;align-items:center;gap:6px">✉️ <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px">${esc(l.email)}</span></div>` : ''}
-      ${(l.cidade||l.municipio) ? `<div style="font-size:12px;color:#5B5BAA;display:flex;align-items:center;gap:6px">📍 <span>${esc(l.cidade||l.municipio)}${l.uf?' – '+esc(l.uf):''}</span></div>` : ''}
-      ${l.responsavel ? `<div style="font-size:12px;color:#5B5BAA;display:flex;align-items:center;gap:6px">👤 <span>${esc(l.responsavel)}</span></div>` : ''}
-      ${l.valor  ? `<div style="font-size:12px;color:#2E7D32;font-weight:700;display:flex;align-items:center;gap:6px">💰 <span>${fmtVal(l.valor)}</span></div>` : ''}
-    </div>
+  const actionBtns = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;border-top:1px solid #e8f5f7;padding-top:8px" onclick="event.stopPropagation()">'
+    + '<button style="padding:7px 4px;background:#f0fafb;border:1px solid #e8f5f7;border-radius:7px;color:#237CA3;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenLead(\''+lid+'\',\''+tb+'\')">✏️ Editar lead</button>'
+    + gmbBtn
+    + '<button style="padding:7px 4px;background:#FFF0F0;border:1px solid #A32D2D22;border-radius:7px;color:#A32D2D;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmDelLead(\''+lid+'\',\''+tb+'\')">🗑 Excluir</button>'
+    + '</div>';
 
-    <!-- Tags de serviços -->
-    ${servicos.length ? `<div style="padding:0 16px 10px;display:flex;flex-wrap:wrap;gap:4px">${servicos.map(s=>`<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#E8ECFF;color:#3a4096;border:1px solid #c2bfe0">${esc(s)}</span>`).join('')}</div>` : ''}
+  const waBtn = waLink
+    ? '<div style="margin-top:6px" onclick="event.stopPropagation()"><a href="'+waLink+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:7px;background:#E8F5E9;border:1px solid #25D36633;border-radius:7px;color:#25D366;font-size:11px;font-weight:700;text-decoration:none">📱 WhatsApp</a></div>'
+    : '';
 
-    <!-- Nota / obs preview -->
-    ${noteText ? `<div style="margin:0 16px 10px;background:#f5f4fb;border-radius:8px;padding:8px 12px">
-      <div style="font-size:10px;font-weight:700;color:#3a4096;margin-bottom:3px">📝 ${lastNote ? 'Última nota' : 'Anotação'}</div>
-      <div style="font-size:12px;color:#5B5BAA;line-height:1.5">${esc(noteText)}${noteText.length>=100?'…':''}</div>
-    </div>` : ''}
+  const cnpjRow = l.cnpj ? '<div style="font-size:10px;color:#A09FA3;margin-top:4px;margin-bottom:8px">🏛 CNPJ: '+esc(l.cnpj)+'</div>' : '';
 
-    <!-- Próxima ação -->
-    ${proxLabel ? `<div style="margin:0 16px 10px;padding:6px 12px;background:${overdue?'#FFEBEE':'#f5f4fb'};border-radius:8px;font-size:12px;color:${overdue?'#A32D2D':'#5B5BAA'};font-weight:600">${overdue?'⚠️':'📅'} Próx. ação: ${proxLabel}</div>` : ''}
-
-    <!-- Botões de ação rápida -->
-    <div style="padding:0 16px 8px;display:flex;gap:6px">
-      <button style="flex:1;padding:8px 4px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;color:#2E7D32;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmQuickAction('atendeu','${l.id}','${tab}')">✅ Atendeu</button>
-      <button style="flex:1;padding:8px 4px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;color:#E65100;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmQuickAction('sem_sucesso','${l.id}','${tab}')">❌ Sem sucesso</button>
-      <button style="flex:1;padding:8px 4px;background:#E3F2FD;border:1px solid #90CAF9;border-radius:8px;color:#1565C0;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmQuickAction('reuniao','${l.id}','${tab}')">📅 Reunião</button>
-    </div>
-
-    <!-- Rodapé: editar / maps / whatsapp / ligar / excluir -->
-    <div style="padding:0 16px 14px;display:flex;gap:6px;flex-wrap:wrap">
-      <button style="flex:1;padding:7px 4px;background:#f5f4fb;border:1px solid #e0dfef;border-radius:8px;color:#3a4096;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenLead('${l.id}','${tab}')">✏️ Editar lead</button>
-      <button style="flex:1;padding:7px 4px;background:#f5f4fb;border:1px solid #e0dfef;border-radius:8px;color:#3a4096;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmOpenGMB('${esc(l.gmb_url||'')}','${esc(l.cnpj||'')}','${esc(l.empresa||l.nome||'')}','${esc(l.cidade||l.municipio||'')}')">🗺 Google Maps</button>
-      ${waLink ? `<button style="flex:1;padding:7px 4px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;color:#2E7D32;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();window.open('${waLink}','_blank')">💬 WhatsApp</button>` : ''}
-      ${l.tel ? `<button style="flex:1;padding:7px 4px;background:#F3E5F5;border:1px solid #CE93D8;border-radius:8px;color:#6A1B9A;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();window.open('tel:${esc(l.tel)}','_self')">📞 Ligar</button>` : ''}
-      <button style="flex:1;padding:7px 4px;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:8px;color:#A32D2D;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit" onclick="event.stopPropagation();crmDelLead('${l.id}','${tab}')">🗑 Excluir</button>
-    </div>
-  </div>`;
+  return '<div class="crm-lead-card priority-'+(l.prioridade||'baixa')+'" data-lead-id="'+lid+'" style="margin-bottom:10px" onclick="crmOpenLead(\''+lid+'\',\''+tb+'\')">'
+    + '<div style="height:3px;margin:-14px -14px 10px -14px;border-radius:10px 10px 0 0"></div>'
+    + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">'
+    +   '<div style="width:36px;height:36px;border-radius:50%;background:'+avBg+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">'+initAv+'</div>'
+    +   '<div style="flex:1;min-width:0">'
+    +     '<div style="font-size:13px;font-weight:700;color:#237CA3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(l.empresa||l.nome||'')+'">'+esc(l.empresa||l.nome||'Lead sem nome')+'</div>'
+    +     (l.empresa&&l.nome?'<div style="font-size:11px;color:#5ECCD8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(l.nome)+'</div>':'')
+    +     '<span style="background:'+statusColor+'18;color:'+statusColor+';font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;display:inline-block;margin-top:4px;border:1px solid '+statusColor+'33">'+statusLabel+'</span>'
+    +   '</div>'
+    +   '<input type="checkbox"'+(l._sel?' checked':'')+' style="width:15px;height:15px;cursor:pointer;accent-color:#237CA3;flex-shrink:0;margin-top:2px" onclick="event.stopPropagation();crmToggleSel(\''+lid+'\',\''+tb+'\',this.checked)">'
+    + '</div>'
+    + cnpjRow
+    + infoSection
+    + noteSection
+    + proxSection
+    + quickBtns
+    + actionBtns
+    + waBtn
+    + '</div>';
 }
+
+
 
 // ── Quick action (Atendeu / Sem sucesso / Reunião) ──
 function crmQuickAction(action, id, tab) {

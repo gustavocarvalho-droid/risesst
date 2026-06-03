@@ -4254,6 +4254,13 @@
   const WA_BUSCA_LIST_NAME = 'WhatsApp Buscas CNPJ';
 
   function bEnviarParaDisparoWA(empresa, btnEl) {
+    // Acessar variáveis WA (via window._wa se necessário)
+    const _waListas   = (typeof wa_listas   !== 'undefined') ? wa_listas   : window._wa?.listas;
+    const _waContacts = (typeof wa_contacts !== 'undefined') ? wa_contacts : window._wa?.contacts;
+    if (!_waListas || !_waContacts) {
+      if (typeof toast === 'function') toast('WhatsApp Disparos não inicializado. Acesse o módulo primeiro.', 'warn');
+      return;
+    }
     // Get or create phone number
     const enriched = bEnrichCache[bCardId(empresa)] || empresa;
     const tel = (enriched.gmb_whatsapp || enriched.receita_telefone || enriched.gmb_telefone || enriched.telefone || '').replace(/\D/g,'');
@@ -4273,7 +4280,7 @@
     const cnpj    = (empresa.cnpj || '').replace(/\D/g,'');
 
     // Find or create "WhatsApp Buscas CNPJ" list in wa_listas
-    let lista = wa_listas.find(l => l.nome === WA_BUSCA_LIST_NAME);
+    let lista = _waListas.find(l => l.nome === WA_BUSCA_LIST_NAME);
     if (!lista) {
       lista = {
         id:        'lista_busca_cnpj',
@@ -4282,7 +4289,8 @@
         createdAt: Date.now(),
         obs:       'Lista criada automaticamente pelo Buscador de Empresas CNPJ',
       };
-      wa_listas.unshift(lista);
+      _waListas.unshift(lista);
+      if (typeof wa_listas !== "undefined") wa_listas = _waListas; else if(window._wa) window._wa.listas = _waListas;
     }
 
     // Deduplicate by CNPJ or phone
@@ -4315,8 +4323,8 @@
     });
 
     // Also add to wa_contacts global list if not there
-    if (fmtTel && !wa_contacts.some(c => c.tel === fmtTel)) {
-      wa_contacts.push({
+    if (fmtTel && !_waContacts.some(c => c.tel === fmtTel)) {
+      _waContacts.push({
         id:     Date.now().toString(36),
         nome,
         tel:    fmtTel,
@@ -4326,8 +4334,9 @@
       });
     }
 
-    // Save
-    salvarDados();
+    // Save IMEDIATO — via window._wa.save() ou salvarImediato() global
+    if (typeof salvarImediato === "function") salvarImediato();
+    else if (window._wa?.save) window._wa.save();
 
     // Also add to CRM ZapDisparos immediately (don't wait for dispatch)
     if (typeof window.crmAddLeadFromSource === 'function') {
@@ -4410,14 +4419,17 @@
   function bAutoAddToWA(e) {
     const telRaw = (e.whatsapp || e.telefone || '').replace(/\D/g,'');
     if (!telRaw) return false;
-    if (typeof wa_contacts === 'undefined' || typeof wa_listas === 'undefined') return false;
+    // Acessar variáveis WA via window._wa (proxy robusto)
+    const _waL = (typeof wa_listas   !== 'undefined') ? wa_listas   : window._wa?.listas;
+    const _waC = (typeof wa_contacts !== 'undefined') ? wa_contacts : window._wa?.contacts;
+    if (!_waL || !_waC) return false;
 
     // Normalizar número
     let tel = telRaw;
     if (tel.length === 10 || tel.length === 11) tel = '55' + tel;
 
     // Dedup: verificar se já existe nos contatos WA
-    let contato = wa_contacts.find(c => c.tel === tel);
+    let contato = _waC.find(c => c.tel === tel);
     if (!contato) {
       // Criar contato
       contato = {
@@ -4430,15 +4442,17 @@
         addedAt: Date.now(),
         _source: 'buscador',
       };
-      wa_contacts.push(contato);
+      _waC.push(contato);
+    if (typeof wa_contacts !== "undefined") wa_contacts = _waC; else if(window._wa) window._wa.contacts = _waC;
     }
 
     // Garantir que lista "Buscador" existe
     const LISTA_NOME = 'Buscador';
-    let lista = wa_listas.find(l => l.nome === LISTA_NOME);
+    let lista = _waL.find(l => l.nome === LISTA_NOME);
     if (!lista) {
       lista = { id: Date.now(), nome: LISTA_NOME, contatos: [], createdAt: Date.now() };
-      wa_listas.unshift(lista);
+      _waL.unshift(lista);
+    if (typeof wa_listas !== "undefined") wa_listas = _waL; else if(window._wa) window._wa.listas = _waL;
     }
 
     // Dedup: verificar se contato já está na lista
@@ -4447,6 +4461,7 @@
 
     // Salvar
     if (typeof salvarImediato === 'function') salvarImediato();
+    else if (window._wa?.save) window._wa.save();
     else if (typeof salvarDados === 'function') salvarDados();
     if (typeof updBadges === 'function') updBadges();
     return true;
@@ -4663,6 +4678,14 @@ let wa_crmData = [];
 let wa_fila = [];
 let wa_agendamentos = [];
 let wa_savedMsg = '';
+// Expor globalmente para acesso pelo Buscador (módulo separado)
+window._wa = {
+  get contacts() { return wa_contacts; },
+  set contacts(v) { wa_contacts = v; },
+  get listas()   { return wa_listas; },
+  set listas(v)  { wa_listas = v; },
+  save: function() { if (typeof salvarImediato === 'function') return salvarImediato(); },
+};
 let wa_tpls = [];
 let wa_currentUser = null;
 let wa_fireActive = false;
@@ -5324,6 +5347,8 @@ function salvarDados() {
   wa_saveTimeout = setTimeout(_saveNeon, 1500);
 }
 async function salvarImediato() { await _saveNeon(); }
+window.salvarImediato = salvarImediato;
+window.salvarDados = salvarDados;
 async function _saveNeon() {
   const ind = wGet('wa-save-indicator');
   try {
@@ -5360,8 +5385,9 @@ async function carregarDados() {
   }
 
   try {
+    const _uKeyFb = getCurrentUsername ? getCurrentUsername() : 'shared';
     const res = await fetch('/api/dados', {
-      headers:{'x-user-key':'shared'}
+      headers:{'x-user-key': _uKeyFb}
     });
     if(!res.ok) return;
     const d = await res.json();

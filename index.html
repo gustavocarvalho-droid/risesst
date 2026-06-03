@@ -3595,12 +3595,29 @@
 
     searchBtn.disabled = true;
     moreBtn.disabled   = true;
-    searchBtn.textContent = '...';
+    searchBtn.textContent = '⏳';
     statusBar.style.display = 'flex';
     statusText.textContent = existingCnpjs.length > 0
       ? `Buscando mais resultados para "${q}"...`
       : `Buscando "${q}"...`;
-    progressTx.textContent = 'aguarde ~30s (IA pesquisando)...';
+    progressTx.textContent = '⏳ Aguardando IA...';
+
+    // Contador progressivo com mensagens de status para o usuário não achar que travou
+    let _elapsed = 0;
+    const _msgs = [
+      'Consultando base de CNPJs...',
+      'Buscando empresas na web...',
+      'Verificando CNPJs e contatos...',
+      'Quase pronto, finalizando...',
+      'Ainda processando (pode levar até 50s)...',
+    ];
+    const _timer = setInterval(() => {
+      _elapsed += 5;
+      const idx = Math.min(Math.floor(_elapsed / 10), _msgs.length - 1);
+      progressTx.textContent = `⏳ ${_elapsed}s — ${_msgs[idx]}`;
+    }, 5000);
+    // Guardar referência para limpar depois
+    window._bSearchTimer = _timer;
 
     try {
       const res = await fetch('/api/buscar', {
@@ -3609,7 +3626,8 @@
         body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })
       });
 
-      progressTx.textContent = 'processando...';
+      clearInterval(window._bSearchTimer);
+      progressTx.textContent = 'Processando resultados...';
 
       if (!res.ok) {
         let errMsg = `Erro HTTP ${res.status}`;
@@ -3669,17 +3687,19 @@
       }
 
     } catch (e) {
+      clearInterval(window._bSearchTimer);
       const msg = e.message || 'Erro de conexão';
-      statusText.textContent = '❌ ' + msg;
+      statusText.textContent = '❌ ' + (msg.includes('Timeout') ? 'Busca expirou — tente uma query mais específica (ex: inclua a cidade)' : msg);
       statusText.style.color = '#A32D2D';
-      setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 5000);
+      setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 6000);
       bBatches.push({ query: q, ts: new Date(), empresas: [], error: msg });
     }
 
+    clearInterval(window._bSearchTimer);
     statusBar.style.display = 'none';
     searchBtn.disabled = false;
     moreBtn.disabled   = false;
-    searchBtn.textContent = 'BUSCAR →';
+    searchBtn.textContent = '🔍 Buscar';
     bRenderAll();
   }
 

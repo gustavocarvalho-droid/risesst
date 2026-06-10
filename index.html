@@ -209,7 +209,41 @@
     /* ════════════════════════════════════
        BUSCADOR DE EMPRESAS
     ════════════════════════════════════ */
-    .buscador-wrap { max-width: 820px; }
+    .buscador-wrap { max-width: 920px; }
+
+    /* ── MODO SELECTOR ── */
+    .b-mode-bar { display:flex; gap:0; background:#f0eff8; border-radius:12px; padding:4px; margin-bottom:20px; }
+    .b-mode-btn { flex:1; padding:10px 14px; border-radius:9px; border:none; background:transparent; font-size:13px; font-weight:600; color:#7878A8; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .b-mode-btn.active { background:#fff; color:#1E1E5C; box-shadow:0 2px 8px rgba(30,30,92,.12); }
+    .b-mode-btn:hover:not(.active) { color:#1E1E5C; background:#e7e6f4; }
+
+    /* ── FILTRADA ── */
+    .b-filtrada-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .b-field-group { display:flex; flex-direction:column; gap:4px; }
+    .b-field-group label { font-size:10px; font-weight:700; color:#7878A8; letter-spacing:.5px; text-transform:uppercase; }
+    .b-field-group input, .b-field-group select { height:38px; border:1.5px solid #e0dfef; border-radius:8px; padding:0 10px; font-size:13px; color:#1E1E5C; background:#fff; outline:none; transition:border .15s; font-family:inherit; }
+    .b-field-group input:focus, .b-field-group select:focus { border-color:#5B5BAA; }
+    .b-field-full { grid-column:1/-1; }
+
+    /* ── OPORTUNIDADES ── */
+    .b-oport-fields { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px; }
+    .b-oport-segmentos { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+    .b-seg-chip { padding:5px 12px; border-radius:999px; border:1.5px solid #e0dfef; background:#fff; font-size:11px; font-weight:600; color:#5B5BAA; cursor:pointer; transition:all .15s; }
+    .b-seg-chip.active { background:#1E1E5C; color:#fff; border-color:#1E1E5C; }
+    .b-seg-chip:hover:not(.active) { border-color:#5B5BAA; color:#1E1E5C; }
+
+    /* ── SCORE BADGE ── */
+    .b-score { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; }
+    .b-score-90 { background:#E8F5E9; color:#2E7D32; border:1.5px solid #A5D6A7; }
+    .b-score-75 { background:#E3F2FD; color:#1565C0; border:1.5px solid #90CAF9; }
+    .b-score-50 { background:#FFF8E1; color:#E65100; border:1.5px solid #FFE082; }
+    .b-score-lo { background:#FFEBEE; color:#A32D2D; border:1.5px solid #FFCDD2; }
+    .b-score-bar { height:6px; border-radius:3px; background:#e0dfef; margin-top:4px; overflow:hidden; }
+    .b-score-fill { height:100%; border-radius:3px; transition:width .4s; }
+
+    /* ── JUSTIFICATIVA CARD ── */
+    .b-justif { background:#f5f4fb; border-radius:8px; padding:8px 12px; margin-top:8px; font-size:11px; color:#5B5BAA; line-height:1.5; border-left:3px solid #5B5BAA; }
+    .b-justif strong { color:#1E1E5C; display:block; margin-bottom:2px; font-size:10px; text-transform:uppercase; letter-spacing:.3px; }
 
     .buscador-header { margin-bottom: 24px; }
     .buscador-header h2 { font-size: 20px; font-weight: 800; color: var(--rise-dark); }
@@ -2475,7 +2509,8 @@
 
         <!-- PANEL: BUSCA -->
         <div id="b-panel-busca">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <!-- Créditos -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
             <div style="font-size:11px;color:var(--muted)">Cada busca consome <strong>1 crédito</strong></div>
             <div style="display:flex;gap:8px;align-items:center">
               <div class="b-credit-badge" id="b-credit-badge" onclick="creditsOpenModal()">
@@ -2486,44 +2521,129 @@
               </div>
             </div>
           </div>
-          <div class="search-box">
-            <input type="text" id="b-query"
-              placeholder="Ex: metalúrgicas em Campinas, construtoras SP, clínicas de saúde ocupacional..."
-              autocomplete="off" />
-            <button id="searchBtn" onclick="bRunSearch()">BUSCAR →</button>
-            <button id="moreBtn" onclick="bRunMore()" style="display:none">+ MAIS</button>
+
+          <!-- MODO SELECTOR -->
+          <div class="b-mode-bar">
+            <button class="b-mode-btn active" id="b-mode-btn-filtrada" onclick="bSetMode('filtrada')">
+              🔍 Busca Filtrada
+            </button>
+            <button class="b-mode-btn" id="b-mode-btn-oportunidade" onclick="bSetMode('oportunidade')">
+              🎯 Oportunidades Comerciais
+            </button>
           </div>
 
-          <div class="opts">
-            <div class="opt-group">
-              <label>RESULTADOS</label>
-              <input type="number" id="b-qtd" value="5" min="1" max="15" />
+          <!-- ═══ MODO 1: BUSCA FILTRADA ═══ -->
+          <div id="b-form-filtrada">
+            <div class="b-filtrada-fields">
+              <div class="b-field-group b-field-full">
+                <label>Palavra-chave</label>
+                <input type="text" id="b-kw" placeholder="Ex: construtoras, metalúrgicas, clínicas ocupacionais..." autocomplete="off" />
+              </div>
+              <div class="b-field-group">
+                <label>Cidade</label>
+                <input type="text" id="b-cidade" placeholder="Ex: Campinas, São Paulo..." />
+              </div>
+              <div class="b-field-group">
+                <label>Estado (UF)</label>
+                <select id="b-estado">
+                  <option value="">Todos os estados</option>
+                  <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+                  <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                  <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+                  <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+                  <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                  <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+                  <option selected>SP</option><option>SE</option><option>TO</option>
+                </select>
+              </div>
             </div>
-            <div class="opt-group">
-              <label>FILTRO</label>
-              <select id="b-filtro">
-                <option value="todos">Todos</option>
-                <option value="ativa">Somente Ativas</option>
-                <option value="mei">MEI</option>
-                <option value="epp">ME / EPP</option>
-              </select>
+            <div class="opts" style="margin-bottom:10px">
+              <div class="opt-group">
+                <label>RESULTADOS</label>
+                <input type="number" id="b-qtd" value="5" min="1" max="15" />
+              </div>
+              <div class="opt-group">
+                <label>FILTRO</label>
+                <select id="b-filtro">
+                  <option value="todos">Todos</option>
+                  <option value="ativa">Somente Ativas</option>
+                  <option value="mei">MEI</option>
+                  <option value="epp">ME / EPP</option>
+                </select>
+              </div>
+              <div class="opt-group">
+                <label>ORDENAR</label>
+                <select id="b-ordem">
+                  <option value="relevancia">Relevância</option>
+                  <option value="az">A – Z</option>
+                  <option value="porte">Por Porte</option>
+                </select>
+              </div>
             </div>
-            <div class="opt-group">
-              <label>ORDENAR</label>
-              <select id="b-ordem">
-                <option value="relevancia">Relevância</option>
-                <option value="az">A – Z</option>
-                <option value="porte">Por Porte</option>
-              </select>
+            <div style="display:flex;gap:8px">
+              <button id="searchBtn" onclick="bRunSearch()" style="flex:1">🔍 Buscar</button>
+              <button id="moreBtn" onclick="bRunMore()" style="display:none">+ MAIS</button>
             </div>
+            <!-- campo query legado (compatibilidade) -->
+            <input type="hidden" id="b-query" />
           </div>
 
-          <div class="status-bar" id="b-status">
+          <!-- ═══ MODO 2: OPORTUNIDADES COMERCIAIS ═══ -->
+          <div id="b-form-oportunidade" style="display:none">
+            <div style="background:#fff9e6;border:1.5px solid #EBAE36;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#7a5700">
+              🎯 <strong>Modo Oportunidades:</strong> a IA identifica empresas com maior potencial de contratar serviços SST, priorizando setores de alto risco e empresas recém-abertas.
+            </div>
+            <!-- Chips de segmento -->
+            <div style="font-size:10px;font-weight:700;color:#7878A8;letter-spacing:.5px;margin-bottom:6px">SEGMENTO</div>
+            <div class="b-oport-segmentos" id="b-seg-chips">
+              <span class="b-seg-chip active" data-seg="Construção Civil" onclick="bToggleSeg(this)">🏗 Construção Civil</span>
+              <span class="b-seg-chip active" data-seg="Indústria" onclick="bToggleSeg(this)">🏭 Indústria</span>
+              <span class="b-seg-chip" data-seg="Transporte e Logística" onclick="bToggleSeg(this)">🚚 Transporte / Logística</span>
+              <span class="b-seg-chip" data-seg="Metalurgia" onclick="bToggleSeg(this)">⚙️ Metalurgia</span>
+              <span class="b-seg-chip" data-seg="Mineração" onclick="bToggleSeg(this)">⛏ Mineração</span>
+              <span class="b-seg-chip" data-seg="Saúde Ocupacional" onclick="bToggleSeg(this)">🏥 Saúde Ocupacional</span>
+              <span class="b-seg-chip" data-seg="Comércio Atacadista" onclick="bToggleSeg(this)">📦 Atacado</span>
+              <span class="b-seg-chip" data-seg="Serviços de Limpeza e Conservação" onclick="bToggleSeg(this)">🧹 Limpeza</span>
+              <span class="b-seg-chip" data-seg="Segurança Privada" onclick="bToggleSeg(this)">🔒 Segurança</span>
+              <span class="b-seg-chip" data-seg="Agronegócio" onclick="bToggleSeg(this)">🌾 Agronegócio</span>
+              <span class="b-seg-chip" data-seg="Química e Petroquímica" onclick="bToggleSeg(this)">🧪 Química</span>
+            </div>
+            <div class="b-oport-fields">
+              <div class="b-field-group">
+                <label>Cidade</label>
+                <input type="text" id="b-op-cidade" placeholder="Ex: Campinas..." />
+              </div>
+              <div class="b-field-group">
+                <label>Estado (UF)</label>
+                <select id="b-op-estado">
+                  <option value="">Todos</option>
+                  <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+                  <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                  <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+                  <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+                  <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                  <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+                  <option selected>SP</option><option>SE</option><option>TO</option>
+                </select>
+              </div>
+              <div class="b-field-group">
+                <label>Resultados</label>
+                <input type="number" id="b-op-qtd" value="5" min="1" max="10" />
+              </div>
+            </div>
+            <button id="searchBtnOp" onclick="bRunOportunidade()" style="width:100%;padding:12px;background:linear-gradient(135deg,#1E1E5C,#3A4096);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">
+              🎯 Encontrar Oportunidades
+            </button>
+          </div>
+
+          <!-- STATUS BAR (compartilhado) -->
+          <div class="status-bar" id="b-status" style="margin-top:12px">
             <div class="dot-anim"></div>
             <span id="b-status-text">Agente pesquisando na web...</span>
             <span class="progress-txt" id="b-progress"></span>
           </div>
 
+          <!-- TOOLBAR (compartilhada) -->
           <div class="b-toolbar" id="b-toolbar">
             <div class="b-toolbar-left"><span id="b-total">0</span> empresas encontradas</div>
             <div class="filter-btns">
@@ -2532,11 +2652,12 @@
             </div>
           </div>
 
+          <!-- RESULTADOS (compartilhados) -->
           <div class="b-results" id="b-results">
             <div class="b-empty">
               <div class="b-empty-icon">◎</div>
               <p>Nenhuma busca ainda.</p>
-              <code>Ex: "empresas de construção civil em São Paulo"</code>
+              <code>Ex: "construtoras em Campinas SP" ou use o modo Oportunidades</code>
             </div>
           </div>
 
@@ -3559,34 +3680,87 @@
   /* ════════════════════════════════════
      BUSCADOR DE EMPRESAS
   ════════════════════════════════════ */
-  let bBatches = [];
-  let bActiveFilter = 'todos';
-  let bLastQuery = null;
+  let bBatches       = [];
+  let bActiveFilter  = 'todos';
+  let bLastQuery     = null;
+  let bCurrentMode   = 'filtrada'; // 'filtrada' | 'oportunidade'
+  let bSelectedSegs  = new Set(['Construção Civil', 'Indústria']);
+
+  // ── Alternar modo de busca ──
+  function bSetMode(mode) {
+    bCurrentMode = mode;
+    document.getElementById('b-mode-btn-filtrada').classList.toggle('active',    mode === 'filtrada');
+    document.getElementById('b-mode-btn-oportunidade').classList.toggle('active', mode === 'oportunidade');
+    document.getElementById('b-form-filtrada').style.display     = mode === 'filtrada'    ? '' : 'none';
+    document.getElementById('b-form-oportunidade').style.display = mode === 'oportunidade' ? '' : 'none';
+    bBatches = []; bLastQuery = null;
+    document.getElementById('b-results').innerHTML = bEmptyHTML();
+    document.getElementById('b-toolbar').style.display = 'none';
+    document.getElementById('b-export').style.display  = 'none';
+  }
+  window.bSetMode = bSetMode;
+
+  function bToggleSeg(el) {
+    el.classList.toggle('active');
+    const seg = el.dataset.seg;
+    if (bSelectedSegs.has(seg)) bSelectedSegs.delete(seg);
+    else bSelectedSegs.add(seg);
+  }
+  window.bToggleSeg = bToggleSeg;
 
   document.addEventListener('keydown', e => {
     if (e.target && e.target.id === 'b-query' && e.key === 'Enter') bRunSearch();
   });
 
   async function bRunSearch() {
-    const q = document.getElementById('b-query').value.trim();
-    if (!q) return;
+    // Busca Filtrada: monta query combinando palavra-chave + cidade + estado
+    const kw     = (document.getElementById('b-kw')?.value || document.getElementById('b-query')?.value || '').trim();
+    const cidade = (document.getElementById('b-cidade')?.value || '').trim();
+    const estado = (document.getElementById('b-estado')?.value || '').trim();
+
+    if (!kw) { if (typeof toast === 'function') toast('Informe uma palavra-chave', 'warn'); return; }
+
+    // Montar query natural: "construtoras em Campinas SP"
+    let q = kw;
+    if (cidade) q += ' em ' + cidade;
+    if (estado && estado !== cidade) q += ' ' + estado;
+
     bBatches = [];
     bLastQuery = q;
-    document.getElementById('b-query').value = '';
-    await bDoFetch(q, []);
+    await bDoFetch(q, [], 'filtrada');
   }
+
+  async function bRunOportunidade() {
+    const cidade = (document.getElementById('b-op-cidade')?.value || '').trim();
+    const estado = (document.getElementById('b-op-estado')?.value || '').trim();
+    const qtd    = parseInt(document.getElementById('b-op-qtd')?.value) || 5;
+    const segs   = [...bSelectedSegs];
+
+    if (!segs.length) { if (typeof toast === 'function') toast('Selecione ao menos um segmento', 'warn'); return; }
+
+    // Query para o modo oportunidades
+    const localStr = [cidade, estado].filter(Boolean).join(' ') || 'Brasil';
+    const segStr   = segs.join(', ');
+    const q        = `oportunidades SST ${segStr} ${localStr}`;
+
+    bBatches = [];
+    bLastQuery = q;
+    await bDoFetch(q, [], 'oportunidade', qtd, cidade, estado, segs);
+  }
+  window.bRunOportunidade = bRunOportunidade;
 
   async function bRunMore() {
     if (!bLastQuery) return;
     const existing = bBatches.flatMap(b => b.empresas.map(e => e.cnpj)).filter(Boolean);
-    await bDoFetch(bLastQuery, existing);
+    await bDoFetch(bLastQuery, existing, bCurrentMode);
   }
 
   // ── Streaming NDJSON: cada empresa aparece conforme IA encontra ──
-  async function bDoFetch(q, existingCnpjs) {
-    const qtd    = parseInt(document.getElementById('b-qtd').value) || 5;
-    const filtro = document.getElementById('b-filtro').value;
-    const ordem  = document.getElementById('b-ordem').value;
+  async function bDoFetch(q, existingCnpjs, tipoBusca, qtdOverride, cidadeOp, estadoOp, segsOp) {
+    const tipoBuscaFinal = tipoBusca || bCurrentMode || 'filtrada';
+    const qtd    = qtdOverride || parseInt(document.getElementById('b-qtd')?.value) || 5;
+    const filtro = document.getElementById('b-filtro')?.value || 'todos';
+    const ordem  = document.getElementById('b-ordem')?.value  || 'relevancia';
 
     const searchBtn  = document.getElementById('searchBtn');
     const moreBtn    = document.getElementById('moreBtn');
@@ -3639,7 +3813,13 @@
       const res = await fetch('/api/buscar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })
+        body: JSON.stringify({
+          query: q, qtd, filtro, ordem, existingCnpjs,
+          tipoBusca: tipoBuscaFinal,
+          cidade: cidadeOp || document.getElementById('b-cidade')?.value || '',
+          estado: estadoOp || document.getElementById('b-estado')?.value || '',
+          segmentos: segsOp || (tipoBuscaFinal === 'oportunidade' ? [...bSelectedSegs] : []),
+        })
       });
 
       if (!res.ok || !res.body) {
@@ -3757,9 +3937,27 @@
     const porteCls = porteMap[e.porte] || 'nd';
     const sitCls   = e.situacao === 'Ativa' ? 'ativa' : (e.situacao ? 'inativ' : 'nd');
     const sitLabel = e.situacao || 'N/D';
-    // Check if already in CRM (for history view)
     const crmKey   = 'hist_crm_' + (e.cnpj||'').replace(/\D/g,'');
     const jaAdded  = fromHistory && localStorage.getItem(crmKey) === '1';
+    const isOport  = bCurrentMode === 'oportunidade' || !!e.score;
+
+    // Score badge para modo oportunidades
+    const score = parseInt(e.score) || 0;
+    const scoreCls = score >= 90 ? 'b-score-90' : score >= 75 ? 'b-score-75' : score >= 50 ? 'b-score-50' : 'b-score-lo';
+    const scoreLabel = score >= 90 ? '🔥 Alta Oportunidade' : score >= 75 ? '⭐ Boa Oportunidade' : score >= 50 ? '📊 Potencial Médio' : '📉 Baixo Potencial';
+    const scoreColor = score >= 90 ? '#2E7D32' : score >= 75 ? '#1565C0' : score >= 50 ? '#E65100' : '#A32D2D';
+    const scoreHTML = isOport && score ? `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span class="b-score ${scoreCls}">${scoreLabel} — ${score}/100</span>
+        </div>
+        <div class="b-score-bar">
+          <div class="b-score-fill" style="width:${score}%;background:${scoreColor}"></div>
+        </div>
+      </div>` : '';
+
+    const justifHTML = isOport && e.justificativa ? `
+      <div class="b-justif"><strong>💡 Por que esta empresa?</strong>${bEsc(e.justificativa)}</div>` : '';
 
     return `
       <div class="emp-card">
@@ -3768,6 +3966,7 @@
           ${e.porte ? `<span class="emp-badge bp-${porteCls}">${e.porte}</span>` : ''}
           <span class="emp-badge bs-${sitCls}">${sitLabel}</span>
         </div>
+        ${scoreHTML}
         <div class="emp-body">
           ${e.nome_fantasia ? bRow('Fantasia', `<span class="emp-val" style="color:var(--muted)">${bEsc(e.nome_fantasia)}</span>`) : ''}
           <div>
@@ -3781,6 +3980,7 @@
           ${e.whatsapp   ? bRow('WhatsApp',  `<a href="https://wa.me/${(e.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:700">${bEsc(e.whatsapp)}</a>${bCp(e.whatsapp)}`) : ''}
           ${e.site       ? bRow('Site',      `<span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,''))}</a></span>`) : ''}
           ${e.obs        ? `<div class="emp-obs">${bEsc(e.obs)}</div>` : ''}
+          ${justifHTML}
           <div id="enrich-${bCardId(e)}" class="enrich-row" style="display:none"></div>
           <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rise-bg);flex-wrap:wrap">
             <button class="enrich-btn" id="enrich-btn-${bCardId(e)}"

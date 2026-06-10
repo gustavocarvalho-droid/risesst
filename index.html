@@ -3582,6 +3582,7 @@
     await bDoFetch(bLastQuery, existing);
   }
 
+  // ── Streaming NDJSON: cada empresa aparece conforme IA encontra ──
   async function bDoFetch(q, existingCnpjs) {
     const qtd    = parseInt(document.getElementById('b-qtd').value) || 5;
     const filtro = document.getElementById('b-filtro').value;
@@ -3600,24 +3601,39 @@
     statusText.textContent = existingCnpjs.length > 0
       ? `Buscando mais resultados para "${q}"...`
       : `Buscando "${q}"...`;
-    progressTx.textContent = '⏳ Aguardando IA...';
+    progressTx.textContent = '🔍 Iniciando...';
 
-    // Contador progressivo com mensagens de status para o usuário não achar que travou
-    let _elapsed = 0;
-    const _msgs = [
-      'Consultando base de CNPJs...',
-      'Buscando empresas na web...',
-      'Verificando CNPJs e contatos...',
-      'Quase pronto, finalizando...',
-      'Ainda processando (pode levar até 50s)...',
-    ];
-    const _timer = setInterval(() => {
-      _elapsed += 5;
-      const idx = Math.min(Math.floor(_elapsed / 10), _msgs.length - 1);
-      progressTx.textContent = `⏳ ${_elapsed}s — ${_msgs[idx]}`;
-    }, 5000);
-    // Guardar referência para limpar depois
-    window._bSearchTimer = _timer;
+    // Batch que vai sendo preenchido conforme streaming
+    const batchEmpresas = [];
+    const batchIdx = bBatches.length;
+    bBatches.push({ query: q, ts: new Date(), empresas: batchEmpresas, error: null });
+
+    // Mostrar seção de resultados já (vai atualizando)
+    const toolbar   = document.getElementById('b-toolbar');
+    const exportBar = document.getElementById('b-export');
+    if (toolbar)   toolbar.style.display   = 'flex';
+    if (exportBar) exportBar.style.display = 'flex';
+
+    let addedCRM = 0, addedWA = 0;
+
+    const done = () => {
+      statusBar.style.display = 'none';
+      searchBtn.disabled = false;
+      moreBtn.disabled   = false;
+      searchBtn.textContent = '🔍 Buscar';
+      // Salvar histórico com todas as empresas
+      if (batchEmpresas.length > 0) {
+        histAddBatch(q, batchEmpresas);
+        histUpdCount();
+      }
+      if (addedCRM > 0 || addedWA > 0) {
+        const msgs = [];
+        if (addedCRM > 0) msgs.push(`${addedCRM} no CRM`);
+        if (addedWA > 0)  msgs.push(`${addedWA} na lista WA`);
+        if (typeof toast === 'function') toast(`✓ ${msgs.join(' e ')} Buscador`);
+      }
+      bRenderAll();
+    };
 
     try {
       const res = await fetch('/api/buscar', {
@@ -3626,81 +3642,73 @@
         body: JSON.stringify({ query: q, qtd, filtro, ordem, existingCnpjs })
       });
 
-      clearInterval(window._bSearchTimer);
-      progressTx.textContent = 'Processando resultados...';
-
-      if (!res.ok) {
+      if (!res.ok || !res.body) {
         let errMsg = `Erro HTTP ${res.status}`;
-        try {
-          const errData = await res.json();
-          errMsg = errData.error || errData.obs || errMsg;
-        } catch(je) {}
-        // Show error to user clearly
+        try { const d = await res.json(); errMsg = d.error || d.obs || errMsg; } catch {}
         statusText.textContent = '❌ ' + errMsg;
         statusText.style.color = '#A32D2D';
         setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 5000);
-        bBatches.push({ query: q, ts: new Date(), empresas: [], error: errMsg });
+        bBatches[batchIdx].error = errMsg;
+        done();
         return;
       }
 
-      const data = await res.json();
+      // Ler stream NDJSON linha por linha
+      const reader   = res.body.getReader();
+      const decoder  = new TextDecoder();
+      let   leftover = '';
 
-      // Show obs/error from API response
-      if (data.obs) {
-        statusText.textContent = data.obs.includes('ANTHROPIC') || data.obs.includes('API')
-          ? '⚠️ ' + data.obs
-          : data.obs;
-      }
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
 
-      const newEmpresas = Array.isArray(data.empresas) ? data.empresas : [];
-      bBatches.push({
-        query: data.query || q,
-        ts: new Date(),
-        empresas: newEmpresas,
-        error: data.error || null
-      });
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = (leftover + chunk).split('\n');
+        leftover = lines.pop(); // última linha pode estar incompleta
 
-      // ── SALVAR NO HISTÓRICO imediatamente ──
-      if (newEmpresas.length > 0) {
-        histAddBatch(q, newEmpresas);
-        histUpdCount();
-      }
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const event = JSON.parse(trimmed);
 
-      // ── AUTO-ADD AO CRM BUSCADOR + LISTA WA ──
-      if (newEmpresas.length > 0 && typeof window.crmAddLeadFromSource === 'function') {
-        let addedCRM = 0, addedWA = 0;
-        newEmpresas.forEach(e => {
-          if (!e.cnpj && !e.telefone) return; // sem identificador, pula
-          // Adicionar ao CRM (dedup por CNPJ/telefone já está em crmAddLeadFromSource)
-          const wasAdded = bAutoAddToCRM(e);
-          if (wasAdded) addedCRM++;
-          // Adicionar à lista WA "Buscador"
-          const waAdded = bAutoAddToWA(e);
-          if (waAdded) addedWA++;
-        });
-        if (addedCRM > 0 || addedWA > 0) {
-          const msgs = [];
-          if (addedCRM > 0) msgs.push(`${addedCRM} no CRM`);
-          if (addedWA > 0)  msgs.push(`${addedWA} na lista WA`);
-          if (typeof toast === 'function') toast(`✓ ${msgs.join(' e ')} Buscador`);
+            if (event.type === 'empresa') {
+              const e = event.data;
+              batchEmpresas.push(e);
+              // Atualizar contador na barra
+              progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)...`;
+              statusText.textContent = `Buscando "${q}"...`;
+              // Renderizar incrementalmente
+              bRenderAll();
+              // Auto-add ao CRM e WA
+              if (typeof bAutoAddToCRM === 'function' && bAutoAddToCRM(e)) addedCRM++;
+              if (typeof bAutoAddToWA  === 'function' && bAutoAddToWA(e))  addedWA++;
+
+            } else if (event.type === 'status') {
+              progressTx.textContent = event.msg || '';
+
+            } else if (event.type === 'error') {
+              statusText.textContent = '⚠️ ' + event.msg;
+              statusText.style.color = '#854F0B';
+              setTimeout(() => { statusText.style.color = ''; }, 5000);
+
+            } else if (event.type === 'done') {
+              if (batchEmpresas.length === 0) {
+                statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outra busca';
+              }
+            }
+          } catch {}
         }
       }
-
-    } catch (e) {
-      clearInterval(window._bSearchTimer);
-      const msg = e.message || 'Erro de conexão';
-      statusText.textContent = '❌ ' + (msg.includes('Timeout') ? 'Busca expirou — tente uma query mais específica (ex: inclua a cidade)' : msg);
+    } catch (err) {
+      const msg = err.message || 'Erro de conexão';
+      statusText.textContent = '❌ ' + (msg.includes('Timeout') ? 'Expirou — tente uma busca mais específica (ex: inclua a cidade)' : msg);
       statusText.style.color = '#A32D2D';
       setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 6000);
-      bBatches.push({ query: q, ts: new Date(), empresas: [], error: msg });
+      bBatches[batchIdx].error = msg;
     }
 
-    clearInterval(window._bSearchTimer);
-    statusBar.style.display = 'none';
-    searchBtn.disabled = false;
-    moreBtn.disabled   = false;
-    searchBtn.textContent = '🔍 Buscar';
-    bRenderAll();
+    done();
   }
 
   function bRenderAll() {

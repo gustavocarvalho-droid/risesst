@@ -1,14 +1,17 @@
 const https = require("https");
 
-// ── Chamada Anthropic com web_search ──────────────────────────────────────────
-function callAnthropic(body) {
+// ── Vercel config: máximo de duração ─────────────────────────────────────────
+module.exports.config = { maxDuration: 60 };
+
+// ── Chamada Anthropic com streaming ──────────────────────────────────────────
+function callAnthropicStream(body, onEvent) {
   return new Promise((resolve, reject) => {
-    const raw = JSON.stringify(body);
+    const raw = JSON.stringify({ ...body, stream: true });
     const opts = {
       hostname: "api.anthropic.com",
       path: "/v1/messages",
       method: "POST",
-      timeout: 55000, // Vercel Hobby = 60s max — mantemos margem
+      timeout: 55000,
       headers: {
         "Content-Type": "application/json",
         "x-api-key": process.env.ANTHROPIC_API_KEY,
@@ -17,65 +20,86 @@ function callAnthropic(body) {
         "Content-Length": Buffer.byteLength(raw, "utf8"),
       },
     };
+
     const req = https.request(opts, (res) => {
-      let data = "";
-      res.on("data", (c) => (data += c));
-      res.on("end", () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error("Parse error: " + data.slice(0, 120))); }
+      let buffer = "";
+      res.on("data", (chunk) => {
+        buffer += chunk.toString();
+        const lines = buffer.split("\n");
+        buffer = lines.pop(); // último pode estar incompleto
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const payload = line.slice(6).trim();
+            if (payload === "[DONE]") continue;
+            try { onEvent(JSON.parse(payload)); } catch {}
+          }
+        }
       });
+      res.on("end", () => resolve());
     });
     req.on("error", reject);
-    req.on("timeout", () => { req.destroy(); reject(new Error("Timeout na API")); });
+    req.on("timeout", () => { req.destroy(); reject(new Error("Timeout")); });
     req.write(raw);
     req.end();
   });
 }
 
-// ── Extrair JSON de texto livre ───────────────────────────────────────────────
-function extrairJSON(raw) {
-  if (!raw) return null;
-  // Tentar encontrar array de empresas diretamente
-  const s = raw.indexOf("{");
-  const e = raw.lastIndexOf("}");
-  if (s === -1 || e === -1) return null;
-  try { return JSON.parse(raw.substring(s, e + 1)); } catch {
-    // Tentar extrair só o array
-    const as = raw.indexOf("["), ae = raw.lastIndexOf("]");
-    if (as !== -1 && ae !== -1) {
-      try { return { empresas: JSON.parse(raw.substring(as, ae + 1)) }; } catch {}
-    }
-    return null;
-  }
-}
-
-// ── Filtros de exclusão ───────────────────────────────────────────────────────
+// ── Extrai empresas de texto parcial ou completo ──────────────────────────────
 const EXCLUIR = [
   /prefeitura/i, /secretaria/i, /câmara/i, /camara/i, /autarquia/i,
-  /fundação pública/i, /governo/i, /\bminicipal\b/i, /\bestatual\b/i,
-  /ministério/i, /ministerio/i, /\bpolicia\b/i, /\bpolícia\b/i,
+  /fundação pública/i, /\bpolicia\b/i, /\bpolícia\b/i,
   /hospital.*público/i, /\bubs\b/i, /\bsus\b/i,
   /futebol clube/i, /esporte clube/i,
   /\bbradesco\b/i, /\bitaú\b/i, /\bitau\b/i, /caixa economica/i,
-  /\bigreja\b/i, /\btemplo\b/i, /paróquia/i, /paroquia/i,
-  /\bsindicato\b/i,
+  /\bigreja\b/i, /\btemplo\b/i, /paróquia/i, /paroquia/i, /\bsindicato\b/i,
 ];
 
-function filtrar(empresas, existingSet) {
-  return empresas.filter((e) => {
-    const cnpj = (e.cnpj || "").replace(/\D/g, "");
-    if (!cnpj || cnpj.length < 14) return false;
-    if (existingSet.has(cnpj)) return false;
-    const txt = `${e.nome || ""} ${e.nome_fantasia || ""} ${e.atividade || ""}`;
-    if (EXCLUIR.some((rx) => rx.test(txt))) return false;
-    existingSet.add(cnpj);
-    return true;
-  });
+function extrairEmpresas(text, existingSet) {
+  // Tenta extrair array de objetos empresa do texto acumulado
+  const matches = [...text.matchAll(/\{[^{}]*"cnpj"\s*:\s*"[^"]+[^{}]*\}/g)];
+  const found = [];
+  for (const m of matches) {
+    try {
+      // Completar objeto se necessário
+      let obj = m[0];
+      // Fechar chaves se incompleto
+      const opens = (obj.match(/\{/g)||[]).length;
+      const closes = (obj.match(/\}/g)||[]).length;
+      if (opens > closes) obj += "}".repeat(opens - closes);
+      const e = JSON.parse(obj);
+      if (!e.cnpj) continue;
+      const cnpj = e.cnpj.replace(/\D/g, "");
+      if (cnpj.length < 14) continue;
+      if (existingSet.has(cnpj)) continue;
+      const txt = `${e.nome||""} ${e.nome_fantasia||""} ${e.atividade||""}`;
+      if (EXCLUIR.some(rx => rx.test(txt))) continue;
+      existingSet.add(cnpj);
+      found.push(e);
+    } catch {}
+  }
+  return found;
+}
+
+function extrairJSONCompleto(text, existingSet) {
+  const s = text.indexOf("{"), e = text.lastIndexOf("}");
+  if (s === -1 || e === -1) return [];
+  try {
+    const obj = JSON.parse(text.substring(s, e + 1));
+    const arr = obj.empresas || obj.results || (Array.isArray(obj) ? obj : []);
+    return arr.filter(e => {
+      const cnpj = (e.cnpj||"").replace(/\D/g,"");
+      if (cnpj.length < 14 || existingSet.has(cnpj)) return false;
+      const txt = `${e.nome||""} ${e.atividade||""}`;
+      if (EXCLUIR.some(rx => rx.test(txt))) return false;
+      existingSet.add(cnpj);
+      return true;
+    });
+  } catch { return []; }
 }
 
 // ── Handler principal ─────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGINS || "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -86,9 +110,8 @@ module.exports = async (req, res) => {
   }
   if (req.method !== "POST") { res.status(405).end(); return; }
 
-  // Ler body
   let body = "";
-  await new Promise((r) => { req.on("data", (c) => (body += c)); req.on("end", r); });
+  await new Promise(r => { req.on("data", c => body += c); req.on("end", r); });
   let payload = {};
   try { payload = JSON.parse(body); } catch { res.status(400).json({ error: "Body inválido" }); return; }
 
@@ -101,82 +124,86 @@ module.exports = async (req, res) => {
   if (!query) { res.status(400).json({ error: "query obrigatória" }); return; }
 
   const existingCnpjs = Array.isArray(payload.existingCnpjs) ? payload.existingCnpjs : [];
-  const existingSet = new Set(existingCnpjs.map((c) => c.replace(/\D/g, "")));
-
+  const existingSet = new Set(existingCnpjs.map(c => c.replace(/\D/g, "")));
   const filtroStr = { ativa: "Ativas", mei: "MEI", epp: "ME/EPP" }[filtro] || "qualquer porte";
-  const exclusaoStr = existingCnpjs.length
-    ? ` Não repita: ${existingCnpjs.slice(0, 10).join(", ")}.`
-    : "";
+  const exclusaoStr = existingCnpjs.length ? ` Não repita: ${existingCnpjs.slice(0,8).join(", ")}.` : "";
 
-  // ── Prompt ENXUTO — apenas CNPJ + contato básico ─────────────────────────
-  // Focado em velocidade: 1-2 buscas por empresa, sem profundidade excessiva
   const systemPrompt = `Você é um buscador de empresas brasileiras. Retorne APENAS JSON puro, sem markdown.
 
-Busque ${qtd} empresas (${filtroStr}) para a query do usuário.
-${exclusaoStr}
-
-Para cada empresa:
-1. Confirme o CNPJ em uma fonte (casadosdados.com.br ou cnpj.biz)
-2. Busque telefone/WhatsApp rapidamente (1 pesquisa: "[empresa] [cidade] telefone whatsapp")
-3. Pegue o email se aparecer na mesma busca
-
-NÃO faça buscas extras por empresa — velocidade é prioridade.
+Encontre ${qtd} empresas (${filtroStr}) para a query.${exclusaoStr}
 Exclua: órgãos públicos, bancos, igrejas, sindicatos, times de futebol.
 
-JSON de resposta:
-{
-  "empresas": [
-    {
-      "nome": "Razão Social LTDA",
-      "nome_fantasia": "Nome Fantasia",
-      "cnpj": "XX.XXX.XXX/XXXX-XX",
-      "situacao": "Ativa",
-      "porte": "MEI|ME|EPP|Grande",
-      "municipio": "Cidade - UF",
-      "atividade": "Descrição da atividade principal",
-      "telefone": "(11) 99999-9999 ou null",
-      "whatsapp": "5511999999999 ou null",
-      "email": "email@empresa.com ou null",
-      "site": "https://site.com ou null"
+Para cada empresa: confirme o CNPJ (cnpj.biz ou casadosdados.com.br) e busque telefone/contato em 1 pesquisa.
+
+Responda com este JSON exato:
+{"empresas":[{"nome":"Razão Social","nome_fantasia":"Nome","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa","porte":"MEI","municipio":"Cidade - UF","atividade":"atividade","telefone":"(11)9999-9999","whatsapp":"5511999999999","email":"email@empresa.com","site":"https://site.com"}]}`;
+
+  // ── Streaming: envia NDJSON ao frontend conforme IA processa ──────────────
+  res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+  res.setHeader("Transfer-Encoding", "chunked");
+  res.setHeader("X-Accel-Buffering", "no"); // desabilita buffering no nginx/vercel
+  res.status(200);
+
+  let fullText = "";
+  let emitted = new Set(); // CNPJs já enviados
+  let lastFlush = Date.now();
+
+  const flush = (empresas) => {
+    for (const e of empresas) {
+      const cnpj = (e.cnpj || "").replace(/\D/g, "");
+      if (!cnpj || emitted.has(cnpj)) continue;
+      emitted.add(cnpj);
+      res.write(JSON.stringify({ type: "empresa", data: e }) + "\n");
     }
-  ]
-}`;
+    lastFlush = Date.now();
+  };
 
   try {
-    const apiResp = await callAnthropic({
+    await callAnthropicStream({
       model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       system: systemPrompt,
       tools: [{ type: "web_search_20250305", name: "web_search" }],
-      messages: [{ role: "user", content: `Busque ${qtd} empresas para: ${query}` }],
+      messages: [{ role: "user", content: `Busque ${qtd} empresas: ${query}` }],
+    }, (event) => {
+      // Acumular texto da resposta
+      if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+        fullText += event.delta.text || "";
+        // A cada 3s ou a cada empresa encontrada, tentar extrair e enviar
+        if (Date.now() - lastFlush > 2000) {
+          const parcial = extrairEmpresas(fullText, existingSet);
+          if (parcial.length) flush(parcial);
+        }
+      }
+      // Progresso: informar ao frontend
+      if (event.type === "message_start") {
+        res.write(JSON.stringify({ type: "status", msg: "IA iniciou a busca..." }) + "\n");
+      }
+      if (event.type === "content_block_start" && event.content_block?.type === "tool_use") {
+        res.write(JSON.stringify({ type: "status", msg: `🔍 Pesquisando: ${event.content_block.name || "web"}...` }) + "\n");
+      }
     });
 
-    // Checar erro de rate limit
-    if (apiResp?.error?.type === "rate_limit_error") {
-      res.status(429).json({ query, total: 0, empresas: [], obs: "Rate limit — tente em 60 segundos" });
-      return;
+    // Extrair tudo do texto final (garante completude)
+    const final = extrairJSONCompleto(fullText, existingSet);
+    flush(final);
+
+    // Se não encontrou nada via regex incremental, tentar uma última vez
+    if (emitted.size === 0) {
+      res.write(JSON.stringify({ type: "error", msg: "Sem resultados — tente uma busca mais específica (ex: inclua a cidade)" }) + "\n");
     }
-
-    // Extrair texto da resposta
-    const textBlock = (apiResp.content || []).find((b) => b.type === "text");
-    const raw = textBlock?.text || "";
-    const parsed = extrairJSON(raw);
-
-    if (!parsed || !Array.isArray(parsed.empresas)) {
-      res.status(200).json({ query, total: 0, empresas: [], obs: "Sem resultados para esta busca" });
-      return;
-    }
-
-    const empresas = filtrar(parsed.empresas, existingSet);
-    res.status(200).json({ query, total: empresas.length, empresas });
 
   } catch (err) {
-    const msg = err.message || "Erro desconhecido";
-    // Timeout específico — orientar o usuário
-    if (msg.includes("Timeout")) {
-      res.status(200).json({ query, total: 0, empresas: [], obs: "Busca demorou demais — tente uma query mais específica (ex: adicione a cidade)" });
+    const msg = err.message || "Erro";
+    if (msg.includes("rate_limit") || msg.includes("429")) {
+      res.write(JSON.stringify({ type: "error", msg: "Rate limit — aguarde 60s e tente novamente" }) + "\n");
+    } else if (msg.includes("Timeout")) {
+      res.write(JSON.stringify({ type: "error", msg: "Tempo esgotado — tente busca mais específica (ex: 'construtoras Campinas SP')" }) + "\n");
     } else {
-      res.status(200).json({ query, total: 0, empresas: [], obs: msg });
+      res.write(JSON.stringify({ type: "error", msg }) + "\n");
     }
   }
+
+  res.write(JSON.stringify({ type: "done", total: emitted.size }) + "\n");
+  res.end();
 };

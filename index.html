@@ -3932,7 +3932,36 @@
     container.innerHTML = filtered.map(bRenderCard).join('');
   }
 
+  // ── Validação de contatos (espelha o backend) ──────────────────────
+  function bIsMasked(v) {
+    if (!v) return true;
+    const t = String(v).toLowerCase().trim();
+    return t.includes('*') || t.includes('•') || /x{2,}/.test(t) ||
+      t.includes('não informado') || t.includes('nao informado') ||
+      t.includes('não disponível') || t.includes('nao disponivel') ||
+      t.includes('indisponível') || t.includes('indisponivel') ||
+      t.includes('oculto') || t === '-' || t === 'null' || t === 'undefined';
+  }
+  function bValidEmail(e) {
+    if (!e || bIsMasked(e)) return '';
+    const c = String(e).trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c) ? c : '';
+  }
+  function bValidPhone(p) {
+    if (!p || bIsMasked(p)) return '';
+    const d = String(p).replace(/\D/g,'');
+    return [10,11,12,13].includes(d.length) ? String(p).trim() : '';
+  }
+  function bCleanEmpresa(e) {
+    return { ...e,
+      email:    bValidEmail(e.email),
+      telefone: bValidPhone(e.telefone),
+      whatsapp: bValidPhone(e.whatsapp),
+    };
+  }
+
   function bRenderCard(e, fromHistory) {
+    e = bCleanEmpresa(e); // limpar antes de renderizar
     const porteMap = { MEI:'mei', ME:'me', EPP:'epp', Grande:'grande' };
     const porteCls = porteMap[e.porte] || 'nd';
     const sitCls   = e.situacao === 'Ativa' ? 'ativa' : (e.situacao ? 'inativ' : 'nd');

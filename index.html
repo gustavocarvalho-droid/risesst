@@ -232,6 +232,12 @@
     .b-seg-chip.active { background:#1E1E5C; color:#fff; border-color:#1E1E5C; }
     .b-seg-chip:hover:not(.active) { border-color:#5B5BAA; color:#1E1E5C; }
 
+    /* ── MODO AMPLA BRASIL ── */
+    .b-mode-btn-ampla { background: linear-gradient(135deg,#1E1E5C,#3A4096) !important; color:#fff !important; }
+    .b-mode-btn-ampla.active { background: linear-gradient(135deg,#3A4096,#5B5BAA) !important; box-shadow: 0 3px 12px rgba(58,64,150,.35) !important; }
+    .b-aviso-qtd { background:#FFF8E1; border:1.5px solid #EBAE36; border-radius:10px; padding:10px 14px; font-size:12px; color:#7a5700; margin-top:10px; display:none; }
+    .b-aviso-qtd.show { display:flex; align-items:center; gap:8px; }
+
     /* ── SCORE BADGE ── */
     .b-score { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; }
     .b-score-90 { background:#E8F5E9; color:#2E7D32; border:1.5px solid #A5D6A7; }
@@ -2528,7 +2534,10 @@
               🔍 Busca Filtrada
             </button>
             <button class="b-mode-btn" id="b-mode-btn-oportunidade" onclick="bSetMode('oportunidade')">
-              🎯 Oportunidades Comerciais
+              🎯 Oportunidades
+            </button>
+            <button class="b-mode-btn b-mode-btn-ampla" id="b-mode-btn-ampla_brasil" onclick="bSetMode('ampla_brasil')">
+              🚀 Ampla Brasil
             </button>
           </div>
 
@@ -2635,6 +2644,60 @@
               🎯 Encontrar Oportunidades
             </button>
           </div>
+
+          <!-- ═══ MODO 3: AMPLA BRASIL ═══ -->
+          <div id="b-form-ampla_brasil" style="display:none">
+            <div style="background:linear-gradient(135deg,#1E1E5C,#3A4096);border-radius:12px;padding:14px 16px;margin-bottom:14px;color:#fff">
+              <div style="font-size:14px;font-weight:800;margin-bottom:4px">🚀 Busca Ampla — Brasil Inteiro</div>
+              <div style="font-size:12px;opacity:.85">Encontra empresas recém-abertas ou em crescimento com alto potencial de contratar serviços SST em todo o Brasil.</div>
+            </div>
+            <!-- Chips de segmento (reutiliza bSelectedSegs) -->
+            <div style="font-size:10px;font-weight:700;color:#7878A8;letter-spacing:.5px;margin-bottom:6px">SEGMENTO PRIORITÁRIO</div>
+            <div class="b-oport-segmentos" id="b-seg-chips-ampla">
+              <span class="b-seg-chip active" data-seg="Construção Civil" onclick="bToggleSeg(this)">🏗 Construção Civil</span>
+              <span class="b-seg-chip active" data-seg="Indústria" onclick="bToggleSeg(this)">🏭 Indústria</span>
+              <span class="b-seg-chip" data-seg="Transporte e Logística" onclick="bToggleSeg(this)">🚚 Transporte</span>
+              <span class="b-seg-chip" data-seg="Metalurgia" onclick="bToggleSeg(this)">⚙️ Metalurgia</span>
+              <span class="b-seg-chip" data-seg="Mineração" onclick="bToggleSeg(this)">⛏ Mineração</span>
+              <span class="b-seg-chip" data-seg="Química e Petroquímica" onclick="bToggleSeg(this)">🧪 Química</span>
+              <span class="b-seg-chip" data-seg="Agronegócio" onclick="bToggleSeg(this)">🌾 Agronegócio</span>
+              <span class="b-seg-chip" data-seg="Segurança Privada" onclick="bToggleSeg(this)">🔒 Segurança</span>
+              <span class="b-seg-chip" data-seg="Serviços de Limpeza" onclick="bToggleSeg(this)">🧹 Limpeza</span>
+            </div>
+            <div class="b-oport-fields">
+              <div class="b-field-group">
+                <label>Estado (opcional)</label>
+                <select id="b-ampla-estado">
+                  <option value="">Todos os estados</option>
+                  <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+                  <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                  <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+                  <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+                  <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                  <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+                  <option selected>SP</option><option>SE</option><option>TO</option>
+                </select>
+              </div>
+              <div class="b-field-group">
+                <label>Quantidade</label>
+                <input type="number" id="b-ampla-qtd" value="10" min="1" max="20" />
+              </div>
+              <div class="b-field-group" style="display:flex;align-items:flex-end">
+                <label style="opacity:0">.</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#5B5BAA">
+                  <input type="checkbox" id="b-ampla-recentes" checked style="width:14px;height:14px;accent-color:#1E1E5C">
+                  Priorizar recém-abertas
+                </label>
+              </div>
+            </div>
+            <button id="searchBtnAmpla" onclick="bRunAmplaBrasil()"
+              style="width:100%;padding:13px;background:linear-gradient(135deg,#1E1E5C,#3A4096);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px">
+              🚀 Buscar empresas recentes no Brasil
+            </button>
+          </div>
+
+          <!-- AVISO DE QUANTIDADE PARCIAL -->
+          <div class="b-aviso-qtd" id="b-aviso-qtd">⚠️ <span id="b-aviso-qtd-text"></span></div>
 
           <!-- STATUS BAR (compartilhado) -->
           <div class="status-bar" id="b-status" style="margin-top:12px">
@@ -3689,14 +3752,17 @@
   // ── Alternar modo de busca ──
   function bSetMode(mode) {
     bCurrentMode = mode;
-    document.getElementById('b-mode-btn-filtrada').classList.toggle('active',    mode === 'filtrada');
-    document.getElementById('b-mode-btn-oportunidade').classList.toggle('active', mode === 'oportunidade');
-    document.getElementById('b-form-filtrada').style.display     = mode === 'filtrada'    ? '' : 'none';
-    document.getElementById('b-form-oportunidade').style.display = mode === 'oportunidade' ? '' : 'none';
+    ['filtrada','oportunidade','ampla_brasil'].forEach(m => {
+      document.getElementById('b-mode-btn-' + m)?.classList.toggle('active', m === mode);
+      const f = document.getElementById('b-form-' + m);
+      if (f) f.style.display = m === mode ? '' : 'none';
+    });
     bBatches = []; bLastQuery = null;
     document.getElementById('b-results').innerHTML = bEmptyHTML();
-    document.getElementById('b-toolbar').style.display = 'none';
-    document.getElementById('b-export').style.display  = 'none';
+    document.getElementById('b-toolbar').style.display  = 'none';
+    document.getElementById('b-export').style.display   = 'none';
+    const av = document.getElementById('b-aviso-qtd');
+    if (av) av.classList.remove('show');
   }
   window.bSetMode = bSetMode;
 
@@ -3749,10 +3815,30 @@
   }
   window.bRunOportunidade = bRunOportunidade;
 
+  async function bRunAmplaBrasil() {
+    const estado   = document.getElementById('b-ampla-estado')?.value || '';
+    const qtd      = parseInt(document.getElementById('b-ampla-qtd')?.value) || 10;
+    const recentes = document.getElementById('b-ampla-recentes')?.checked;
+    const segs     = [...bSelectedSegs];
+    if (!segs.length) { if (typeof toast === 'function') toast('Selecione ao menos um segmento', 'warn'); return; }
+    const localStr = estado || 'Brasil';
+    const q        = `ampla brasil SST ${segs.join(' ')} ${localStr}`;
+    bBatches = [];
+    bLastQuery = q;
+    await bDoFetch(q, [], 'ampla_brasil', qtd, '', estado, segs);
+  }
+  window.bRunAmplaBrasil = bRunAmplaBrasil;
+
   async function bRunMore() {
     if (!bLastQuery) return;
     const existing = bBatches.flatMap(b => b.empresas.map(e => e.cnpj)).filter(Boolean);
-    await bDoFetch(bLastQuery, existing, bCurrentMode);
+    // Usar mesma quantidade e modo da busca original
+    const qtd = bCurrentMode === 'ampla_brasil'
+      ? (parseInt(document.getElementById('b-ampla-qtd')?.value) || 10)
+      : bCurrentMode === 'oportunidade'
+        ? (parseInt(document.getElementById('b-op-qtd')?.value) || 5)
+        : (parseInt(document.getElementById('b-qtd')?.value) || 5);
+    await bDoFetch(bLastQuery, existing, bCurrentMode, qtd);
   }
 
   // ── Streaming NDJSON: cada empresa aparece conforme IA encontra ──
@@ -3776,6 +3862,10 @@
       ? `Buscando mais resultados para "${q}"...`
       : `Buscando "${q}"...`;
     progressTx.textContent = '🔍 Iniciando...';
+
+    // Limpar aviso de quantidade anterior
+    const avisoEl2 = document.getElementById('b-aviso-qtd');
+    if (avisoEl2) avisoEl2.classList.remove('show');
 
     // Batch que vai sendo preenchido conforme streaming
     const batchEmpresas = [];
@@ -3872,9 +3962,22 @@
               statusText.style.color = '#854F0B';
               setTimeout(() => { statusText.style.color = ''; }, 5000);
 
+            } else if (event.type === 'aviso') {
+              // Aviso de quantidade parcial
+              const avisoEl = document.getElementById('b-aviso-qtd');
+              const avisoTx = document.getElementById('b-aviso-qtd-text');
+              if (avisoEl && avisoTx) {
+                avisoTx.textContent = event.msg || '';
+                avisoEl.classList.add('show');
+              }
+
             } else if (event.type === 'done') {
               if (batchEmpresas.length === 0) {
-                statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outra busca';
+                statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outro segmento ou região';
+              } else {
+                // Mostrar botão "Buscar mais"
+                const moreBtn = document.getElementById('moreBtn');
+                if (moreBtn) moreBtn.style.display = 'inline-block';
               }
             }
           } catch {}
@@ -4008,6 +4111,7 @@
           ${e.telefone   ? bRow('Telefone',  `<span class="emp-val">${bEsc(e.telefone)}</span>${bCp(e.telefone)}`) : ''}
           ${e.whatsapp   ? bRow('WhatsApp',  `<a href="https://wa.me/${(e.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:700">${bEsc(e.whatsapp)}</a>${bCp(e.whatsapp)}`) : ''}
           ${e.site       ? bRow('Site',      `<span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,''))}</a></span>`) : ''}
+          ${e.data_abertura ? bRow('Abertura', `<span class="emp-val" style="color:#237CA3;font-weight:700">📅 ${bEsc(e.data_abertura)}</span>`) : ''}
           ${e.obs        ? `<div class="emp-obs">${bEsc(e.obs)}</div>` : ''}
           ${justifHTML}
           <div id="enrich-${bCardId(e)}" class="enrich-row" style="display:none"></div>

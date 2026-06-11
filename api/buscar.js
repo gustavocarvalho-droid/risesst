@@ -1,53 +1,33 @@
 const https = require("https");
 module.exports.config = { maxDuration: 60 };
 
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════
 //  VALIDAÇÃO DE CONTATOS
-// ══════════════════════════════════════════════════════════════
-function isMasked(value) {
-  if (!value) return true;
-  const t = String(value).toLowerCase().trim();
+// ══════════════════════════════════════════════════════════════════════════
+function isMasked(v) {
+  if (!v) return true;
+  const t = String(v).toLowerCase().trim();
   return (
-    t.includes("*") ||
-    t.includes("•") ||
-    t.includes("xxx") ||
-    t.includes("xxxx") ||
-    /x{2,}/.test(t) ||
-    t.includes("não informado") ||
-    t.includes("nao informado") ||
-    t.includes("não disponível") ||
-    t.includes("nao disponivel") ||
-    t.includes("indisponível") ||
-    t.includes("indisponivel") ||
-    t.includes("oculto") ||
-    t.includes("sigiloso") ||
-    t.includes("privado") ||
-    t.includes("n/a") ||
-    t === "-" ||
-    t === "null" ||
-    t === "undefined"
+    t.includes("*") || t.includes("•") || /x{2,}/.test(t) ||
+    t.includes("não informado") || t.includes("nao informado") ||
+    t.includes("não disponível") || t.includes("nao disponivel") ||
+    t.includes("indisponível") || t.includes("indisponivel") ||
+    t.includes("oculto") || t.includes("privado") || t.includes("sigiloso") ||
+    t === "-" || t === "null" || t === "undefined" || t === "n/a" || t === ""
   );
 }
-
-function isValidEmail(email) {
-  if (!email || isMasked(email)) return false;
-  const clean = String(email).trim().toLowerCase();
-  // Deve ter formato usuario@dominio.extensao
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(clean)) return false;
-  // Domínio não pode ter asterisco, ponto duplo, etc.
-  const [, domain] = clean.split("@");
-  if (!domain || domain.includes("*") || domain.startsWith(".") || domain.endsWith(".")) return false;
-  return true;
+function isValidEmail(e) {
+  if (!e || isMasked(e)) return false;
+  const c = String(e).trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c)) return false;
+  const [, domain] = c.split("@");
+  return domain && !domain.includes("*") && !domain.startsWith(".") && !domain.endsWith(".");
 }
-
-function isValidPhone(phone) {
-  if (!phone || isMasked(phone)) return false;
-  const digits = String(phone).replace(/\D/g, "");
-  // Brasil: DDD(2) + número(8 ou 9) = 10 ou 11
-  // Com código país 55: 12 ou 13
-  return [10, 11, 12, 13].includes(digits.length);
+function isValidPhone(p) {
+  if (!p || isMasked(p)) return false;
+  const d = String(p).replace(/\D/g, "");
+  return [10, 11, 12, 13].includes(d.length);
 }
-
 function cleanCompany(e) {
   return {
     ...e,
@@ -56,126 +36,176 @@ function cleanCompany(e) {
     whatsapp: isValidPhone(e.whatsapp) ? String(e.whatsapp).trim() : "",
   };
 }
-
 function hasValidContact(e) {
-  return Boolean(e.email || e.telefone || e.whatsapp);
+  return !!(e.email || e.telefone || e.whatsapp);
 }
 
-// ══════════════════════════════════════════════════════════════
-//  FILTROS DE EXCLUSÃO (órgãos públicos, bancos, etc.)
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════
+//  DEDUPLICAÇÃO
+// ══════════════════════════════════════════════════════════════════════════
+function getKey(e) {
+  const cnpj = (e.cnpj || "").replace(/\D/g, "");
+  if (cnpj.length >= 14) return cnpj;
+  return `${e.nome || e.nome_fantasia || ""}-${e.municipio || ""}`
+    .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function dedup(arr, seen = new Set()) {
+  const out = [];
+  for (const e of arr) {
+    const k = getKey(e);
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    out.push(e);
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  FILTROS DE EXCLUSÃO
+// ══════════════════════════════════════════════════════════════════════════
 const EXCLUIR = [
   /prefeitura/i, /secretaria/i, /câmara/i, /camara/i, /autarquia/i,
-  /fundação pública/i, /\bpolicia\b/i, /\bpolícia\b/i,
-  /hospital.*público/i, /\bubs\b/i, /\bsus\b/i,
+  /\bpolicia\b/i, /\bpolícia\b/i, /\bubs\b/i, /\bsus\b/i,
   /futebol clube/i, /esporte clube/i,
   /\bbradesco\b/i, /\bitaú\b/i, /\bitau\b/i, /caixa economica/i,
   /\bigreja\b/i, /\btemplo\b/i, /paróquia/i, /paroquia/i, /\bsindicato\b/i,
 ];
-
-function passaFiltro(e, existingSet) {
-  const cnpj = (e.cnpj || "").replace(/\D/g, "");
-  if (!cnpj || cnpj.length < 14) return false;
-  if (existingSet.has(cnpj)) return false;
+function isExcluded(e) {
   const txt = `${e.nome || ""} ${e.atividade || ""}`;
-  if (EXCLUIR.some(rx => rx.test(txt))) return false;
-  existingSet.add(cnpj);
-  return true;
+  return EXCLUIR.some(rx => rx.test(txt));
+}
+function isValidCNPJ(cnpj) {
+  const d = (cnpj || "").replace(/\D/g, "");
+  return d.length === 14;
 }
 
-// ── Processar empresa: limpar + validar contato + filtrar duplicata ──────────
-function processarEmpresa(e, existingSet) {
-  if (!passaFiltro(e, existingSet)) return null;
-  const limpa = cleanCompany(e);
-  if (!hasValidContact(limpa)) return null; // descarta sem contato válido
-  return limpa;
+// ══════════════════════════════════════════════════════════════════════════
+//  PROMPTS
+// ══════════════════════════════════════════════════════════════════════════
+const CONTACT_RULES = `
+REGRAS ABSOLUTAS DE CONTATO:
+- Retorne SOMENTE empresas com telefone, WhatsApp OU e-mail completo e real.
+- NUNCA retorne contatos mascarados (ex: (11) 5539-****, c***@***.com). Descarte a empresa.
+- Telefone: DDD + número completo, 10 ou 11 dígitos. Ex: (11) 99999-9999.
+- E-mail: formato completo usuario@dominio.extensao. Sem parciais.
+- WhatsApp: código país + DDD + número, ex: 5511999999999.
+- Se não achar contato real, descarte e busque outra empresa.
+- NUNCA invente dados.`;
+
+function promptFiltrada(qtd, local, filtroStr, exclusao) {
+  return `Você é um buscador de empresas brasileiras. Retorne APENAS JSON puro, sem markdown.
+Encontre EXATAMENTE ${qtd} empresas (${filtroStr}) em ${local}.${exclusao}
+Exclua: órgãos públicos, bancos, igrejas, sindicatos, times de futebol.
+${CONTACT_RULES}
+Para cada empresa: confirme CNPJ, pesquise contato completo. Se não tiver contato, substitua por outra.
+
+JSON (array com EXATAMENTE ${qtd} itens):
+{"empresas":[{"nome":"Razão Social Ltda","nome_fantasia":"Nome","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa","porte":"MEI","municipio":"Cidade - UF","atividade":"descrição","telefone":"(11) 9999-9999","whatsapp":"5511999999999","email":"contato@empresa.com.br","site":"https://site.com"}]}`;
 }
 
-// ══════════════════════════════════════════════════════════════
-//  EXTRAÇÃO INCREMENTAL E FINAL DO JSON
-// ══════════════════════════════════════════════════════════════
-function extrairObjetos(text, existingSet) {
-  const matches = [...text.matchAll(/\{[^{}]*"cnpj"\s*:\s*"[^"]+[^{}]*\}/g)];
+function promptOportunidade(qtd, local, segs, exclusao) {
+  return `Você é consultor especialista em prospecção de serviços SST (Segurança e Saúde do Trabalho).
+Encontre EXATAMENTE ${qtd} oportunidades em ${local} — segmentos: ${segs}.${exclusao}
+
+PRIORIDADE: recém-abertas (<3 anos), alto risco (construção, metal, química, transporte), >5 funcionários sem SST visível.
+${CONTACT_RULES}
+Score 0-100: 90-100=alta necessidade, 75-89=setor prioritário, 50-74=médio, <50=baixo.
+
+JSON (${qtd} itens):
+{"empresas":[{"nome":"Razão Social","nome_fantasia":"Nome","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa","porte":"ME","municipio":"Cidade - UF","atividade":"construção","telefone":"(11) 9999-9999","whatsapp":"5511999999999","email":"email@empresa.com","site":"https://site.com","score":87,"justificativa":"Empresa de construção aberta em 2023, 12 funcionários. Necessita PGR, PCMSO, NRs."}]}`;
+}
+
+function promptAmplaBrasil(qtd, estado, segs, exclusao) {
+  const localStr = estado ? `priorizando ${estado}, mas pode expandir para outros estados` : "em todo o Brasil";
+  return `Você é especialista em prospecção comercial de SST. Busque empresas brasileiras recém-abertas ou em crescimento com alto potencial de contratar serviços de SST.
+Busca ${localStr}. Segmentos prioritários: ${segs}.${exclusao}
+
+PRIORIZE:
+- Empresas abertas nos últimos 3 anos (data de abertura recente)
+- Setores de alto risco: construção civil, metalurgia, mineração, química, transporte, indústria
+- Empresas com >5 funcionários sem fornecedor SST visível
+- Em expansão ou com múltiplas unidades
+${CONTACT_RULES}
+Retorne EXATAMENTE ${qtd} empresas. Inclua data de abertura quando disponível.
+Score 0-100 de oportunidade SST.
+
+JSON (${qtd} itens):
+{"empresas":[{"nome":"Razão Social","nome_fantasia":"Nome","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa","porte":"ME","municipio":"Cidade - UF","atividade":"construção","data_abertura":"2022-03-15","telefone":"(11) 9999-9999","whatsapp":"5511999999999","email":"email@empresa.com","site":"https://site.com","score":91,"justificativa":"Empresa de construção aberta em 2022. Alto risco. Sem SST identificado."}]}`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  REGIÕES DE EXPANSÃO
+// ══════════════════════════════════════════════════════════════════════════
+function getRegioes(cidade, estado) {
+  if (!cidade) return [estado || "Brasil"];
+  return [
+    cidade + (estado ? ` ${estado}` : ""),
+    `região metropolitana de ${cidade}` + (estado ? ` ${estado}` : ""),
+    `cidades próximas de ${cidade}` + (estado ? ` no estado de ${estado}` : ""),
+    estado || "Brasil",
+  ];
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  EXTRAÇÃO DE EMPRESAS DO TEXTO
+// ══════════════════════════════════════════════════════════════════════════
+function extrairEmpresas(text, existingSet) {
   const found = [];
+
+  // 1. Tentar JSON completo
+  const s = text.indexOf("{"), e = text.lastIndexOf("}");
+  if (s !== -1 && e !== -1) {
+    try {
+      const obj = JSON.parse(text.substring(s, e + 1));
+      const arr = obj.empresas || obj.results || (Array.isArray(obj) ? obj : []);
+      for (const emp of arr) {
+        if (!isValidCNPJ(emp.cnpj) || isExcluded(emp)) continue;
+        const k = getKey(emp);
+        if (!k || existingSet.has(k)) continue;
+        const limpa = cleanCompany(emp);
+        if (!hasValidContact(limpa)) continue;
+        existingSet.add(k);
+        found.push(limpa);
+      }
+      if (found.length) return found;
+    } catch {}
+  }
+
+  // 2. Extração incremental por objeto
+  const matches = [...text.matchAll(/\{[^{}]{50,}?"cnpj"\s*:\s*"[^"]+[^{}]*\}/g)];
   for (const m of matches) {
     try {
       let obj = m[0];
       const op = (obj.match(/\{/g) || []).length;
       const cl = (obj.match(/\}/g) || []).length;
       if (op > cl) obj += "}".repeat(op - cl);
-      const e = JSON.parse(obj);
-      const r = processarEmpresa(e, existingSet);
-      if (r) found.push(r);
+      const emp = JSON.parse(obj);
+      if (!isValidCNPJ(emp.cnpj) || isExcluded(emp)) continue;
+      const k = getKey(emp);
+      if (!k || existingSet.has(k)) continue;
+      const limpa = cleanCompany(emp);
+      if (!hasValidContact(limpa)) continue;
+      existingSet.add(k);
+      found.push(limpa);
     } catch {}
   }
   return found;
 }
 
-function extrairJSON(text, existingSet) {
-  const s = text.indexOf("{"), e = text.lastIndexOf("}");
-  if (s === -1 || e === -1) return [];
-  try {
-    const obj = JSON.parse(text.substring(s, e + 1));
-    const arr = obj.empresas || obj.results || (Array.isArray(obj) ? obj : []);
-    return arr.map(e => processarEmpresa(e, existingSet)).filter(Boolean);
-  } catch { return []; }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  PROMPTS
-// ══════════════════════════════════════════════════════════════
-function promptFiltrada(qtd, filtroStr, exclusaoStr) {
-  return `Você é um buscador de empresas brasileiras. Retorne APENAS JSON puro, sem markdown.
-
-Encontre ${qtd} empresas (${filtroStr}) para a query do usuário.${exclusaoStr}
-Exclua: órgãos públicos, bancos, igrejas, sindicatos, times de futebol.
-
-REGRAS OBRIGATÓRIAS PARA CONTATOS:
-- Retorne SOMENTE empresas que tenham pelo menos um contato real e completo: telefone, WhatsApp OU e-mail.
-- NUNCA retorne contatos mascarados, ocultos, parciais ou com asteriscos (ex: (11) 5539-****, c****@****.com).
-- Se não encontrar o contato completo, descarte a empresa e busque outra.
-- Telefone deve ter DDD + número completo (10 ou 11 dígitos). Ex: (11) 99999-9999 ou 11999999999.
-- E-mail deve ter formato completo: usuario@dominio.com. Nunca retorne e-mails parciais.
-- WhatsApp: retorne apenas o número completo com código do país. Ex: 5511999999999.
-
-Para cada empresa: confirme o CNPJ, então pesquise "[nome empresa] [cidade] telefone contato site". Se não achar contato, descarte e busque próxima empresa.
-
-JSON:
-{"empresas":[{"nome":"Razão Social Ltda","nome_fantasia":"Nome","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa","porte":"MEI","municipio":"Cidade - UF","atividade":"descrição","telefone":"(11) 9999-9999","whatsapp":"5511999999999","email":"contato@empresa.com.br","site":"https://site.com"}]}`;
-}
-
-function promptOportunidade(qtd, cidade, estado, segmentos, exclusaoStr) {
-  const localStr = [cidade, estado].filter(Boolean).join(", ") || "Brasil";
-  const segStr   = segmentos && segmentos.length ? segmentos.join(", ") : "Construção Civil, Indústria, Transporte";
-  return `Você é consultor especialista em prospecção de serviços SST (Segurança e Saúde do Trabalho).
-
-Encontre ${qtd} oportunidades comerciais em ${localStr} — segmentos: ${segStr}.${exclusaoStr}
-
-CRITÉRIOS DE PRIORIDADE:
-1. Empresas recém-abertas (< 3 anos) — alta necessidade de PGR, PCMSO, ASO
-2. Setores de ALTO RISCO: construção civil, metalurgia, mineração, química, transporte
-3. Empresas com > 5 funcionários sem fornecedor SST visível
-4. Em crescimento ou com múltiplas unidades
-
-REGRAS OBRIGATÓRIAS PARA CONTATOS:
-- Retorne SOMENTE empresas com pelo menos um contato real: telefone, WhatsApp ou e-mail completo.
-- NUNCA retorne contatos mascarados ou parciais (ex: (11) 5539-****, c****@****.com.br).
-- Telefone completo: DDD + número (10 ou 11 dígitos). Ex: (11) 99999-9999.
-- E-mail completo: usuario@dominio.extensao. Nada de e-mails parciais.
-- Se não encontrar contato completo, descarte a empresa e busque outra no lugar.
-
-Score 0-100: 90-100=alta necessidade confirmada, 75-89=setor prioritário, 50-74=médio, <50=baixo.
-
-JSON:
-{"empresas":[{"nome":"Razão Social Ltda","nome_fantasia":"Nome","cnpj":"XX.XXX.XXX/XXXX-XX","situacao":"Ativa","porte":"ME","municipio":"Cidade - UF","atividade":"construção civil","telefone":"(11) 9999-9999","whatsapp":"5511999999999","email":"contato@empresa.com.br","site":"https://site.com","score":87,"justificativa":"Empresa de construção aberta em 2023, 12 funcionários. Alto risco. Necessita PGR, PCMSO, NR obrigatórios."}]}`;
-}
-
-// ══════════════════════════════════════════════════════════════
-//  STREAMING ANTHROPIC
-// ══════════════════════════════════════════════════════════════
-function callAnthropicStream(body, onEvent) {
+// ══════════════════════════════════════════════════════════════════════════
+//  CHAMADA ANTHROPIC — STREAMING SSE
+// ══════════════════════════════════════════════════════════════════════════
+function callAnthropic(systemPrompt, userMsg) {
   return new Promise((resolve, reject) => {
-    const raw = JSON.stringify({ ...body, stream: true });
+    const body = JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 3500,
+      stream: true,
+      system: systemPrompt,
+      tools: [{ type: "web_search_20250305", name: "web_search" }],
+      messages: [{ role: "user", content: userMsg }],
+    });
     const opts = {
       hostname: "api.anthropic.com",
       path: "/v1/messages",
@@ -186,35 +216,40 @@ function callAnthropicStream(body, onEvent) {
         "x-api-key": process.env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
         "anthropic-beta": "web-search-2025-03-05",
-        "Content-Length": Buffer.byteLength(raw, "utf8"),
+        "Content-Length": Buffer.byteLength(body, "utf8"),
       },
     };
+    let fullText = "";
+    let buffer   = "";
     const req = https.request(opts, (res) => {
-      let buffer = "";
       res.on("data", (chunk) => {
         buffer += chunk.toString();
         const lines = buffer.split("\n");
         buffer = lines.pop();
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const p = line.slice(6).trim();
-            if (p === "[DONE]") continue;
-            try { onEvent(JSON.parse(p)); } catch {}
-          }
+          if (!line.startsWith("data: ")) continue;
+          const p = line.slice(6).trim();
+          if (p === "[DONE]") continue;
+          try {
+            const ev = JSON.parse(p);
+            if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") {
+              fullText += ev.delta.text || "";
+            }
+          } catch {}
         }
       });
-      res.on("end", () => resolve());
+      res.on("end", () => resolve(fullText));
     });
     req.on("error", reject);
     req.on("timeout", () => { req.destroy(); reject(new Error("Timeout")); });
-    req.write(raw);
+    req.write(body);
     req.end();
   });
 }
 
-// ══════════════════════════════════════════════════════════════
-//  HANDLER PRINCIPAL
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════
+//  HANDLER
+// ══════════════════════════════════════════════════════════════════════════
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGINS || "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -227,97 +262,135 @@ module.exports = async (req, res) => {
   }
   if (req.method !== "POST") { res.status(405).end(); return; }
 
-  let body = "";
-  await new Promise(r => { req.on("data", c => body += c); req.on("end", r); });
+  let rawBody = "";
+  await new Promise(r => { req.on("data", c => rawBody += c); req.on("end", r); });
   let payload = {};
-  try { payload = JSON.parse(body); } catch { res.status(400).json({ error: "Body inválido" }); return; }
+  try { payload = JSON.parse(rawBody); } catch { res.status(400).json({ error: "Body inválido" }); return; }
 
   if (!process.env.ANTHROPIC_API_KEY) {
-    res.status(200).json({ query: payload.query, total: 0, empresas: [], obs: "API key não configurada" });
+    res.status(200).json({ query: payload.query || "", total: 0, empresas: [], obs: "API key não configurada" });
     return;
   }
 
   const {
-    query, qtd = 5, filtro = "todos",
+    query    = "",
+    qtd      = 5,
+    filtro   = "todos",
     tipoBusca = "filtrada",
-    cidade = "", estado = "",
+    cidade   = "",
+    estado   = "",
     segmentos = [],
+    existingCnpjs = [],
   } = payload;
-  if (!query) { res.status(400).json({ error: "query obrigatória" }); return; }
 
-  const existingCnpjs = Array.isArray(payload.existingCnpjs) ? payload.existingCnpjs : [];
-  const existingSet   = new Set(existingCnpjs.map(c => c.replace(/\D/g, "")));
-  const filtroStr     = { ativa: "Ativas", mei: "MEI", epp: "ME/EPP" }[filtro] || "qualquer porte";
-  const exclusaoStr   = existingCnpjs.length ? ` Não repita: ${existingCnpjs.slice(0, 6).join(", ")}.` : "";
+  // Quantidade solicitada — respeitar sempre
+  const qtdSolicitada = Math.max(1, Math.min(parseInt(qtd) || 5, 20));
+  const filtroStr = { ativa: "Ativas", mei: "MEI", epp: "ME/EPP" }[filtro] || "qualquer porte";
+  const segsStr   = Array.isArray(segmentos) && segmentos.length
+    ? segmentos.join(", ")
+    : "Construção Civil, Indústria, Transporte, Metalurgia";
 
-  const systemPrompt = tipoBusca === "oportunidade"
-    ? promptOportunidade(qtd, cidade, estado, segmentos, exclusaoStr)
-    : promptFiltrada(qtd, filtroStr, exclusaoStr);
+  // Conjunto de CNPJs já existentes (para "buscar mais")
+  const existingSet = new Set(existingCnpjs.map(c => c.replace(/\D/g, "")).filter(Boolean));
 
-  const userMsg = tipoBusca === "oportunidade"
-    ? `Encontre ${qtd} oportunidades SST com contato completo para: ${query}`
-    : `Busque ${qtd} empresas com contato completo para: ${query}`;
-
-  // Streaming NDJSON
+  // Streaming para o frontend
   res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
   res.setHeader("Transfer-Encoding", "chunked");
   res.setHeader("X-Accel-Buffering", "no");
   res.status(200);
 
-  let fullText  = "";
-  let emitted   = new Set();
-  let lastFlush = Date.now();
+  const emitted = new Set(existingSet); // CNPJs já enviados (inclui os existentes)
+  const collected = [];                 // empresas coletadas nesta sessão
 
-  const flush = (arr) => {
+  const emit = (arr) => {
     for (const e of arr) {
-      const cnpj = (e.cnpj || "").replace(/\D/g, "");
-      if (!cnpj || emitted.has(cnpj)) continue;
-      emitted.add(cnpj);
+      const k = getKey(e);
+      if (!k || emitted.has(k)) continue;
+      emitted.add(k);
+      collected.push(e);
       res.write(JSON.stringify({ type: "empresa", data: e }) + "\n");
     }
-    lastFlush = Date.now();
   };
 
+  const sendStatus = (msg) => res.write(JSON.stringify({ type: "status", msg }) + "\n");
+  const sendError  = (msg) => res.write(JSON.stringify({ type: "error",  msg }) + "\n");
+
   try {
-    await callAnthropicStream({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: tipoBusca === "oportunidade" ? 3000 : 2000,
-      system: systemPrompt,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
-      messages: [{ role: "user", content: userMsg }],
-    }, (event) => {
-      if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
-        fullText += event.delta.text || "";
-        if (Date.now() - lastFlush > 2000) {
-          flush(extrairObjetos(fullText, existingSet));
+    // ── Estratégia de expansão geográfica ────────────────────────────────
+    const regioes = tipoBusca === "ampla_brasil"
+      ? [estado || "Brasil", "Sul do Brasil", "Nordeste do Brasil", "Brasil inteiro"]
+      : getRegioes(cidade, estado);
+
+    let tentativa = 0;
+
+    for (const regiao of regioes) {
+      if (collected.length >= qtdSolicitada) break;
+      tentativa++;
+
+      const faltam = qtdSolicitada - collected.length;
+      // Pedir 2× o faltante para compensar filtragem
+      const pedirQtd = Math.min(faltam * 2, 20);
+
+      const exclusaoStr = existingCnpjs.length
+        ? ` Não repita CNPJs: ${[...emitted].slice(0, 8).join(", ")}.`
+        : "";
+
+      // Montar prompt e mensagem
+      let systemPrompt, userMsg;
+      if (tipoBusca === "oportunidade") {
+        systemPrompt = promptOportunidade(pedirQtd, regiao, segsStr, exclusaoStr);
+        userMsg      = `Encontre ${pedirQtd} oportunidades SST com contato completo em: ${regiao}`;
+      } else if (tipoBusca === "ampla_brasil") {
+        systemPrompt = promptAmplaBrasil(pedirQtd, regiao === "Brasil" ? "" : regiao, segsStr, exclusaoStr);
+        userMsg      = `Encontre ${pedirQtd} empresas recém-abertas com alto potencial SST. ${regiao !== "Brasil" ? `Foque em ${regiao}.` : "Busca Brasil."} Contato obrigatório.`;
+      } else {
+        const localStr = query || [cidade, estado].filter(Boolean).join(" ") || "Brasil";
+        systemPrompt   = promptFiltrada(pedirQtd, regiao, filtroStr, exclusaoStr);
+        userMsg        = `Busque ${pedirQtd} empresas com contato completo para: ${localStr}`;
+      }
+
+      if (tentativa === 1) {
+        sendStatus(`🔍 Buscando em ${regiao}...`);
+      } else {
+        sendStatus(`🌐 Expandindo para ${regiao} (${collected.length}/${qtdSolicitada} encontradas)...`);
+      }
+
+      try {
+        const text = await callAnthropic(systemPrompt, userMsg);
+        const novas = extrairEmpresas(text, emitted);
+        emit(novas);
+
+        if (collected.length < qtdSolicitada && tentativa < regioes.length) {
+          sendStatus(`📍 ${collected.length}/${qtdSolicitada} — expandindo região...`);
         }
+      } catch (e) {
+        if (e.message?.includes("Timeout") && tentativa === 1) {
+          sendError("Timeout na primeira tentativa — tente com menos resultados ou query mais específica");
+          break;
+        }
+        // Se timeout em tentativa subsequente, continua com o que tem
       }
-      if (event.type === "message_start") {
-        res.write(JSON.stringify({ type: "status", msg: tipoBusca === "oportunidade" ? "🎯 Analisando oportunidades SST..." : "🔍 Buscando empresas..." }) + "\n");
-      }
-      if (event.type === "content_block_start" && event.content_block?.type === "tool_use") {
-        res.write(JSON.stringify({ type: "status", msg: "🌐 Pesquisando contatos na web..." }) + "\n");
-      }
-    });
+    }
 
-    // Extração final completa
-    flush(extrairJSON(fullText, existingSet));
-
-    if (emitted.size === 0) {
-      res.write(JSON.stringify({ type: "error", msg: "Nenhuma empresa encontrada com contato completo — tente incluir cidade/estado ou outro setor" }) + "\n");
+    // ── Resultado final ──────────────────────────────────────────────────
+    if (collected.length === 0) {
+      sendError("Nenhuma empresa com contato válido encontrada — tente outro segmento ou região");
+    } else if (collected.length < qtdSolicitada) {
+      res.write(JSON.stringify({
+        type: "aviso",
+        msg:  `Encontradas ${collected.length} de ${qtdSolicitada} solicitadas — não há mais empresas válidas com contato para esta região/segmento.`
+      }) + "\n");
     }
 
   } catch (err) {
-    const msg = err.message || "Erro";
-    if (msg.includes("rate_limit") || msg.includes("429")) {
-      res.write(JSON.stringify({ type: "error", msg: "Rate limit — aguarde 60s e tente novamente" }) + "\n");
-    } else if (msg.includes("Timeout")) {
-      res.write(JSON.stringify({ type: "error", msg: "Tempo esgotado — tente adicionar cidade/estado para refinar" }) + "\n");
+    const msg = err.message || "Erro desconhecido";
+    if (msg.includes("429") || msg.includes("rate_limit")) {
+      sendError("Rate limit da API — aguarde 60s e tente novamente");
     } else {
-      res.write(JSON.stringify({ type: "error", msg }) + "\n");
+      sendError(msg);
     }
   }
 
-  res.write(JSON.stringify({ type: "done", total: emitted.size }) + "\n");
+  res.write(JSON.stringify({ type: "done", total: collected.length }) + "\n");
   res.end();
 };

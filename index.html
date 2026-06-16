@@ -212,25 +212,25 @@
     .buscador-wrap { max-width: 920px; }
 
     /* ── MODO SELECTOR ── */
-    .b-mode-bar { display:flex; gap:0; background:#f0eff8; border-radius:12px; padding:4px; margin-bottom:20px; }
-    .b-mode-btn { flex:1; padding:10px 14px; border-radius:9px; border:none; background:transparent; font-size:13px; font-weight:600; color:#7878A8; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:6px; }
-    .b-mode-btn.active { background:#fff; color:#1E1E5C; box-shadow:0 2px 8px rgba(30,30,92,.12); }
-    .b-mode-btn:hover:not(.active) { color:#1E1E5C; background:#e7e6f4; }
+    .b-mode-bar { display:flex; gap:4px; background:#f1f5f9; border-radius:14px; padding:4px; margin-bottom:20px; }
+    .b-mode-btn { flex:1; padding:9px 12px; border-radius:10px; border:none; background:transparent; font-size:13px; font-weight:600; color:#64748b; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .b-mode-btn.active { background:#fff; color:#1e1b4b; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    .b-mode-btn:hover:not(.active) { color:#334155; background:rgba(255,255,255,.6); }
 
     /* ── FILTRADA ── */
     .b-filtrada-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-    .b-field-group { display:flex; flex-direction:column; gap:4px; }
-    .b-field-group label { font-size:10px; font-weight:700; color:#7878A8; letter-spacing:.5px; text-transform:uppercase; }
-    .b-field-group input, .b-field-group select { height:38px; border:1.5px solid #e0dfef; border-radius:8px; padding:0 10px; font-size:13px; color:#1E1E5C; background:#fff; outline:none; transition:border .15s; font-family:inherit; }
-    .b-field-group input:focus, .b-field-group select:focus { border-color:#5B5BAA; }
+    .b-field-group { display:flex; flex-direction:column; gap:5px; }
+    .b-field-group label { font-size:10px; font-weight:700; color:#94a3b8; letter-spacing:.06em; text-transform:uppercase; }
+    .b-field-group input, .b-field-group select { height:40px; border:1.5px solid #e2e8f0; border-radius:9px; padding:0 12px; font-size:13px; color:#334155; background:#fff; outline:none; transition:all .15s; font-family:inherit; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .b-field-group input:focus, .b-field-group select:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.1); }
     .b-field-full { grid-column:1/-1; }
 
     /* ── OPORTUNIDADES ── */
     .b-oport-fields { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px; }
     .b-oport-segmentos { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
-    .b-seg-chip { padding:5px 12px; border-radius:999px; border:1.5px solid #e0dfef; background:#fff; font-size:11px; font-weight:600; color:#5B5BAA; cursor:pointer; transition:all .15s; }
-    .b-seg-chip.active { background:#1E1E5C; color:#fff; border-color:#1E1E5C; }
-    .b-seg-chip:hover:not(.active) { border-color:#5B5BAA; color:#1E1E5C; }
+    .b-seg-chip { padding:5px 14px; border-radius:999px; border:1.5px solid #e2e8f0; background:#fff; font-size:11px; font-weight:600; color:#64748b; cursor:pointer; transition:all .2s; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .b-seg-chip.active { background:#1e1b4b; color:#fff; border-color:#1e1b4b; box-shadow:0 2px 8px rgba(30,27,75,.2); }
+    .b-seg-chip:hover:not(.active) { border-color:#6366f1; color:#4f46e5; background:#eef2ff; }
 
     /* ── MODO AMPLA BRASIL ── */
     .b-mode-btn-ampla { background: linear-gradient(135deg,#1E1E5C,#3A4096) !important; color:#fff !important; }
@@ -255,145 +255,195 @@
     .buscador-header h2 { font-size: 20px; font-weight: 800; color: var(--rise-dark); }
     .buscador-header p  { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
 
+    /* ── SEARCH BOX ── */
     .search-box {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      background: var(--white);
-      transition: border-color .2s, box-shadow .2s;
-      margin-bottom: .75rem;
+      display: flex; align-items: center;
+      border: 1.5px solid #e2e8f0; border-radius: 12px;
+      background: #fff; transition: all .2s; margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
     }
-    .search-box:focus-within {
-      border-color: var(--rise-med);
-      box-shadow: 0 0 0 3px rgba(58,64,150,0.12);
-    }
+    .search-box:focus-within { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,.1); }
     .search-box input {
       flex: 1; background: transparent; border: none; outline: none;
-      padding: .9rem 1.25rem; font-family: var(--sans); font-size: 15px; color: var(--text);
+      padding: 12px 16px; font-family: var(--sans); font-size: 14px; color: #1e293b;
     }
-    .search-box input::placeholder { color: var(--muted); }
+    .search-box input::placeholder { color: #94a3b8; }
     .search-box button {
-      background: var(--rise-dark); color: var(--white); border: none;
-      padding: .9rem 1.5rem; font-family: var(--sans); font-size: 11px;
-      font-weight: 700; letter-spacing: .07em; cursor: pointer;
-      transition: background .15s; white-space: nowrap;
+      background: #1e1b4b; color: #fff; border: none;
+      padding: 10px 20px; font-family: var(--sans); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .2s; white-space: nowrap; border-radius: 0 10px 10px 0;
     }
-    .search-box button:hover { background: var(--rise-med); }
-    .search-box button:disabled { opacity: .4; cursor: not-allowed; }
+    .search-box button:hover { background: #312e81; transform: translateY(-1px); }
+    .search-box button:disabled { opacity: .4; cursor: not-allowed; transform: none; }
     #moreBtn {
-      background: transparent !important;
-      border-left: 1px solid var(--border) !important;
-      color: var(--rise-med) !important;
-      font-weight: 600 !important;
+      background: transparent !important; border-left: 1.5px solid #e2e8f0 !important;
+      color: #6366f1 !important; font-weight: 600 !important; border-radius: 0 10px 10px 0 !important;
     }
-    #moreBtn:hover { background: var(--rise-bg) !important; }
+    #moreBtn:hover { background: #f1f5f9 !important; transform: none !important; }
 
-    .opts {
-      display: flex; gap: .75rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center;
-    }
-    .opt-group { display: flex; align-items: center; gap: .45rem; }
-    .opt-group label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .04em; }
+    .opts { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .opt-group { display: flex; align-items: center; gap: 6px; }
+    .opt-group label { font-size: 11px; color: #64748b; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
     select, input[type=number] {
-      background: var(--white); border: 1px solid var(--border); border-radius: 6px;
-      color: var(--text); font-family: var(--sans); font-size: 12px;
-      padding: .3rem .65rem; outline: none; transition: border-color .15s;
+      background: #fff; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      color: #334155; font-family: var(--sans); font-size: 13px;
+      padding: 5px 10px; outline: none; transition: border-color .15s;
     }
-    select:focus, input[type=number]:focus { border-color: var(--rise-med); }
-    input[type=number] { width: 60px; }
+    select:focus, input[type=number]:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    input[type=number] { width: 64px; }
 
+    /* ── STATUS BAR ── */
     .status-bar {
-      display: none; align-items: center; gap: 9px;
-      font-size: 12px; color: var(--rise-med); margin-bottom: 1.25rem;
-      padding: .55rem .875rem;
-      background: rgba(58,64,150,0.07);
-      border: 1px solid rgba(58,64,150,0.15);
-      border-radius: 7px;
+      display: none; align-items: center; gap: 10px; font-size: 13px; color: #6366f1;
+      margin-bottom: 16px; padding: 10px 14px;
+      background: #eef2ff; border: 1.5px solid #c7d2fe; border-radius: 10px;
     }
     .dot-anim {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--rise-med);
+      width: 8px; height: 8px; border-radius: 50%; background: #6366f1;
       animation: bpulse 1s infinite; flex-shrink: 0;
     }
     @keyframes bpulse { 0%,100%{opacity:1} 50%{opacity:.2} }
-    .progress-txt { font-size: 11px; color: var(--muted); margin-left: auto; }
+    .progress-txt { font-size: 12px; color: #818cf8; margin-left: auto; }
 
+    /* ── TOOLBAR ── */
     .b-toolbar {
       display: none; align-items: center; justify-content: space-between;
-      margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--border);
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid #f1f5f9;
     }
-    .b-toolbar-left { font-size: 12px; color: var(--muted); font-weight: 500; }
-    .b-toolbar-left span { color: var(--rise-dark); font-weight: 700; }
-    .filter-btns { display: flex; gap: .4rem; }
+    .b-toolbar-left { font-size: 13px; color: #64748b; font-weight: 500; }
+    .b-toolbar-left span { color: #1e293b; font-weight: 700; }
+    .filter-btns { display: flex; gap: 4px; }
     .fbtn {
-      background: transparent; border: 1px solid var(--border); border-radius: 5px;
-      padding: .25rem .7rem; font-size: 10px; letter-spacing: .05em;
-      color: var(--muted); cursor: pointer; transition: all .15s;
-      text-transform: uppercase; font-weight: 600;
+      background: transparent; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 4px 12px; font-size: 11px; color: #64748b; cursor: pointer;
+      transition: all .15s; font-weight: 600;
     }
-    .fbtn:hover  { border-color: var(--rise-med); color: var(--rise-med); }
-    .fbtn.active { border-color: var(--rise-med); color: var(--rise-med); background: rgba(58,64,150,0.08); }
+    .fbtn:hover  { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+    .fbtn.active { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
 
-    .b-results { display: flex; flex-direction: column; gap: .75rem; }
+    /* ── RESULTS LIST ── */
+    .b-results { display: flex; flex-direction: column; gap: 12px; }
 
-    /* Empresa card */
+    /* ── EMPRESA CARD — SaaS Premium ── */
     .emp-card {
-      background: var(--white); border: 1px solid var(--border);
-      border-radius: 10px; overflow: hidden;
-      animation: fadeInUp .25s ease;
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      transition: box-shadow .2s, border-color .2s, transform .2s;
+      animation: fadeInUp .2s ease;
     }
-    @keyframes fadeInUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+    .emp-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,.1);
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+    }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+    /* Card header */
     .emp-head {
-      display: flex; align-items: center; gap: .65rem;
-      padding: .75rem 1rem; border-bottom: 1px solid var(--rise-bg);
-      background: #f8f7fc;
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 20px 24px 16px; border-bottom: 1.5px solid #f8fafc;
     }
+    .emp-head-left { flex: 1; min-width: 0; }
     .emp-name {
-      font-size: 14px; font-weight: 700; color: var(--rise-dark);
-      flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-size: 16px; font-weight: 700; color: #0f172a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.3; margin-bottom: 6px;
     }
+    .emp-badges { display: flex; gap: 6px; flex-wrap: wrap; }
     .emp-badge {
-      font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 4px; flex-shrink: 0; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 999px; letter-spacing: .02em;
     }
-    .bp-mei    { background: rgba(113,118,183,.12); color: var(--rise-mid); border: 1px solid rgba(113,118,183,.25); }
-    .bp-me     { background: rgba(58,64,150,.10);   color: var(--rise-med); border: 1px solid rgba(58,64,150,.2); }
-    .bp-epp    { background: rgba(91,91,170,.10);   color: var(--rise-mid); border: 1px solid rgba(91,91,170,.2); }
-    .bp-grande { background: var(--warn-bg);         color: var(--warn);     border: 1px solid rgba(133,79,11,.2); }
-    .bp-nd     { background: var(--rise-bg);         color: var(--muted);    border: 1px solid var(--border); }
-    .bs-ativa  { background: var(--ok-bg);   color: var(--ok);  border: 1px solid rgba(59,109,17,.2); }
-    .bs-inativ { background: var(--err-bg);  color: var(--err); border: 1px solid rgba(163,45,45,.2); }
-    .bs-nd     { background: var(--rise-bg); color: var(--muted); border: 1px solid var(--border); }
+    .bp-mei    { background: #ede9fe; color: #7c3aed; }
+    .bp-me     { background: #dbeafe; color: #1d4ed8; }
+    .bp-epp    { background: #e0e7ff; color: #4338ca; }
+    .bp-grande { background: #fef3c7; color: #b45309; }
+    .bp-nd     { background: #f1f5f9; color: #64748b; }
+    .bs-ativa  { background: #dcfce7; color: #15803d; }
+    .bs-inativ { background: #fee2e2; color: #dc2626; }
+    .bs-nd     { background: #f1f5f9; color: #94a3b8; }
 
-    .emp-body { padding: .875rem 1rem; display: flex; flex-direction: column; gap: .55rem; }
-    .emp-row  { display: flex; align-items: flex-start; gap: 10px; }
-    .emp-lbl  { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); min-width: 66px; flex-shrink: 0; padding-top: 1px; font-weight: 600; }
-    .emp-val  { font-size: 12px; color: var(--text); flex: 1; word-break: break-all; line-height: 1.4; font-weight: 500; }
-    .emp-val.ok   { color: var(--rise-med); }
-    .emp-val.nd   { color: var(--muted); font-style: italic; }
-    .emp-val.link a { color: var(--info); text-decoration: none; font-size: 11px; }
+    /* Card body — grid 2 colunas */
+    .emp-body { padding: 16px 24px; }
+    .emp-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 580px) { .emp-grid { grid-template-columns: 1fr; } }
+    .emp-grid-full { grid-column: 1 / -1; }
+    .emp-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .emp-lbl {
+      font-size: 10px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    .emp-val {
+      font-size: 13px; color: #334155; line-height: 1.4;
+      font-weight: 500; word-break: break-word;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .emp-val.ok   { color: #6366f1; font-weight: 600; }
+    .emp-val.nd   { color: #cbd5e1; font-style: italic; }
+    .emp-val.link a { color: #6366f1; text-decoration: none; }
     .emp-val.link a:hover { text-decoration: underline; }
-    .emp-src  { font-size: 10px; color: var(--muted); padding-left: 76px; margin-top: -3px; }
-    .emp-obs  { padding: .5rem .75rem; background: rgba(133,79,11,.06); border: 1px solid rgba(133,79,11,.15); border-radius: 6px; font-size: 11px; color: var(--warn); margin-top: 3px; }
+    .emp-src  { font-size: 10px; color: #cbd5e1; margin-top: 1px; }
+    .emp-obs  {
+      padding: 8px 12px; background: #fffbeb;
+      border: 1.5px solid #fde68a; border-radius: 8px;
+      font-size: 12px; color: #92400e; margin-bottom: 12px;
+    }
+
+    /* Botão copiar — ícone minimalista */
     .cp-btn {
-      background: transparent; border: 1px solid var(--border); border-radius: 4px;
-      padding: 1px 8px; font-size: 9px; color: var(--muted);
-      cursor: pointer; transition: all .15s; flex-shrink: 0; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 7px;
+      border: 1.5px solid #e2e8f0; background: #fff;
+      color: #94a3b8; cursor: pointer; transition: all .15s;
+      flex-shrink: 0;
     }
-    .cp-btn:hover { border-color: var(--rise-med); color: var(--rise-med); }
-    .cp-btn.done  { border-color: var(--ok); color: var(--ok); }
+    .cp-btn:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+    .cp-btn.done  { border-color: #15803d; color: #15803d; background: #dcfce7; }
 
-    .b-empty { text-align: center; padding: 4rem 0; color: var(--muted); }
-    .b-empty-icon { font-size: 2rem; margin-bottom: .75rem; opacity: .25; }
-    .b-empty p    { font-size: 14px; }
-    .b-empty code { font-size: 11px; color: var(--rise-pale); display: block; margin-top: .4rem; }
+    /* Card footer — ações */
+    .emp-actions {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 8px; padding: 12px 24px 18px; flex-wrap: wrap;
+      border-top: 1.5px solid #f8fafc;
+    }
+    .emp-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .2s; border: 1.5px solid transparent;
+      font-family: var(--sans); white-space: nowrap;
+    }
+    .emp-btn:hover { transform: translateY(-1px); }
+    .emp-btn-enrich { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    .emp-btn-enrich:hover { background: #4338ca; border-color: #4338ca; box-shadow: 0 3px 10px rgba(79,70,229,.3); }
+    .emp-btn-wa     { background: #16a34a; color: #fff; border-color: #16a34a; }
+    .emp-btn-wa:hover { background: #15803d; border-color: #15803d; box-shadow: 0 3px 10px rgba(22,163,74,.3); }
+    .emp-btn-crm    { background: #fff; color: #475569; border-color: #e2e8f0; }
+    .emp-btn-crm:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 
-    .export-bar { display: none; justify-content: flex-end; gap: .5rem; margin-top: 1.5rem; }
+    /* Enrich area */
+    .enrich-row { padding: 0 24px 12px; }
+    .enrich-loading { font-size: 12px; color: #6366f1; padding: 8px 0; }
+
+    .b-empty { text-align: center; padding: 4rem 0; color: #94a3b8; }
+    .b-empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .3; }
+    .b-empty p    { font-size: 14px; color: #64748b; }
+    .b-empty code { font-size: 12px; color: #cbd5e1; display: block; margin-top: 6px; }
+
+    .export-bar { display: none; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .export-btn {
-      background: transparent; border: 1px solid var(--border); border-radius: 6px;
-      padding: .4rem .875rem; font-size: 10px; color: var(--muted);
-      cursor: pointer; letter-spacing: .05em; transition: all .15s; font-weight: 600;
+      background: #fff; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 6px 14px; font-size: 12px; color: #64748b; font-weight: 600;
+      cursor: pointer; transition: all .15s;
     }
-    .export-btn:hover { border-color: var(--rise-med); color: var(--rise-med); }
+    .export-btn:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
 
     /* ── PLACEHOLDER SCREENS ── */
     .placeholder-screen {
@@ -1232,15 +1282,14 @@
   
     /* ── Enrich button ── */
     .enrich-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: #f0eff8; border: 1px solid var(--rise-pale);
-      color: var(--rise-med); border-radius: 6px;
-      font-size: 10px; font-weight: 700; padding: 4px 10px;
-      cursor: pointer; transition: all .15s; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #4f46e5; color: #fff; border: 1.5px solid #4f46e5;
+      border-radius: 9px; padding: 7px 14px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .2s; font-family: var(--sans);
     }
-    .enrich-btn:hover { background: var(--rise-med); color: #fff; border-color: var(--rise-med); }
-    .enrich-btn:disabled { opacity: .5; cursor: wait; }
-    .enrich-btn.done { background: #eaf3de; color: #3B6D11; border-color: #3B6D11; }
+    .enrich-btn:hover { background: #4338ca; border-color: #4338ca; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(79,70,229,.3); }
+    .enrich-btn:disabled { opacity: .5; cursor: wait; transform: none; box-shadow: none; }
+    .enrich-btn.done { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
 
     .enrich-row {
       margin-top: 10px; padding: 10px 12px;
@@ -2589,9 +2638,20 @@
                 </select>
               </div>
             </div>
-            <div style="display:flex;gap:8px">
-              <button id="searchBtn" onclick="bRunSearch()" style="flex:1">🔍 Buscar</button>
-              <button id="moreBtn" onclick="bRunMore()" style="display:none">+ MAIS</button>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button id="searchBtn" onclick="bRunSearch()"
+                style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 24px;background:#1e1b4b;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 2px 8px rgba(30,27,75,.2)"
+                onmouseover="if(!this.disabled){this.style.background='#312e81';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(30,27,75,.3)'}"
+                onmouseout="this.style.background='#1e1b4b';this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(30,27,75,.2)'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+                Buscar
+              </button>
+              <button id="moreBtn" onclick="bRunMore()"
+                style="display:none;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 18px;background:#fff;color:#4f46e5;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s"
+                onmouseover="this.style.background='#eef2ff';this.style.borderColor='#6366f1'"
+                onmouseout="this.style.background='#fff';this.style.borderColor='#e2e8f0'">
+                + Mais
+              </button>
             </div>
             <!-- campo query legado (compatibilidade) -->
             <input type="hidden" id="b-query" />
@@ -2640,7 +2700,10 @@
                 <input type="number" id="b-op-qtd" value="5" min="1" max="10" />
               </div>
             </div>
-            <button id="searchBtnOp" onclick="bRunOportunidade()" style="width:100%;padding:12px;background:linear-gradient(135deg,#1E1E5C,#3A4096);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">
+            <button id="searchBtnOp" onclick="bRunOportunidade()"
+              style="width:100%;padding:12px 20px;background:#1e1b4b;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 2px 8px rgba(30,27,75,.2)"
+              onmouseover="this.style.background='#312e81';this.style.transform='translateY(-1px)'"
+              onmouseout="this.style.background='#1e1b4b';this.style.transform='none'">
               🎯 Encontrar Oportunidades
             </button>
           </div>
@@ -2691,7 +2754,9 @@
               </div>
             </div>
             <button id="searchBtnAmpla" onclick="bRunAmplaBrasil()"
-              style="width:100%;padding:13px;background:linear-gradient(135deg,#1E1E5C,#3A4096);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px">
+              style="width:100%;padding:13px 20px;background:linear-gradient(135deg,#1e1b4b,#3730a3);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 14px rgba(30,27,75,.25)"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(30,27,75,.35)'"
+              onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 14px rgba(30,27,75,.25)'">
               🚀 Buscar empresas recentes no Brasil
             </button>
           </div>
@@ -3775,7 +3840,10 @@
   window.bToggleSeg = bToggleSeg;
 
   document.addEventListener('keydown', e => {
-    if (e.target && e.target.id === 'b-query' && e.key === 'Enter') bRunSearch();
+    if (e.key === 'Enter') {
+      if (e.target && (e.target.id === 'b-query' || e.target.id === 'b-kw')) bRunSearch();
+      if (e.target && e.target.id === 'b-cidade') bRunSearch();
+    }
   });
 
   async function bRunSearch() {
@@ -3856,7 +3924,10 @@
 
     searchBtn.disabled = true;
     moreBtn.disabled   = true;
-    searchBtn.textContent = '⏳';
+    searchBtn.style.opacity = '0.7';
+    searchBtn.style.cursor = 'wait';
+    searchBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Buscando...';
+    if (!document.getElementById('_spin_style')) { const s=document.createElement('style'); s.id='_spin_style'; s.textContent='@keyframes spin{to{transform:rotate(360deg)}}'; document.head.appendChild(s); }
     statusBar.style.display = 'flex';
     statusText.textContent = existingCnpjs.length > 0
       ? `Buscando mais resultados para "${q}"...`
@@ -3884,7 +3955,9 @@
       statusBar.style.display = 'none';
       searchBtn.disabled = false;
       moreBtn.disabled   = false;
-      searchBtn.textContent = '🔍 Buscar';
+      searchBtn.style.opacity = '';
+      searchBtn.style.cursor = '';
+      searchBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> Buscar';
       // Salvar histórico com todas as empresas
       if (batchEmpresas.length > 0) {
         histAddBatch(q, batchEmpresas);
@@ -3912,75 +3985,98 @@
         })
       });
 
-      if (!res.ok || !res.body) {
+      if (!res.ok) {
         let errMsg = `Erro HTTP ${res.status}`;
         try { const d = await res.json(); errMsg = d.error || d.obs || errMsg; } catch {}
         statusText.textContent = '❌ ' + errMsg;
         statusText.style.color = '#A32D2D';
-        setTimeout(() => { statusBar.style.display = 'none'; statusText.style.color = ''; }, 5000);
         bBatches[batchIdx].error = errMsg;
         done();
         return;
       }
 
-      // Ler stream NDJSON linha por linha
-      const reader   = res.body.getReader();
-      const decoder  = new TextDecoder();
-      let   leftover = '';
+      // ── Detectar formato da resposta: NDJSON (streaming) ou JSON normal ──
+      const ct = res.headers.get('content-type') || '';
+      const isNDJSON = ct.includes('ndjson') || ct.includes('x-ndjson');
 
-      while (true) {
-        const { done: streamDone, value } = await reader.read();
-        if (streamDone) break;
+      // Função para processar cada evento (NDJSON ou objeto JSON)
+      const processEvent = (event) => {
+        if (!event || typeof event !== 'object') return;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = (leftover + chunk).split('\n');
-        leftover = lines.pop(); // última linha pode estar incompleta
+        // Formato NDJSON: { type: 'empresa', data: {...} }
+        if (event.type === 'empresa' && event.data) {
+          const e = event.data;
+          batchEmpresas.push(e);
+          progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)...`;
+          bRenderAll();
+          if (typeof bAutoAddToCRM === 'function' && bAutoAddToCRM(e)) addedCRM++;
+          if (typeof bAutoAddToWA  === 'function' && bAutoAddToWA(e))  addedWA++;
+          return;
+        }
+        if (event.type === 'status')  { progressTx.textContent = event.msg || ''; return; }
+        if (event.type === 'error')   { statusText.textContent = '⚠️ ' + (event.msg||'Erro'); statusText.style.color = '#854F0B'; setTimeout(() => statusText.style.color='', 5000); return; }
+        if (event.type === 'aviso')   {
+          const avisoEl = document.getElementById('b-aviso-qtd');
+          const avisoTx = document.getElementById('b-aviso-qtd-text');
+          if (avisoEl && avisoTx) { avisoTx.textContent = event.msg||''; avisoEl.classList.add('show'); }
+          return;
+        }
+        if (event.type === 'done') {
+          if (batchEmpresas.length === 0) statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outro segmento ou região';
+          else { const mb = document.getElementById('moreBtn'); if (mb) mb.style.display = 'inline-flex'; }
+          return;
+        }
 
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed) continue;
+        // Formato JSON normal: { empresas: [...] } ou { total, empresas }
+        if (Array.isArray(event.empresas)) {
+          event.empresas.forEach(e => {
+            batchEmpresas.push(e);
+            if (typeof bAutoAddToCRM === 'function' && bAutoAddToCRM(e)) addedCRM++;
+            if (typeof bAutoAddToWA  === 'function' && bAutoAddToWA(e))  addedWA++;
+          });
+          progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)`;
+          bRenderAll();
+          if (event.obs) { statusText.textContent = '⚠️ ' + event.obs; statusText.style.color = '#854F0B'; }
+          if (batchEmpresas.length > 0) { const mb = document.getElementById('moreBtn'); if (mb) mb.style.display = 'inline-flex'; }
+          else statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outro segmento ou região';
+        }
+      };
+
+      if (isNDJSON && res.body) {
+        // ── Ler stream NDJSON linha por linha ──
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+        let leftover  = '';
+        while (true) {
+          const { done: sd, value } = await reader.read();
+          if (sd) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = (leftover + chunk).split('\n');
+          leftover = lines.pop();
+          for (const line of lines) {
+            const t = line.trim();
+            if (!t) continue;
+            try { processEvent(JSON.parse(t)); } catch(parseErr) { /* linha incompleta */ }
+          }
+        }
+      } else {
+        // ── Resposta JSON normal (backend atual) ──
+        try {
+          const data = await res.json();
+          processEvent(data);
+        } catch(jsonErr) {
+          // Tentar como texto NDJSON mesmo sem header
           try {
-            const event = JSON.parse(trimmed);
-
-            if (event.type === 'empresa') {
-              const e = event.data;
-              batchEmpresas.push(e);
-              // Atualizar contador na barra
-              progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)...`;
-              statusText.textContent = `Buscando "${q}"...`;
-              // Renderizar incrementalmente
-              bRenderAll();
-              // Auto-add ao CRM e WA
-              if (typeof bAutoAddToCRM === 'function' && bAutoAddToCRM(e)) addedCRM++;
-              if (typeof bAutoAddToWA  === 'function' && bAutoAddToWA(e))  addedWA++;
-
-            } else if (event.type === 'status') {
-              progressTx.textContent = event.msg || '';
-
-            } else if (event.type === 'error') {
-              statusText.textContent = '⚠️ ' + event.msg;
-              statusText.style.color = '#854F0B';
-              setTimeout(() => { statusText.style.color = ''; }, 5000);
-
-            } else if (event.type === 'aviso') {
-              // Aviso de quantidade parcial
-              const avisoEl = document.getElementById('b-aviso-qtd');
-              const avisoTx = document.getElementById('b-aviso-qtd-text');
-              if (avisoEl && avisoTx) {
-                avisoTx.textContent = event.msg || '';
-                avisoEl.classList.add('show');
-              }
-
-            } else if (event.type === 'done') {
-              if (batchEmpresas.length === 0) {
-                statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outro segmento ou região';
-              } else {
-                // Mostrar botão "Buscar mais"
-                const moreBtn = document.getElementById('moreBtn');
-                if (moreBtn) moreBtn.style.display = 'inline-block';
-              }
+            const text = await res.text();
+            const lines = text.split('\n').filter(l => l.trim());
+            for (const line of lines) {
+              try { processEvent(JSON.parse(line)); } catch {}
             }
-          } catch {}
+            if (batchEmpresas.length === 0) {
+              statusText.textContent = '⚠️ Resposta da API em formato inesperado';
+              bBatches[batchIdx].error = 'Formato inesperado';
+            }
+          } catch { bBatches[batchIdx].error = 'Erro ao processar resposta'; }
         }
       }
     } catch (err) {
@@ -4028,7 +4124,10 @@
     }
 
     if (!filtered.length) {
-      container.innerHTML = `<div class="b-empty"><div class="b-empty-icon">◎</div><p>Nenhum resultado com este filtro.</p></div>`;
+      const hasAll = allEmpresas.length > 0;
+      container.innerHTML = hasAll
+        ? `<div class="b-empty"><div class="b-empty-icon" style="font-size:1.5rem">🔎</div><p>Nenhuma empresa ativa nesta busca.</p><code>Tente remover o filtro "Somente Ativas".</code></div>`
+        : `<div class="b-empty"><div class="b-empty-icon">◎</div><p>Nenhuma empresa encontrada.</p><code>Tente outra palavra-chave, cidade ou segmento.</code></div>`;
       return;
     }
 
@@ -4063,77 +4162,127 @@
     };
   }
 
+  // ── Ícones SVG inline para botões ──
+  const SVG_SPARKLES = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5L12 3z"/><path d="M19 3L19.8 5.2L22 6L19.8 6.8L19 9L18.2 6.8L16 6L18.2 5.2L19 3z"/></svg>';
+  const SVG_MSG      = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>';
+  const SVG_USERS    = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>';
+  const SVG_COPY     = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+  const SVG_CHECK    = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+
   function bRenderCard(e, fromHistory) {
-    e = bCleanEmpresa(e); // limpar antes de renderizar
+    e = bCleanEmpresa(e);
     const porteMap = { MEI:'mei', ME:'me', EPP:'epp', Grande:'grande' };
     const porteCls = porteMap[e.porte] || 'nd';
     const sitCls   = e.situacao === 'Ativa' ? 'ativa' : (e.situacao ? 'inativ' : 'nd');
     const sitLabel = e.situacao || 'N/D';
     const crmKey   = 'hist_crm_' + (e.cnpj||'').replace(/\D/g,'');
     const jaAdded  = fromHistory && localStorage.getItem(crmKey) === '1';
-    const isOport  = bCurrentMode === 'oportunidade' || !!e.score;
+    const isOport  = bCurrentMode === 'oportunidade' || bCurrentMode === 'ampla_brasil' || !!e.score;
 
-    // Score badge para modo oportunidades
+    // Score (oportunidades)
     const score = parseInt(e.score) || 0;
-    const scoreCls = score >= 90 ? 'b-score-90' : score >= 75 ? 'b-score-75' : score >= 50 ? 'b-score-50' : 'b-score-lo';
+    const scoreColor = score >= 90 ? '#15803d' : score >= 75 ? '#1d4ed8' : score >= 50 ? '#b45309' : '#dc2626';
+    const scoreBg    = score >= 90 ? '#dcfce7' : score >= 75 ? '#dbeafe' : score >= 50 ? '#fef3c7' : '#fee2e2';
     const scoreLabel = score >= 90 ? '🔥 Alta Oportunidade' : score >= 75 ? '⭐ Boa Oportunidade' : score >= 50 ? '📊 Potencial Médio' : '📉 Baixo Potencial';
-    const scoreColor = score >= 90 ? '#2E7D32' : score >= 75 ? '#1565C0' : score >= 50 ? '#E65100' : '#A32D2D';
+
     const scoreHTML = isOport && score ? `
-      <div style="margin-bottom:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-          <span class="b-score ${scoreCls}">${scoreLabel} — ${score}/100</span>
+      <div style="margin:0 24px 12px;padding:10px 14px;background:${scoreBg};border-radius:10px;display:flex;align-items:center;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:${scoreColor};margin-bottom:5px">${scoreLabel}</div>
+          <div style="height:5px;background:rgba(0,0,0,.08);border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${score}%;background:${scoreColor};border-radius:99px;transition:width .5s"></div>
+          </div>
         </div>
-        <div class="b-score-bar">
-          <div class="b-score-fill" style="width:${score}%;background:${scoreColor}"></div>
-        </div>
+        <div style="font-size:20px;font-weight:800;color:${scoreColor};min-width:40px;text-align:right">${score}</div>
       </div>` : '';
 
     const justifHTML = isOport && e.justificativa ? `
-      <div class="b-justif"><strong>💡 Por que esta empresa?</strong>${bEsc(e.justificativa)}</div>` : '';
+      <div style="grid-column:1/-1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px">
+        <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">💡 Por que esta empresa?</div>
+        <div style="font-size:13px;color:#334155;line-height:1.5">${bEsc(e.justificativa)}</div>
+      </div>` : '';
+
+    // Campo individual no grid
+    function fld(label, val, cls='', extra='') {
+      if (!val) return '';
+      return `<div class="emp-field">
+        <span class="emp-lbl">${label}</span>
+        <span class="emp-val${cls?' '+cls:''}">${val}${extra}</span>
+      </div>`;
+    }
+    function fldFull(label, val, cls='') {
+      if (!val) return '';
+      return `<div class="emp-field emp-grid-full">
+        <span class="emp-lbl">${label}</span>
+        <span class="emp-val${cls?' '+cls:''}">${val}</span>
+      </div>`;
+    }
+
+    // Botão copiar ícone
+    function cpIco(text) {
+      const safe = (text||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      return `<button class="cp-btn" title="Copiar" onclick="bCopy(this,'${safe}')">${SVG_COPY}</button>`;
+    }
+
+    // Montar linhas do grid
+    const gridRows = [
+      e.cnpj     ? `<div class="emp-field"><span class="emp-lbl">CNPJ</span><span class="emp-val ok">${bEsc(e.cnpj)}${cpIco(e.cnpj)}</span></div>` : '',
+      e.municipio ? fld('Cidade', bEsc(e.municipio)) : '',
+      e.porte     ? fld('Porte', `<span class="emp-badge bp-${porteCls}">${bEsc(e.porte)}</span>`) : '',
+      e.data_abertura ? fld('Abertura', `<span style="color:#6366f1;font-weight:600">📅 ${bEsc(e.data_abertura)}</span>`) : '',
+      e.email     ? `<div class="emp-field"><span class="emp-lbl">E-mail</span><span class="emp-val ok">${bEsc(e.email)}${cpIco(e.email)}</span></div>` : '',
+      e.telefone  ? `<div class="emp-field"><span class="emp-lbl">Telefone</span><span class="emp-val">${bEsc(e.telefone)}${cpIco(e.telefone)}</span></div>` : '',
+      e.whatsapp  ? `<div class="emp-field"><span class="emp-lbl">WhatsApp</span><span class="emp-val"><a href="https://wa.me/${(e.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none">${bEsc(e.whatsapp)}</a>${cpIco(e.whatsapp)}</span></div>` : '',
+      e.site      ? `<div class="emp-field"><span class="emp-lbl">Site</span><span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,'').slice(0,40))}</a></span></div>` : '',
+      fldFull('Atividade', bEsc(e.atividade||'')),
+      e.obs ? `<div class="emp-field emp-grid-full"><div class="emp-obs">${bEsc(e.obs)}</div></div>` : '',
+      justifHTML,
+    ].filter(Boolean).join('');
+
+    // Botões de ação
+    const eJson = JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+    const cid   = bCardId(e);
+    const cnpjD = (e.cnpj||'').replace(/\D/g,'');
 
     return `
-      <div class="emp-card">
-        <div class="emp-head">
-          <span class="emp-name" title="${bEsc(e.nome)}">${bEsc(e.nome || 'Empresa')}</span>
-          ${e.porte ? `<span class="emp-badge bp-${porteCls}">${e.porte}</span>` : ''}
-          <span class="emp-badge bs-${sitCls}">${sitLabel}</span>
-        </div>
-        ${scoreHTML}
-        <div class="emp-body">
-          ${e.nome_fantasia ? bRow('Fantasia', `<span class="emp-val" style="color:var(--muted)">${bEsc(e.nome_fantasia)}</span>`) : ''}
-          <div>
-            ${bRow('CNPJ', `<span class="emp-val ok">${bEsc(e.cnpj)}</span>${bCp(e.cnpj)}`)}
-            ${e.fonte_cnpj ? `<div class="emp-src">fonte: ${bEsc(e.fonte_cnpj)}</div>` : ''}
-          </div>
-          ${e.municipio  ? bRow('Cidade',    `<span class="emp-val">${bEsc(e.municipio)}</span>`) : ''}
-          ${e.atividade  ? bRow('Atividade', `<span class="emp-val">${bEsc(e.atividade)}</span>`) : ''}
-          ${e.email      ? bRow('Email',     `<span class="emp-val ok">${bEsc(e.email)}</span>${bCp(e.email)}`) : ''}
-          ${e.telefone   ? bRow('Telefone',  `<span class="emp-val">${bEsc(e.telefone)}</span>${bCp(e.telefone)}`) : ''}
-          ${e.whatsapp   ? bRow('WhatsApp',  `<a href="https://wa.me/${(e.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:700">${bEsc(e.whatsapp)}</a>${bCp(e.whatsapp)}`) : ''}
-          ${e.site       ? bRow('Site',      `<span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,''))}</a></span>`) : ''}
-          ${e.data_abertura ? bRow('Abertura', `<span class="emp-val" style="color:#237CA3;font-weight:700">📅 ${bEsc(e.data_abertura)}</span>`) : ''}
-          ${e.obs        ? `<div class="emp-obs">${bEsc(e.obs)}</div>` : ''}
-          ${justifHTML}
-          <div id="enrich-${bCardId(e)}" class="enrich-row" style="display:none"></div>
-          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rise-bg);flex-wrap:wrap">
-            <button class="enrich-btn" id="enrich-btn-${bCardId(e)}"
-              onclick="bEnrichar(this,'${bCardId(e)}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
-              🔍 Enriquecer
-            </button>
-            <button class="cp-btn" id="wa-disp-btn-${(e.cnpj||'').replace(/\D/g,'')}"
-              style="color:#25D366;border-color:#25D366;font-size:10px;padding:3px 10px;background:transparent;display:flex;align-items:center;gap:4px"
-              onclick="bEnviarParaDisparoWA(${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')}, this)">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              Disparo WA
-            </button>
-            <button class="cp-btn${jaAdded?' done':''}" id="hist-crm-btn-${(e.cnpj||'').replace(/\D/g,'')}"
-              style="color:${jaAdded?'#3B6D11':'var(--rise-med)'};border-color:${jaAdded?'#3B6D11':'var(--rise-med)'};font-size:10px;padding:3px 10px;background:${jaAdded?'#eaf3de':'transparent'}"
-              onclick="bAddToCRMEnrichedHist('${bCardId(e)}','${(e.cnpj||'').replace(/\D/g,'')}',${JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;')})">
-              ${jaAdded?'✓ No CRM':'+ CRM'}
-            </button>
+    <div class="emp-card">
+      <!-- HEADER -->
+      <div class="emp-head">
+        <div class="emp-head-left">
+          <div class="emp-name" title="${bEsc(e.nome||'')}">${bEsc(e.nome || e.nome_fantasia || 'Empresa')}</div>
+          <div class="emp-badges">
+            ${e.nome_fantasia && e.nome_fantasia !== e.nome ? `<span style="font-size:12px;color:#64748b">${bEsc(e.nome_fantasia)}</span>` : ''}
+            <span class="emp-badge bs-${sitCls}">${sitLabel}</span>
+            ${isOport && score ? `<span style="font-size:11px;font-weight:700;color:${scoreColor};background:${scoreBg};padding:2px 9px;border-radius:999px">${score}/100</span>` : ''}
           </div>
         </div>
-      </div>`;
+      </div>
+
+      <!-- SCORE BAR -->
+      ${scoreHTML}
+
+      <!-- BODY GRID -->
+      <div class="emp-body">
+        <div class="emp-grid">${gridRows}</div>
+        <div id="enrich-${cid}" class="enrich-row" style="display:none"></div>
+      </div>
+
+      <!-- ACTIONS FOOTER -->
+      <div class="emp-actions">
+        <button class="emp-btn emp-btn-enrich enrich-btn" id="enrich-btn-${cid}"
+          onclick="bEnrichar(this,'${cid}',${eJson})">
+          ${SVG_SPARKLES} Enriquecer
+        </button>
+        <button class="emp-btn emp-btn-wa" id="wa-disp-btn-${cnpjD}"
+          onclick="bEnviarParaDisparoWA(${eJson}, this)">
+          ${SVG_MSG} WhatsApp
+        </button>
+        <button class="emp-btn emp-btn-crm${jaAdded?' done':''}" id="hist-crm-btn-${cnpjD}"
+          onclick="bAddToCRMEnrichedHist('${cid}','${cnpjD}',${eJson})">
+          ${SVG_USERS} ${jaAdded ? '✓ No CRM' : '+ CRM'}
+        </button>
+      </div>
+    </div>`;
   }
 
   function bRow(label, content) {
@@ -4142,14 +4291,15 @@
 
   function bCp(text) {
     const safe = (text || '').replace(/'/g, "\\'");
-    return `<button class="cp-btn" onclick="bCopy(this,'${safe}')">copiar</button>`;
+    return `<button class="cp-btn" title="Copiar" onclick="bCopy(this,'${safe}')">${SVG_COPY}</button>`;
   }
 
   function bCopy(btn, text) {
     navigator.clipboard.writeText(text);
-    btn.textContent = '✓'; btn.classList.add('done');
-    setTimeout(() => { btn.textContent = 'copiar'; btn.classList.remove('done'); }, 2000);
+    btn.innerHTML = SVG_CHECK; btn.classList.add('done');
+    setTimeout(() => { btn.innerHTML = SVG_COPY; btn.classList.remove('done'); }, 2000);
   }
+
 
   function bApplyFilter(f) {
     bActiveFilter = f;

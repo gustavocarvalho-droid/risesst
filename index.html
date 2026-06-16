@@ -3985,6 +3985,7 @@
         })
       });
 
+      // ── Tratar erros HTTP ──
       if (!res.ok) {
         let errMsg = `Erro HTTP ${res.status}`;
         try { const d = await res.json(); errMsg = d.error || d.obs || errMsg; } catch {}
@@ -3995,89 +3996,79 @@
         return;
       }
 
-      // ── Detectar formato da resposta: NDJSON (streaming) ou JSON normal ──
-      const ct = res.headers.get('content-type') || '';
-      const isNDJSON = ct.includes('ndjson') || ct.includes('x-ndjson');
+      // ── Ler NDJSON linha por linha (único formato do backend) ──
+      // Funciona tanto com streaming real quanto com resposta buffered
+      const reader  = res.body ? res.body.getReader() : null;
+      const decoder = new TextDecoder();
+      let leftover  = '';
+      let gotDone   = false;
 
-      // Função para processar cada evento (NDJSON ou objeto JSON)
-      const processEvent = (event) => {
-        if (!event || typeof event !== 'object') return;
+      const handleLine = (line) => {
+        const t = line.trim();
+        if (!t) return;
+        let event;
+        try { event = JSON.parse(t); } catch { return; } // linha incompleta
 
-        // Formato NDJSON: { type: 'empresa', data: {...} }
         if (event.type === 'empresa' && event.data) {
           const e = event.data;
           batchEmpresas.push(e);
           progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)...`;
+          statusText.textContent = `Buscando "${q}"...`;
           bRenderAll();
           if (typeof bAutoAddToCRM === 'function' && bAutoAddToCRM(e)) addedCRM++;
           if (typeof bAutoAddToWA  === 'function' && bAutoAddToWA(e))  addedWA++;
           return;
         }
-        if (event.type === 'status')  { progressTx.textContent = event.msg || ''; return; }
-        if (event.type === 'error')   { statusText.textContent = '⚠️ ' + (event.msg||'Erro'); statusText.style.color = '#854F0B'; setTimeout(() => statusText.style.color='', 5000); return; }
-        if (event.type === 'aviso')   {
+        if (event.type === 'status') {
+          progressTx.textContent = event.msg || '';
+          return;
+        }
+        if (event.type === 'error') {
+          statusText.textContent = '⚠️ ' + (event.msg || 'Erro na busca');
+          statusText.style.color = '#854F0B';
+          bBatches[batchIdx].error = event.msg;
+          setTimeout(() => { statusText.style.color = ''; }, 6000);
+          return;
+        }
+        if (event.type === 'aviso') {
           const avisoEl = document.getElementById('b-aviso-qtd');
           const avisoTx = document.getElementById('b-aviso-qtd-text');
-          if (avisoEl && avisoTx) { avisoTx.textContent = event.msg||''; avisoEl.classList.add('show'); }
+          if (avisoEl && avisoTx) { avisoTx.textContent = event.msg || ''; avisoEl.classList.add('show'); }
           return;
         }
         if (event.type === 'done') {
-          if (batchEmpresas.length === 0) statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outro segmento ou região';
-          else { const mb = document.getElementById('moreBtn'); if (mb) mb.style.display = 'inline-flex'; }
-          return;
-        }
-
-        // Formato JSON normal: { empresas: [...] } ou { total, empresas }
-        if (Array.isArray(event.empresas)) {
-          event.empresas.forEach(e => {
-            batchEmpresas.push(e);
-            if (typeof bAutoAddToCRM === 'function' && bAutoAddToCRM(e)) addedCRM++;
-            if (typeof bAutoAddToWA  === 'function' && bAutoAddToWA(e))  addedWA++;
-          });
-          progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)`;
-          bRenderAll();
-          if (event.obs) { statusText.textContent = '⚠️ ' + event.obs; statusText.style.color = '#854F0B'; }
-          if (batchEmpresas.length > 0) { const mb = document.getElementById('moreBtn'); if (mb) mb.style.display = 'inline-flex'; }
-          else statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outro segmento ou região';
+          gotDone = true;
+          if (batchEmpresas.length === 0 && !bBatches[batchIdx].error) {
+            statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outra busca';
+          } else if (batchEmpresas.length > 0) {
+            const mb = document.getElementById('moreBtn');
+            if (mb) mb.style.display = 'inline-flex';
+          }
         }
       };
 
-      if (isNDJSON && res.body) {
-        // ── Ler stream NDJSON linha por linha ──
-        const reader  = res.body.getReader();
-        const decoder = new TextDecoder();
-        let leftover  = '';
+      if (reader) {
+        // Leitura streaming real
         while (true) {
           const { done: sd, value } = await reader.read();
           if (sd) break;
           const chunk = decoder.decode(value, { stream: true });
           const lines = (leftover + chunk).split('\n');
           leftover = lines.pop();
-          for (const line of lines) {
-            const t = line.trim();
-            if (!t) continue;
-            try { processEvent(JSON.parse(t)); } catch(parseErr) { /* linha incompleta */ }
-          }
+          for (const line of lines) handleLine(line);
         }
+        // Processar o último fragmento
+        if (leftover.trim()) handleLine(leftover);
       } else {
-        // ── Resposta JSON normal (backend atual) ──
-        try {
-          const data = await res.json();
-          processEvent(data);
-        } catch(jsonErr) {
-          // Tentar como texto NDJSON mesmo sem header
-          try {
-            const text = await res.text();
-            const lines = text.split('\n').filter(l => l.trim());
-            for (const line of lines) {
-              try { processEvent(JSON.parse(line)); } catch {}
-            }
-            if (batchEmpresas.length === 0) {
-              statusText.textContent = '⚠️ Resposta da API em formato inesperado';
-              bBatches[batchIdx].error = 'Formato inesperado';
-            }
-          } catch { bBatches[batchIdx].error = 'Erro ao processar resposta'; }
-        }
+        // Fallback: ler como texto completo
+        const text = await res.text();
+        for (const line of text.split('\n')) handleLine(line);
+      }
+
+      // Se a conexão fechou sem evento 'done' (timeout do Vercel), tratar graciosamente
+      if (!gotDone && batchEmpresas.length === 0 && !bBatches[batchIdx].error) {
+        statusText.textContent = '⚠️ A busca foi interrompida. Tente uma query mais específica com cidade e UF.';
+        bBatches[batchIdx].error = 'Conexão encerrada pelo servidor';
       }
     } catch (err) {
       const msg = err.message || 'Erro de conexão';

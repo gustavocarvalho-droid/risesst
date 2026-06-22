@@ -130,6 +130,27 @@ function callAnthropicStream(body, onText, onToolUse) {
         "Content-Length": Buffer.byteLength(bodyStr, "utf8"),
       },
     }, (res) => {
+      // ── Erro HTTP (401/404/400/etc): a Anthropic NÃO retorna SSE neste caso,
+      //    retorna um JSON de erro puro. Sem este check, o erro era engolido
+      //    silenciosamente e a busca aparecia como "vazia" para o usuário. ──
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        let errBuf = "";
+        res.on("data", chunk => { errBuf += chunk.toString(); });
+        res.on("end", () => {
+          let apiMsg = `HTTP ${res.statusCode}`;
+          try {
+            const parsed = JSON.parse(errBuf);
+            apiMsg = parsed.error?.message || parsed.message || apiMsg;
+          } catch {}
+          if (res.statusCode === 401) reject(new Error(`auth_error: ${apiMsg}`));
+          else if (res.statusCode === 404) reject(new Error(`model_not_found: ${apiMsg}`));
+          else if (res.statusCode === 429) reject(new Error(`rate_limit: ${apiMsg}`));
+          else if (res.statusCode === 529) reject(new Error(`529: ${apiMsg}`));
+          else reject(new Error(`api_error_${res.statusCode}: ${apiMsg}`));
+        });
+        return;
+      }
+
       let buf = "";
       let fullText = "";
       res.on("data", chunk => {
@@ -142,6 +163,12 @@ function callAnthropicStream(body, onText, onToolUse) {
           if (payload === "[DONE]") continue;
           try {
             const ev = JSON.parse(payload);
+            if (ev.type === "error") {
+              // Erro vindo dentro do próprio stream SSE (ex: overloaded_error)
+              if (onText) {} // no-op, será tratado via reject abaixo
+              reject(new Error(`stream_error: ${ev.error?.message || "erro desconhecido"}`));
+              return;
+            }
             if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") {
               fullText += ev.delta.text || "";
               if (onText) onText(ev.delta.text || "");
@@ -232,7 +259,7 @@ module.exports = async (req, res) => {
 
   try {
     const fullText = await callAnthropicStream(
-      { model: "claude-sonnet-4-20250514", max_tokens: 3000, system,
+      { model: "claude-sonnet-4-6", max_tokens: 3000, system,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [{ role: "user", content: user }] },
       (textChunk) => {
@@ -252,15 +279,26 @@ module.exports = async (req, res) => {
     }
 
     if (emitCount === 0) {
-      write({ type: "error", msg: "Nenhuma empresa encontrada. Tente outra cidade, segmento ou palavra-chave." });
+      const msgVazio = tipoBusca === "ampla_brasil"
+        ? "Nenhuma empresa encontrada para este estado/segmento. Tente outro estado, segmento ou aumente a quantidade."
+        : tipoBusca === "oportunidade"
+          ? "Nenhuma oportunidade encontrada. Tente outro segmento, cidade ou estado."
+          : "Nenhuma empresa encontrada. Tente outra cidade, segmento ou palavra-chave.";
+      write({ type: "error", msg: msgVazio });
     } else if (emitCount < qtdN) {
       write({ type: "aviso", msg: `Encontradas ${emitCount} de ${qtdN} solicitadas. Use "Buscar Mais" para continuar.` });
     }
 
   } catch (err) {
     const msg = String(err.message || err);
-    if (msg.includes("rate_limit") || msg.includes("529")) {
+    if (msg.startsWith("auth_error")) {
+      write({ type: "error", msg: "Erro de autenticação com a IA. Verifique a chave da API (ANTHROPIC_API_KEY) nas configurações do servidor." });
+    } else if (msg.startsWith("model_not_found")) {
+      write({ type: "error", msg: "O modelo de IA configurado não está mais disponível. Atualize o modelo no servidor." });
+    } else if (msg.includes("rate_limit") || msg.includes("529")) {
       write({ type: "error", msg: "Rate limit da API — aguarde 60s e tente novamente." });
+    } else if (msg.includes("credit") || msg.includes("insufficient_quota") || msg.includes("billing")) {
+      write({ type: "error", msg: "Créditos insuficientes na conta da API de IA. Verifique o saldo/billing da Anthropic." });
     } else if (msg.includes("Timeout")) {
       write({ type: "error", msg: "Busca demorou demais. Tente incluir a cidade + UF para refinar." });
     } else {

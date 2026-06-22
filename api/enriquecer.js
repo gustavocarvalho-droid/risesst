@@ -110,7 +110,7 @@ Retorne APENAS JSON puro (sem markdown):
 }`;
 
     const body = JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 1200,
       system: "Agente especializado em busca de dados de contato de empresas brasileiras. Retorne APENAS JSON puro sem texto antes ou depois.",
       tools: [{ type: "web_search_20250305", name: "web_search" }],

@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
 
   // Build Anthropic request
   const payload = JSON.stringify({
-    model:      model || "claude-sonnet-4-20250514",
+    model:      model || "claude-sonnet-4-6",
     max_tokens: max_tokens || 1200,
     system:     system || "Você é a RISE IA, especialista em SST e negócios.",
     messages:   messages.slice(-14), // keep last 14 messages for context

@@ -5905,7 +5905,14 @@ async function carregarDados() {
     // Carregar lista de usuários do DB para o seletor master
     if (window._currentUser?.is_master && typeof usuariosLoad === 'function') {
       try {
-        const r = await fetch('/api/usuarios', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', masterKey: localStorage.getItem('rise_master_key')||'' }) });
+        const r = await fetch('/api/usuarios', {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'x-caller-user': (window._currentUser && window._currentUser.username) || (JSON.parse(localStorage.getItem('rise_session_v1')||'{}').user) || ''
+          },
+          body: JSON.stringify({ action:'list' })
+        });
         if (r.ok) {
           const d = await r.json();
           if (d.users) {
@@ -5922,6 +5929,75 @@ async function carregarDados() {
 }
 
 // ── UTILS ──
+// ── Normaliza logo (data URL, base64 puro, URL pública, ou inválido) ──
+// Nunca deixa um <img src> receber valor vazio/quebrado: se nada servir,
+// retorna null e quem chama deve usar o fallback visual (ícone/emoji).
+function normalizeLogoUrl(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  const v = raw.trim();
+  if (!v) return null;
+
+  // Já é uma data URL completa e válida
+  if (v.startsWith('data:image/')) {
+    // Precisa ter a vírgula do base64 e conteúdo depois dela —
+    // detecta data URL truncada/corrompida (ex: cortada por limite de campo)
+    const commaIdx = v.indexOf(',');
+    if (commaIdx === -1 || commaIdx === v.length - 1) return null;
+    return v;
+  }
+
+  // URL pública http/https válida — usar diretamente
+  if (/^https?:\/\//i.test(v)) {
+    try { new URL(v); return v; } catch { return null; }
+  }
+
+  // Path de storage privado (não é data: nem http) — sem signed URL
+  // disponível no cliente, não dá para renderizar direto; cair no fallback.
+  if (v.startsWith('/') || v.includes('://') === false && v.length < 300 && !v.match(/^[A-Za-z0-9+/=]+$/)) {
+    return null;
+  }
+
+  // Provável base64 puro sem prefixo — prefixar como webp (mime mais comum
+  // nos uploads deste sistema) já que não há como detectar o mime de forma
+  // confiável só pela string.
+  if (/^[A-Za-z0-9+/]+=*$/.test(v) && v.length > 50) {
+    return 'data:image/webp;base64,' + v;
+  }
+
+  return null;
+}
+window.normalizeLogoUrl = normalizeLogoUrl;
+
+// ── Aplica logo num <img>, com fallback seguro se inválido ──
+// fallbackHTML: HTML a injetar no parentNode se a logo for inválida (opcional)
+function applyLogoToImg(imgEl, rawLogo, fallbackHTML) {
+  if (!imgEl) return false;
+  const safe = normalizeLogoUrl(rawLogo);
+  if (!safe) {
+    if (fallbackHTML !== undefined && imgEl.parentNode) {
+      imgEl.parentNode.innerHTML = fallbackHTML;
+    } else {
+      imgEl.removeAttribute('src');
+      imgEl.style.display = 'none';
+    }
+    return false;
+  }
+  imgEl.onerror = function() {
+    // Se a URL pública falhar ao carregar (ex: 401 em bucket privado),
+    // não deixar o ícone de imagem quebrada visível.
+    this.onerror = null;
+    if (fallbackHTML !== undefined && this.parentNode) {
+      this.parentNode.innerHTML = fallbackHTML;
+    } else {
+      this.style.display = 'none';
+    }
+  };
+  imgEl.src = safe;
+  imgEl.style.display = '';
+  return true;
+}
+window.applyLogoToImg = applyLogoToImg;
+
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function fmt(t){ const s=String(t||''); return s.startsWith('55')?'+'+s:s; }
 function initials(name){ return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'; }
@@ -11995,8 +12071,8 @@ function usuariosApplyAccess(user) {
   if (user.logo_url) {
     const logoEls = document.querySelectorAll('.sidebar-logo-img, #sidebar-rise-logo');
     logoEls.forEach(el => {
-      el.src = user.logo_url;
       el.style.borderRadius = '6px';
+      applyLogoToImg(el, user.logo_url);
     });
   }
 
@@ -12100,7 +12176,7 @@ async function usuariosLoad() {
         <!-- Header -->
         <div style="background:${isMaster?'linear-gradient(135deg,#1E1E5C,#3a4096)':'#F8F7FC'};padding:14px 16px;display:flex;align-items:center;gap:12px">
           <div style="width:44px;height:44px;border-radius:10px;background:${isMaster?'rgba(255,255,255,.15)':'#E7E6F4'};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
-            ${u.logo_url ? `<img src="${u.logo_url}" style="width:100%;height:100%;object-fit:contain">` : `<span style="font-size:20px">🏢</span>`}
+            ${(() => { const _l = normalizeLogoUrl(u.logo_url); return _l ? `<img src="${_l}" style="width:100%;height:100%;object-fit:contain" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🏢',style:'font-size:20px'}))">` : `<span style="font-size:20px">🏢</span>`; })()}
           </div>
           <div style="flex:1;min-width:0">
             <div style="font-size:14px;font-weight:700;color:${isMaster?'#fff':'#1E1E5C'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
@@ -12292,11 +12368,13 @@ async function usuariosEdit(username) {
     document.getElementById('u-crm').checked = u.acesso_crm;
     document.getElementById('u-ia').checked = u.acesso_ia;
     const prev = document.getElementById('usuarios-logo-preview');
-    if (u.logo_url) {
-      prev.innerHTML = `<img src="${u.logo_url}" style="width:100%;height:100%;object-fit:contain;border-radius:10px">`;
-      _usuariosLogoBase64 = u.logo_url;
+    const _editLogo = normalizeLogoUrl(u.logo_url);
+    if (_editLogo) {
+      prev.innerHTML = `<img src="${_editLogo}" style="width:100%;height:100%;object-fit:contain;border-radius:10px" onerror="this.parentNode.innerHTML='🏢'">`;
+      _usuariosLogoBase64 = _editLogo;
     } else {
       prev.innerHTML = '🏢';
+      _usuariosLogoBase64 = '';
     }
     document.getElementById('usuarios-modal').style.display = 'flex';
   } catch(e) { alert('Erro ao carregar: ' + e.message); }
@@ -12916,11 +12994,11 @@ function brandApplyToUI(brand, logoUrl) {
   const logo = logoUrl || brand.logoUrl;
   if (logo) {
     document.querySelectorAll('.sidebar img[alt="RISE SST"], #sidebar-rise-logo').forEach(el => {
-      el.src = logo;
+      applyLogoToImg(el, logo);
     });
     // Login screen logo
     const loginLogo = document.querySelector('.login-logo-img');
-    if (loginLogo) loginLogo.src = logo;
+    if (loginLogo) applyLogoToImg(loginLogo, logo);
   }
 
   // Display name in sidebar

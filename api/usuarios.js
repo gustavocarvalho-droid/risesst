@@ -92,6 +92,24 @@ function sanitize(val, maxLen = 200) {
   return String(val).trim().slice(0, maxLen).replace(/[<>]/g, "");
 }
 
+// ── Sanitização específica para logo_url ──
+// NUNCA usar sanitize() genérico aqui: o slice(0, 2000) corta data URLs
+// base64 (que facilmente passam de 2000 chars), corrompendo a imagem
+// salva no banco. Aceita: data URL, URL http(s) válida, ou null.
+function sanitizeLogo(val) {
+  if (val === null || val === undefined || val === "") return null;
+  const s = String(val).trim();
+  if (s.startsWith("data:image/")) {
+    // Limite generoso (5MB em base64 ~6.8M chars) — apenas guarda-rail,
+    // não trunca em tamanhos normais de logo.
+    return s.length <= 7000000 ? s : null;
+  }
+  if (/^https?:\/\//i.test(s)) return s.slice(0, 2000);
+  // Formato desconhecido/inválido (ex: base64 puro sem prefixo, path
+  // de storage privado não suportado) — não salva lixo no banco.
+  return null;
+}
+
 function sanitizeUsername(val) {
   return String(val || "").trim().toLowerCase()
     .replace(/[^a-z0-9_.-]/g, "").slice(0, 50);
@@ -302,7 +320,7 @@ module.exports = async (req, res) => {
       const nome        = sanitize(body.nome || body.empresa, 200);
       const email       = sanitize(body.email, 200);
       const empresa     = sanitize(body.empresa, 200);
-      const logo_url    = sanitize(body.logo_url, 2000);
+      const logo_url    = sanitizeLogo(body.logo_url);
       const plano       = sanitize(body.plano, 50) || "starter";
       const obs         = sanitize(body.obs, 500);
       const branding    = body.branding ? sanitize(body.branding, 5000) : null;
@@ -354,7 +372,9 @@ module.exports = async (req, res) => {
       allowed.forEach(f => {
         if (body[f] !== undefined) {
           sets.push(`${f}=$${vals.length+1}`);
-          vals.push(f === "branding" ? sanitize(body[f], 5000) : sanitize(String(body[f]), 500));
+          if (f === "branding") vals.push(sanitize(body[f], 5000));
+          else if (f === "logo_url") vals.push(sanitizeLogo(body[f]));
+          else vals.push(sanitize(String(body[f]), 500));
         }
       });
 

@@ -427,6 +427,8 @@
     .emp-btn-wa:hover { background: #15803d; border-color: #15803d; box-shadow: 0 3px 10px rgba(22,163,74,.3); }
     .emp-btn-crm    { background: #fff; color: #475569; border-color: #e2e8f0; }
     .emp-btn-crm:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .emp-btn-analysis { background: #fff; color: #1E1E5C; border-color: #C7D2FE; }
+    .emp-btn-analysis:hover { background: #F0F4FF; border-color: #1E1E5C; box-shadow: 0 2px 8px rgba(30,30,92,.15); }
 
     /* Enrich area */
     .enrich-row { padding: 0 24px 12px; }
@@ -2549,6 +2551,7 @@
         <div class="buscador-header">
           <h2>Buscador de Empresas</h2>
           <p>Pesquise por setor, tipo de negócio ou localidade — o agente retorna apenas empresas com <strong style="color:var(--rise-med)">CNPJ confirmado</strong>.</p>
+          <div id="call-selected-client-badge" style="display:none;margin-top:8px;align-items:center;font-size:12px;background:#F0F4FF;border:1px solid #C7D2FE;color:#1E1E5C;padding:6px 12px;border-radius:8px;font-weight:600"></div>
         </div>
 
         <!-- TABS -->
@@ -3730,6 +3733,12 @@
     </div>
   </div>
 
+  <!-- Ligações — módulo secundário, ativo apenas com cliente selecionado para análise -->
+  <div style="background:#fff;border:1px solid #E7E6F4;border-radius:12px;padding:20px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:#1E1E5C;margin-bottom:14px" id="call-analysis-title">📞 Ligações</div>
+    <div id="call-analysis-content"></div>
+  </div>
+
   <!-- IA Response area -->
   <div id="analise-ia-box" style="display:none;background:#F8F7FC;border:1px solid #E7E6F4;border-radius:12px;padding:20px">
     <div style="font-size:13px;font-weight:700;color:#1E1E5C;margin-bottom:12px;display:flex;align-items:center;gap:8px">
@@ -3852,12 +3861,19 @@
     const cidade = (document.getElementById('b-cidade')?.value || '').trim();
     const estado = (document.getElementById('b-estado')?.value || '').trim();
 
-    if (!kw) { if (typeof toast === 'function') toast('Informe uma palavra-chave', 'warn'); return; }
+    // Regra correta: exigir pelo menos UM critério (palavra-chave, cidade ou
+    // estado) — não exigir especificamente palavra-chave. Antes, preencher
+    // só cidade+estado sem digitar nada na palavra-chave bloqueava a busca.
+    if (!kw && !cidade && !estado) {
+      if (typeof toast === 'function') toast('Informe uma palavra-chave, cidade ou estado para buscar', 'warn');
+      return;
+    }
 
     // Montar query natural: "construtoras em Campinas SP"
-    let q = kw;
+    let q = kw || (cidade || estado ? `empresas` : '');
     if (cidade) q += ' em ' + cidade;
     if (estado && estado !== cidade) q += ' ' + estado;
+    q = q.trim();
 
     bBatches = [];
     bLastQuery = q;
@@ -3893,7 +3909,7 @@
     const q        = `ampla brasil SST ${segs.join(' ')} ${localStr}`;
     bBatches = [];
     bLastQuery = q;
-    await bDoFetch(q, [], 'ampla_brasil', qtd, '', estado, segs);
+    await bDoFetch(q, [], 'ampla_brasil', qtd, '', estado, segs, recentes);
   }
   window.bRunAmplaBrasil = bRunAmplaBrasil;
 
@@ -3910,7 +3926,7 @@
   }
 
   // ── Streaming NDJSON: cada empresa aparece conforme IA encontra ──
-  async function bDoFetch(q, existingCnpjs, tipoBusca, qtdOverride, cidadeOp, estadoOp, segsOp) {
+  async function bDoFetch(q, existingCnpjs, tipoBusca, qtdOverride, cidadeOp, estadoOp, segsOp, priorizarRecentesOp) {
     const tipoBuscaFinal = tipoBusca || bCurrentMode || 'filtrada';
     const qtd    = qtdOverride || parseInt(document.getElementById('b-qtd')?.value) || 5;
     const filtro = document.getElementById('b-filtro')?.value || 'todos';
@@ -3973,22 +3989,28 @@
     };
 
     try {
+      const payloadEnviado = {
+        query: q, qtd, filtro, ordem, existingCnpjs,
+        tipoBusca: tipoBuscaFinal,
+        cidade: cidadeOp || document.getElementById('b-cidade')?.value || '',
+        estado: estadoOp || document.getElementById('b-estado')?.value || '',
+        segmentos: segsOp || (tipoBuscaFinal === 'oportunidade' ? [...bSelectedSegs] : []),
+        priorizarRecentes: tipoBuscaFinal === 'ampla_brasil' ? !!priorizarRecentesOp : undefined,
+      };
+      console.log('[BUSCA_EMPRESAS] aba ativa:', tipoBuscaFinal);
+      console.log('[BUSCA_EMPRESAS] payload enviado:', payloadEnviado);
+
       const res = await fetch('/api/buscar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: q, qtd, filtro, ordem, existingCnpjs,
-          tipoBusca: tipoBuscaFinal,
-          cidade: cidadeOp || document.getElementById('b-cidade')?.value || '',
-          estado: estadoOp || document.getElementById('b-estado')?.value || '',
-          segmentos: segsOp || (tipoBuscaFinal === 'oportunidade' ? [...bSelectedSegs] : []),
-        })
+        body: JSON.stringify(payloadEnviado)
       });
 
       // ── Tratar erros HTTP ──
       if (!res.ok) {
         let errMsg = `Erro HTTP ${res.status}`;
         try { const d = await res.json(); errMsg = d.error || d.obs || errMsg; } catch {}
+        console.log('[BUSCA_EMPRESAS] erro:', errMsg);
         statusText.textContent = '❌ ' + errMsg;
         statusText.style.color = '#A32D2D';
         bBatches[batchIdx].error = errMsg;
@@ -4008,10 +4030,12 @@
         if (!t) return;
         let event;
         try { event = JSON.parse(t); } catch { return; } // linha incompleta
+        console.log('[BUSCA_EMPRESAS] resposta bruta:', event);
 
         if (event.type === 'empresa' && event.data) {
           const e = event.data;
           batchEmpresas.push(e);
+          console.log('[BUSCA_EMPRESAS] resultados normalizados:', batchEmpresas.length, 'empresa(s) acumulada(s) neste batch');
           progressTx.textContent = `✓ ${batchEmpresas.length} empresa(s) encontrada(s)...`;
           statusText.textContent = `Buscando "${q}"...`;
           bRenderAll();
@@ -4024,6 +4048,7 @@
           return;
         }
         if (event.type === 'error') {
+          console.log('[BUSCA_EMPRESAS] erro:', event.msg);
           statusText.textContent = '⚠️ ' + (event.msg || 'Erro na busca');
           statusText.style.color = '#854F0B';
           bBatches[batchIdx].error = event.msg;
@@ -4038,6 +4063,7 @@
         }
         if (event.type === 'done') {
           gotDone = true;
+          console.log('[BUSCA_EMPRESAS] resultados normalizados (final):', batchEmpresas.length, 'empresa(s) no total');
           if (batchEmpresas.length === 0 && !bBatches[batchIdx].error) {
             statusText.textContent = '⚠️ Nenhuma empresa encontrada — tente outra busca';
           } else if (batchEmpresas.length > 0) {
@@ -4222,7 +4248,7 @@
       e.porte     ? fld('Porte', `<span class="emp-badge bp-${porteCls}">${bEsc(e.porte)}</span>`) : '',
       e.data_abertura ? fld('Abertura', `<span style="color:#6366f1;font-weight:600">📅 ${bEsc(e.data_abertura)}</span>`) : '',
       e.email     ? `<div class="emp-field"><span class="emp-lbl">E-mail</span><span class="emp-val ok">${bEsc(e.email)}${cpIco(e.email)}</span></div>` : '',
-      e.telefone  ? `<div class="emp-field"><span class="emp-lbl">Telefone</span><span class="emp-val">${bEsc(e.telefone)}${cpIco(e.telefone)}</span></div>` : '',
+      e.telefone  ? `<div class="emp-field"><span class="emp-lbl">Telefone</span><span class="emp-val"><a href="tel:+${normalizeBrazilianPhone(e.telefone)}" onclick="event.preventDefault();handlePhoneClick(${JSON.stringify(e).replace(/'/g,"\\'").replace(/"/g,'&quot;')},'${(e.telefone||'').replace(/'/g,"\\'")}')" style="color:inherit;text-decoration:none;cursor:pointer" title="Clique para ligar (registra a ligação)">📞 ${bEsc(e.telefone)}</a>${cpIco(e.telefone)}</span></div>` : '',
       e.whatsapp  ? `<div class="emp-field"><span class="emp-lbl">WhatsApp</span><span class="emp-val"><a href="https://wa.me/${(e.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none">${bEsc(e.whatsapp)}</a>${cpIco(e.whatsapp)}</span></div>` : '',
       e.site      ? `<div class="emp-field"><span class="emp-lbl">Site</span><span class="emp-val link"><a href="${bEsc(e.site)}" target="_blank" rel="noopener">${bEsc(e.site.replace(/^https?:\/\//,'').slice(0,40))}</a></span></div>` : '',
       fldFull('Atividade', bEsc(e.atividade||'')),
@@ -4234,6 +4260,8 @@
     const eJson = JSON.stringify(e).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
     const cid   = bCardId(e);
     const cnpjD = (e.cnpj||'').replace(/\D/g,'');
+    const _selClientForCard = getSelectedAnalysisClient();
+    const _isSelectedAsClient = !!_selClientForCard && (_selClientForCard.id === cnpjD || _selClientForCard.id === e.nome);
 
     return `
     <div class="emp-card">
@@ -4271,6 +4299,11 @@
         <button class="emp-btn emp-btn-crm${jaAdded?' done':''}" id="hist-crm-btn-${cnpjD}"
           onclick="bAddToCRMEnrichedHist('${cid}','${cnpjD}',${eJson})">
           ${SVG_USERS} ${jaAdded ? '✓ No CRM' : '+ CRM'}
+        </button>
+        <button class="emp-btn emp-btn-analysis" id="analysis-btn-${cnpjD}"
+          onclick="selectCompanyForAnalysis(${eJson})"
+          style="${_isSelectedAsClient ? 'background:#1E1E5C;color:#fff;border-color:#1E1E5C' : ''}">
+          🎯 ${_isSelectedAsClient ? '✓ Em análise' : 'Selecionar p/ análise'}
         </button>
       </div>
     </div>`;
@@ -4916,6 +4949,505 @@
     return true;
   }
   window.bAutoAddToCRM = bAutoAddToCRM;
+
+  // ════════════════════════════════════════════════════════════════════
+  //   MÓDULO DE LIGAÇÕES — secundário, ativo somente com cliente p/ análise
+  //   Adaptado da lógica de ligações do SWG Buscador (ligAddModal, ligSalvar,
+  //   ligLoad/ligSave, normalizarTelefoneBR, callLeadPhone), com a regra nova:
+  //   toda ligação fica vinculada a um "cliente selecionado para análise" —
+  //   sem cliente selecionado, nenhum dado de ligação é contabilizado ou
+  //   exibido, e nada se mistura entre clientes diferentes.
+  // ════════════════════════════════════════════════════════════════════
+
+  // ── PASSO 2: estado global do cliente selecionado para análise ──
+  const RISE_ANALYSIS_CLIENT_KEY = 'rise_selected_analysis_client';
+
+  function getSelectedAnalysisClient() {
+    try {
+      return JSON.parse(localStorage.getItem(RISE_ANALYSIS_CLIENT_KEY) || 'null');
+    } catch { return null; }
+  }
+  window.getSelectedAnalysisClient = getSelectedAnalysisClient;
+
+  function setSelectedAnalysisClient(client) {
+    try {
+      localStorage.setItem(RISE_ANALYSIS_CLIENT_KEY, JSON.stringify(client));
+    } catch {}
+    window.dispatchEvent(new CustomEvent('rise:selected-analysis-client-changed', { detail: client }));
+  }
+  window.setSelectedAnalysisClient = setSelectedAnalysisClient;
+
+  function clearSelectedAnalysisClient() {
+    try { localStorage.removeItem(RISE_ANALYSIS_CLIENT_KEY); } catch {}
+    window.dispatchEvent(new CustomEvent('rise:selected-analysis-client-changed', { detail: null }));
+  }
+  window.clearSelectedAnalysisClient = clearSelectedAnalysisClient;
+
+  // ── PASSO 3: selecionar empresa do Buscador como cliente de análise ──
+  function selectCompanyForAnalysis(company) {
+    const client = {
+      id:   company.id || (company.cnpj || '').replace(/\D/g, '') || company.nome,
+      nome: company.nome || company.razao_social || company.nome_fantasia || 'Empresa sem nome',
+      cnpj: company.cnpj || null,
+    };
+    if (!client.id) {
+      if (typeof toast === 'function') toast('Empresa sem identificador válido (CNPJ/nome) para análise.', 'warn');
+      return;
+    }
+    setSelectedAnalysisClient(client);
+    console.log('[CALL_MODULE] cliente selecionado:', client);
+    if (typeof toast === 'function') toast('🎯 Cliente selecionado para análise: ' + client.nome);
+    // Atualiza indicador visual no header do Buscador, se presente
+    if (typeof callRenderSelectedClientBadge === 'function') callRenderSelectedClientBadge();
+  }
+  window.selectCompanyForAnalysis = selectCompanyForAnalysis;
+
+  // ── PASSO 5: normalização de telefone BR (adaptado de normalizarTelefoneBR) ──
+  function normalizeBrazilianPhone(phone) {
+    if (!phone) return '';
+    let numero = String(phone).replace(/\D/g, '');
+    if (!numero) return '';
+    if (numero.startsWith('00')) numero = numero.slice(2);
+    if (numero.length === 10 || numero.length === 11) numero = '55' + numero;
+    return numero;
+  }
+  window.normalizeBrazilianPhone = normalizeBrazilianPhone;
+
+  function buildTelHref(phone) {
+    const normalized = normalizeBrazilianPhone(phone);
+    if (!normalized) return null;
+    return 'tel:+' + normalized;
+  }
+  window.buildTelHref = buildTelHref;
+
+  // ── PASSO 4/16: persistência de ligações via /api/dados (mesmo padrão  ──
+  // já usado no projeto para wa/crm/historico — store_key dedicado) ──────
+  const CALL_LOGS_STORE_KEY = 'call_logs';
+
+  function callLogsUserKey() {
+    if (typeof getCurrentUsername === 'function') return getCurrentUsername();
+    return (window._currentUser && window._currentUser.username)
+      || (JSON.parse(localStorage.getItem('rise_session_v1') || '{}').user)
+      || 'guest';
+  }
+
+  // Cache em memória por usuário — evita re-fetch a cada render, sincroniza no save
+  let _callLogsCache = null;
+
+  async function callLogsLoadAll() {
+    if (_callLogsCache) return _callLogsCache;
+    try {
+      const uKey = callLogsUserKey();
+      const res = await fetch('/api/dados', {
+        headers: { 'x-user-key': uKey, 'x-store-key': CALL_LOGS_STORE_KEY }
+      });
+      if (res.ok) {
+        const d = await res.json();
+        _callLogsCache = Array.isArray(d?.logs) ? d.logs : [];
+      } else {
+        _callLogsCache = [];
+      }
+    } catch (e) {
+      console.warn('[CALL_MODULE] erro ao carregar ligações:', e.message);
+      _callLogsCache = [];
+    }
+    return _callLogsCache;
+  }
+
+  async function callLogsSaveAll(logs) {
+    _callLogsCache = logs;
+    try {
+      const uKey = callLogsUserKey();
+      await fetch('/api/dados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-key': uKey, 'x-store-key': CALL_LOGS_STORE_KEY },
+        body: JSON.stringify({ logs })
+      });
+    } catch (e) {
+      console.warn('[CALL_MODULE] erro ao salvar ligações:', e.message);
+    }
+  }
+
+  // ── service: createCallLog ──
+  // PASSO 8: equivalente a POST /api/call-logs — validação de clientId e telefone normalizado
+  async function createCallLog(input) {
+    if (!input || !input.clientId) {
+      console.warn('[CALL_MODULE] createCallLog chamado sem clientId — bloqueado');
+      return null;
+    }
+    if (!input.normalizedPhone) {
+      console.warn('[CALL_MODULE] createCallLog chamado sem telefone normalizado — bloqueado');
+      return null;
+    }
+    const logs = await callLogsLoadAll();
+    const entry = {
+      id:               'call_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7),
+      clientId:         input.clientId,
+      clientName:       input.clientName || '',
+      companyId:        input.companyId || null,
+      companyName:      input.companyName || '',
+      companyCnpj:      input.companyCnpj || null,
+      phone:            input.phone || '',
+      normalizedPhone:  input.normalizedPhone,
+      userId:           callLogsUserKey(),
+      userName:         (window._currentUser && (window._currentUser.nome || window._currentUser.empresa)) || callLogsUserKey(),
+      status:           input.status || 'started',
+      answered:         !!input.answered,
+      startedAt:        new Date().toISOString(),
+      answeredAt:       null,
+      durationSeconds:  null,
+      notes:            '',
+      source:           input.source || 'buscador_empresas',
+      createdAt:         new Date().toISOString(),
+      updatedAt:         new Date().toISOString(),
+    };
+    logs.unshift(entry);
+    await callLogsSaveAll(logs);
+    return entry;
+  }
+  window.createCallLog = createCallLog;
+
+  // ── service: updateCallLog ──
+  // PASSO 8: equivalente a PATCH /api/call-logs/:id
+  async function updateCallLog(id, payload) {
+    if (!id) return null;
+    const logs = await callLogsLoadAll();
+    const idx = logs.findIndex(l => l.id === id);
+    if (idx === -1) {
+      console.warn('[CALL_MODULE] updateCallLog: registro não encontrado:', id);
+      return null;
+    }
+    logs[idx] = {
+      ...logs[idx],
+      status:           payload.status !== undefined ? payload.status : logs[idx].status,
+      answered:         payload.answered !== undefined ? payload.answered : logs[idx].answered,
+      answeredAt:       payload.answeredAt !== undefined ? payload.answeredAt : logs[idx].answeredAt,
+      durationSeconds:  payload.durationSeconds !== undefined ? payload.durationSeconds : logs[idx].durationSeconds,
+      notes:            payload.notes !== undefined ? payload.notes : logs[idx].notes,
+      updatedAt:        new Date().toISOString(),
+    };
+    await callLogsSaveAll(logs);
+    return logs[idx];
+  }
+  window.updateCallLog = updateCallLog;
+
+  // ── service: getCallLogsByClient ──
+  // PASSO 8/10: SEMPRE filtra por clientId — nunca retorna dados globais ──
+  async function getCallLogsByClient(clientId) {
+    if (!clientId) return [];
+    const logs = await callLogsLoadAll();
+    return logs.filter(l => l.clientId === clientId);
+  }
+  window.getCallLogsByClient = getCallLogsByClient;
+
+  // ── service: getCallSummaryByClient ──
+  // PASSO 9: KPIs calculados exclusivamente sobre as ligações do clientId
+  async function getCallSummaryByClient(clientId) {
+    if (!clientId) {
+      return { total: 0, answered: 0, notAnswered: 0, answerRate: 0, lastCall: null, logs: [] };
+    }
+    const logs = await getCallLogsByClient(clientId);
+    const total = logs.length;
+    const answered = logs.filter(l => l.answered || l.status === 'answered').length;
+    const summary = {
+      total,
+      answered,
+      notAnswered: total - answered,
+      answerRate: total ? Math.round((answered / total) * 100) : 0,
+      lastCall: logs[0] || null,
+      logs,
+    };
+    console.log('[CALL_ANALYSIS] summary:', summary);
+    return summary;
+  }
+  window.getCallSummaryByClient = getCallSummaryByClient;
+
+  // ── PASSO 6: clique no telefone — valida cliente, registra "started", liga ──
+  async function handlePhoneClick(company, rawPhone, source) {
+    const selectedClient = getSelectedAnalysisClient();
+    console.log('[CALL_MODULE] cliente selecionado:', selectedClient);
+    console.log('[CALL_MODULE] empresa:', company);
+    console.log('[CALL_MODULE] telefone bruto:', rawPhone);
+
+    if (!selectedClient || !selectedClient.id) {
+      if (typeof toast === 'function') toast('Selecione um cliente para análise antes de registrar ligações.', 'warn');
+      else alert('Selecione um cliente para análise antes de registrar ligações.');
+      return;
+    }
+
+    const normalizedPhone = normalizeBrazilianPhone(rawPhone);
+    console.log('[CALL_MODULE] telefone normalizado:', normalizedPhone);
+
+    if (!normalizedPhone) {
+      if (typeof toast === 'function') toast('Telefone inválido ou ausente.', 'warn');
+      else alert('Telefone inválido ou ausente.');
+      return;
+    }
+
+    let callLog;
+    try {
+      callLog = await createCallLog({
+        clientId:        selectedClient.id,
+        clientName:      selectedClient.nome,
+        companyId:        company.id || company.cnpj || null,
+        companyName:      company.nome || company.razao_social || company.nome_fantasia || '',
+        companyCnpj:      company.cnpj || null,
+        phone:            rawPhone,
+        normalizedPhone,
+        status:           'started',
+        answered:         false,
+        source:           source || 'buscador_empresas',
+      });
+    } catch (e) {
+      console.warn('[CALL_MODULE] erro ao registrar ligação:', e.message);
+    }
+    console.log('[CALL_MODULE] ligação criada:', callLog);
+
+    // PASSO 13: se a ligação partiu de um lead do CRM (identificado por
+    // company.id correspondendo a um id de lead) e o campo ultimoContato
+    // existir no projeto, atualiza-o — sem duplicar a lógica de notas do
+    // crmQuickAction, que continua intacta e independente deste módulo.
+    if (source === 'crm' && company.id && typeof crmData !== 'undefined') {
+      try {
+        for (const tabKey of Object.keys(crmData)) {
+          const lead = (crmData[tabKey] || []).find(x => x.id === company.id);
+          if (lead) { lead.ultimoContato = Date.now(); if (typeof crmSave === 'function') crmSave(); break; }
+        }
+      } catch (e) { console.warn('[CALL_MODULE] não foi possível atualizar ultimoContato do lead:', e.message); }
+    }
+
+    if (!callLog) {
+      if (typeof toast === 'function') toast('Não foi possível registrar a ligação. Tente novamente.', 'warn');
+      // Mesmo sem registro, ainda permite ligar — não bloqueia o usuário por
+      // uma falha de persistência, mas o callLog fica null e o modal não abre.
+      window.location.href = 'tel:+' + normalizedPhone;
+      return;
+    }
+
+    window.location.href = 'tel:+' + normalizedPhone;
+
+    setTimeout(() => {
+      openCallResultModal(callLog);
+    }, 800);
+  }
+  window.handlePhoneClick = handlePhoneClick;
+
+  // ── PASSO 7/20: modal de resultado da ligação ──
+  const CALL_STATUS_LABELS = {
+    answered:       'Atendeu',
+    not_answered:   'Não atendeu',
+    busy:           'Ocupado',
+    voicemail:      'Caixa postal',
+    invalid_number: 'Número inválido',
+    call_later:     'Retornar depois',
+  };
+
+  function openCallResultModal(callLog) {
+    const existing = document.getElementById('call-result-modal-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'call-result-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+
+    const optionsHTML = Object.entries(CALL_STATUS_LABELS)
+      .map(([val, label]) => `<option value="${val}">${label}</option>`).join('');
+
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:14px;padding:28px;width:440px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="font-size:16px;font-weight:800;color:#1E1E5C;margin-bottom:4px">📞 Registrar resultado da ligação</div>
+        <div style="font-size:12px;color:#8892AA;margin-bottom:18px">
+          ${bEsc(callLog.companyName || '')} · ${bEsc(callLog.phone || '')}<br>
+          Cliente de análise: <strong>${bEsc(callLog.clientName || '')}</strong>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:4px">RESULTADO</label>
+            <select id="call-m-status" style="width:100%;padding:8px 10px;border:1px solid #E7E6F4;border-radius:7px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box">
+              ${optionsHTML}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:4px">DURAÇÃO (segundos, opcional)</label>
+            <input id="call-m-duration" type="number" min="0" placeholder="Ex: 90"
+              style="width:100%;padding:8px 10px;border:1px solid #E7E6F4;border-radius:7px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#8892AA;display:block;margin-bottom:4px">OBSERVAÇÕES</label>
+            <textarea id="call-m-notes" rows="2" placeholder="Resultado da ligação, próximos passos..."
+              style="width:100%;padding:8px 10px;border:1px solid #E7E6F4;border-radius:7px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+            <button onclick="document.getElementById('call-result-modal-overlay').remove()"
+              style="padding:9px 18px;background:#F8F7FC;color:#1E1E5C;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancelar</button>
+            <button onclick="saveCallResultFromModal('${callLog.id}')"
+              style="padding:9px 18px;background:#1E1E5C;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">💾 Salvar</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  }
+  window.openCallResultModal = openCallResultModal;
+
+  async function saveCallResultFromModal(callId) {
+    const status   = document.getElementById('call-m-status')?.value || 'not_answered';
+    const duration = document.getElementById('call-m-duration')?.value;
+    const notes    = document.getElementById('call-m-notes')?.value.trim() || '';
+
+    const result = await saveCallResult(callId, {
+      status,
+      durationSeconds: duration ? parseInt(duration) : null,
+      notes,
+    });
+
+    console.log('[CALL_MODULE] resultado salvo:', result);
+    document.getElementById('call-result-modal-overlay')?.remove();
+  }
+  window.saveCallResultFromModal = saveCallResultFromModal;
+
+  // ── PASSO 7: salvar resultado — "answered" contabiliza ligação atendida ──
+  async function saveCallResult(callId, result) {
+    const payload = {
+      status:          result.status,
+      answered:        result.status === 'answered',
+      answeredAt:      result.status === 'answered' ? new Date().toISOString() : null,
+      durationSeconds: result.durationSeconds || null,
+      notes:           result.notes || '',
+    };
+
+    let updated;
+    try {
+      updated = await updateCallLog(callId, payload);
+    } catch (e) {
+      console.warn('[CALL_MODULE] erro ao salvar resultado:', e.message);
+    }
+
+    if (!updated) {
+      if (typeof toast === 'function') toast('Não foi possível registrar a ligação. Tente novamente.', 'warn');
+      return null;
+    }
+
+    if (typeof toast === 'function') {
+      toast(result.status === 'answered' ? '✅ Ligação atendida registrada.' : 'Resultado da ligação registrado.');
+    }
+    if (typeof refreshCallAnalysis === 'function') refreshCallAnalysis();
+    return updated;
+  }
+  window.saveCallResult = saveCallResult;
+
+  // ── Badge visual indicando o cliente selecionado para análise (Buscador) ──
+  function callRenderSelectedClientBadge() {
+    const el = document.getElementById('call-selected-client-badge');
+    if (!el) return;
+    const client = getSelectedAnalysisClient();
+    if (!client || !client.id) {
+      el.innerHTML = '';
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = 'inline-flex';
+    el.innerHTML = `🎯 Analisando: <strong>${bEsc(client.nome)}</strong>
+      <button onclick="clearSelectedAnalysisClient();callRenderSelectedClientBadge();if(typeof toast==='function')toast('Cliente de análise removido')"
+        style="margin-left:8px;background:none;border:none;color:#A32D2D;cursor:pointer;font-size:12px;font-weight:700" title="Remover seleção">✕</button>`;
+  }
+  window.callRenderSelectedClientBadge = callRenderSelectedClientBadge;
+
+  window.addEventListener('rise:selected-analysis-client-changed', () => {
+    if (typeof callRenderSelectedClientBadge === 'function') callRenderSelectedClientBadge();
+    if (typeof refreshCallAnalysis === 'function') refreshCallAnalysis();
+    // Re-renderiza os cards do Buscador para refletir "✓ Em análise" no botão
+    if (typeof bRenderAll === 'function' && bBatches && bBatches.length) bRenderAll();
+  });
+
+  // ── PASSO 9/10/11/21: seção de Ligações na Análise Completa ──
+  // SEMPRE filtra por selectedAnalysisClient.id. Sem cliente selecionado,
+  // não mostra KPIs, gráficos nem histórico — apenas o aviso para selecionar.
+  async function refreshCallAnalysis() {
+    const titleEl   = document.getElementById('call-analysis-title');
+    const contentEl = document.getElementById('call-analysis-content');
+    if (!contentEl) return; // seção não está no DOM (ex: outra view) — nada a fazer
+
+    const selectedClient = getSelectedAnalysisClient();
+
+    if (!selectedClient || !selectedClient.id) {
+      if (titleEl) titleEl.textContent = '📞 Ligações';
+      contentEl.innerHTML = `
+        <div style="text-align:center;padding:24px 12px;color:#8892AA;font-size:13px;background:#F8F7FC;border-radius:10px">
+          📞 Selecione um cliente para análise para visualizar ligações, atendimentos e taxa de contato.
+        </div>`;
+      return;
+    }
+
+    if (titleEl) titleEl.textContent = `📞 Ligações — ${selectedClient.nome}`;
+    contentEl.innerHTML = `<div style="text-align:center;padding:16px;color:#8892AA;font-size:12px">Carregando ligações de ${bEsc(selectedClient.nome)}...</div>`;
+
+    let summary;
+    try {
+      summary = await getCallSummaryByClient(selectedClient.id);
+    } catch (e) {
+      console.warn('[CALL_ANALYSIS] erro ao carregar:', e.message);
+      contentEl.innerHTML = `<div style="text-align:center;padding:16px;color:#A32D2D;font-size:12px">Não foi possível carregar os dados de ligações deste cliente.</div>`;
+      return;
+    }
+
+    const kpiHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+        <div style="background:#F8F7FC;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:800;color:#237CA3">${summary.total}</div>
+          <div style="font-size:10px;color:#8892AA;margin-top:2px">LIGAÇÕES REALIZADAS</div>
+        </div>
+        <div style="background:#F8F7FC;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:800;color:#00C47C">${summary.answered}</div>
+          <div style="font-size:10px;color:#8892AA;margin-top:2px">ATENDIDAS</div>
+        </div>
+        <div style="background:#F8F7FC;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:800;color:#A32D2D">${summary.notAnswered}</div>
+          <div style="font-size:10px;color:#8892AA;margin-top:2px">NÃO ATENDIDAS</div>
+        </div>
+        <div style="background:#F8F7FC;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:800;color:#1E1E5C">${summary.answerRate}%</div>
+          <div style="font-size:10px;color:#8892AA;margin-top:2px">TAXA DE ATENDIMENTO</div>
+        </div>
+      </div>`;
+
+    if (!summary.total) {
+      contentEl.innerHTML = kpiHTML + `
+        <div style="text-align:center;padding:16px;color:#8892AA;font-size:12px">Nenhuma ligação registrada para este cliente.</div>`;
+      return;
+    }
+
+    const STATUS_LABEL_MAP = {
+      started: 'Iniciada', answered: 'Atendeu', not_answered: 'Não atendeu',
+      busy: 'Ocupado', voicemail: 'Caixa postal', invalid_number: 'Número inválido', call_later: 'Retornar depois',
+    };
+    const lastCallStr = summary.lastCall
+      ? new Date(summary.lastCall.startedAt).toLocaleString('pt-BR')
+      : '–';
+
+    const historyRows = summary.logs.slice(0, 20).map(l => `
+      <tr>
+        <td style="padding:6px 8px;font-size:11px;color:#8892AA">${new Date(l.startedAt).toLocaleString('pt-BR')}</td>
+        <td style="padding:6px 8px;font-size:12px;color:#1E1E5C">${bEsc(l.companyName || '-')}</td>
+        <td style="padding:6px 8px;font-size:12px;color:#1E1E5C">${bEsc(l.phone || '-')}</td>
+        <td style="padding:6px 8px;font-size:11px"><span style="background:${l.answered?'#eaf3de':'#F8F7FC'};color:${l.answered?'#3B6D11':'#8892AA'};padding:2px 8px;border-radius:999px;font-weight:600">${STATUS_LABEL_MAP[l.status]||l.status}</span></td>
+      </tr>`).join('');
+
+    contentEl.innerHTML = kpiHTML + `
+      <div style="font-size:11px;color:#8892AA;margin-bottom:10px">Última ligação: ${lastCallStr}</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="border-bottom:1px solid #E7E6F4">
+            <th style="text-align:left;padding:6px 8px;font-size:10px;color:#8892AA;font-weight:700">DATA/HORA</th>
+            <th style="text-align:left;padding:6px 8px;font-size:10px;color:#8892AA;font-weight:700">EMPRESA</th>
+            <th style="text-align:left;padding:6px 8px;font-size:10px;color:#8892AA;font-weight:700">TELEFONE</th>
+            <th style="text-align:left;padding:6px 8px;font-size:10px;color:#8892AA;font-weight:700">RESULTADO</th>
+          </tr></thead>
+          <tbody>${historyRows}</tbody>
+        </table>
+      </div>`;
+  }
+  window.refreshCallAnalysis = refreshCallAnalysis;
 
   // ── Auto-add silencioso à lista WA "Buscador" ──
   function bAutoAddToWA(e) {
@@ -9876,8 +10408,9 @@ function crmLeadCard(l, tab) {
     ? '<div style="font-size:11px;font-weight:600;color:'+(overdue?'#A32D2D':'#854F0B')+';background:'+(overdue?'#FFF0F0':'#FEF9EE')+';border-radius:6px;padding:5px 9px;margin-bottom:8px">'+(overdue?'\u26A0\uFE0F':'\uD83D\uDCC5')+' Pr\xF3xima a\xE7\xE3o: '+proxLbl+'</div>'
     : '';
 
+  const leadJsonForCall = JSON.stringify({nome: l.empresa||l.nome||'', cnpj: l.cnpj||null, id: l.id}).replace(/'/g,"\\'").replace(/"/g,'&quot;');
   const telHref = tel
-    ? '<a href="tel:'+tel+'" style="padding:6px 4px;background:#E7F3FF;border:1px solid #237CA3;border-radius:7px;color:#237CA3;font-size:10px;font-weight:700;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation()">\uD83D\uDCDE Ligar</a>'
+    ? '<a href="tel:+'+normalizeBrazilianPhone(tel)+'" onclick="event.stopPropagation();event.preventDefault();handlePhoneClick('+leadJsonForCall+',\''+tel.replace(/'/g,"\\'")+'\',\'crm\')" style="padding:6px 4px;background:#E7F3FF;border:1px solid #237CA3;border-radius:7px;color:#237CA3;font-size:10px;font-weight:700;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center" title="Liga e registra (vincula ao cliente selecionado para análise)">\uD83D\uDCDE Ligar</a>'
     : '<span style="padding:6px 4px;background:#f0fafb;border:1px solid #e8f5f7;border-radius:7px;color:#ccc;font-size:10px;text-align:center">\uD83D\uDCDE Ligar</span>';
 
   const lid = l.id; const tb = tab;
@@ -11435,8 +11968,9 @@ document.addEventListener('click', function(e) {
   if (!nav) return;
   const view = nav.dataset.view;
   if (view === 'historico') setTimeout(histActivityLoad, 100);
-  if (view === 'analise') { /* just shows */ }
+  if (view === 'analise') { setTimeout(() => { if (typeof refreshCallAnalysis === 'function') refreshCallAnalysis(); }, 100); }
   if (view === 'configuracoes') setTimeout(cfgLoad, 100);
+  if (view === 'buscador') setTimeout(() => { if (typeof callRenderSelectedClientBadge === 'function') callRenderSelectedClientBadge(); }, 100);
 });
 
 // Init config on load

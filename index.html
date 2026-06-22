@@ -3364,7 +3364,7 @@
                       </div>
                       <div style="display:flex;gap:8px;flex-wrap:wrap">
                         <button class="wa-btn wa-btn-sm wa-btn-blue" onclick="waUserReloadConfig()">🔄 Recarregar configuração</button>
-                        <button class="wa-btn wa-btn-sm" onclick="waTestConn()">🧪 Testar conexão</button>
+                        <button class="wa-btn wa-btn-sm" onclick="waTestUserInstance()">🧪 Testar conexão</button>
                       </div>
                       <div id="wa-user-inst-test" style="font-size:12px;margin-top:8px;color:#5B5BAA"></div>
                     </div>
@@ -7947,29 +7947,127 @@ function saveConf() {
   renderConfig();
 }
 async function testConn() {
-  const url=(wGet('cf-url')?.value||'').trim();
+  const url=(wGet('cf-url')?.value||'').trim().replace(/\/$/,'');
   const key=(wGet('cf-key')?.value||'').trim();
   const inst=(wGet('cf-inst')?.value||'').trim();
   const st=wGet('cf-status');
   if(!url||!key){ toast('Preencha URL e API Key','warn'); return; }
-  if(st) st.textContent='Testando...';
+  if(st) st.innerHTML='⏳ Testando...';
+
+  const steps = [];
+  const stepLine = (ok, label) => steps.push(`<div style="color:${ok===null?'#854F0B':ok?'var(--g)':'var(--red)'}">${ok===null?'⚠':ok?'✓':'✗'} ${label}</div>`);
+
+  // ── 1. API URL + API Key: a API responde? ──
+  let instancesArr = [];
   try {
-    const res=await fetch(`${url}/instance/fetchInstances`,{headers:{'apikey':key}});
-    const d=await res.json();
-    const arr=Array.isArray(d)?d:[d];
-    const found=inst?arr.find(i=>(i.instance?.instanceName||i.instanceName)===inst):true;
-    if(res.ok){
-      if(st) st.innerHTML='<span style="color:var(--g)">✓ Conexão OK — '+arr.length+' instância(s)</span>';
-      toast('Conexão OK ✓');
-    } else {
-      if(st) st.innerHTML='<span style="color:var(--red)">✗ HTTP '+res.status+'</span>';
-      toast('Falha na conexão','err');
+    const res = await fetch(`${url}/instance/fetchInstances`, { headers: { apikey: key } });
+    if (res.status === 401 || res.status === 403) {
+      stepLine(false, 'Token/API Key inválido (HTTP ' + res.status + ')');
+      if (st) st.innerHTML = steps.join('');
+      toast('Erro de autenticação com a API de WhatsApp. Verifique o token nas configurações.', 'err');
+      return;
     }
-  } catch(e){
-    if(st) st.innerHTML='<span style="color:var(--red)">✗ '+esc(e.message)+'</span>';
-    toast('Erro: '+e.message,'err');
+    if (!res.ok) {
+      stepLine(false, 'API não respondeu corretamente (HTTP ' + res.status + ')');
+      if (st) st.innerHTML = steps.join('');
+      toast('Falha ao conectar com o serviço de WhatsApp. Tente novamente em alguns instantes.', 'err');
+      return;
+    }
+    const d = await res.json();
+    instancesArr = Array.isArray(d) ? d : [d];
+    stepLine(true, `API URL e token válidos — ${instancesArr.length} instância(s) no servidor`);
+  } catch(e) {
+    stepLine(false, 'Falha de rede ao conectar: ' + e.message);
+    if (st) st.innerHTML = steps.join('');
+    toast('Falha ao conectar com o serviço de WhatsApp. Tente novamente em alguns instantes.', 'err');
+    return;
+  }
+
+  // ── 2. A instância configurada existe nessa lista? (bug corrigido: antes
+  //    isso era calculado e nunca usado — o teste sempre dizia "OK" mesmo
+  //    quando a instância não existia, escondendo a causa real do 404.) ──
+  if (inst) {
+    const foundInst = instancesArr.find(i => (i.instance?.instanceName || i.instanceName || i.name) === inst);
+    if (!foundInst) {
+      stepLine(false, `Instância "${inst}" não encontrada ou inativa no servidor`);
+      if (st) st.innerHTML = steps.join('');
+      toast(`Instância WhatsApp não encontrada ou inativa: ${inst}.`, 'err');
+      return;
+    }
+    const connState = foundInst.instance?.state || foundInst.connectionStatus || foundInst.state || '';
+    const isOpen = /open|connected/i.test(String(connState));
+    stepLine(isOpen, `Instância "${inst}" encontrada — status: ${connState || 'desconhecido'}`);
+    if (!isOpen) {
+      if (st) st.innerHTML = steps.join('');
+      toast(`Instância "${inst}" encontrada, mas desconectada. Reconecte o WhatsApp em Configurações.`, 'warn');
+      return;
+    }
+  } else {
+    stepLine(null, 'Nenhuma instância informada para testar especificamente');
+  }
+
+  // ── 3. Endpoint de chats responde para esta instância? ──
+  if (inst) {
+    try {
+      const rc = await fetch(`${url}/chat/findChats/${inst}`, {
+        method: 'POST', headers: { 'Content-Type':'application/json', apikey: key }, body: JSON.stringify({})
+      });
+      stepLine(rc.ok, rc.ok ? 'Endpoint de chats (findChats) respondeu' : `Endpoint de chats retornou HTTP ${rc.status}`);
+    } catch(e) {
+      stepLine(false, 'Endpoint de chats: erro de rede');
+    }
+  }
+
+  if (st) st.innerHTML = steps.join('');
+  toast('✓ Teste de conexão concluído');
+}
+
+// ── Teste de conexão para o painel do usuário padrão (não-master) ──
+// Usa a instância REAL já aplicada via applyUserInstanceConfig (getApiBase/
+// getApiKey/getInst), e passa pela rota interna /api/whatsapp em vez de
+// chamar a Evolution API direto do navegador. Antes, esse botão chamava
+// waTestConn()/testConn(), que lia campos de formulário (#wa-cf-url/#wa-cf-inst)
+// que não existem neste painel — o teste nunca refletia a instância real do
+// usuário, e o resultado nunca aparecia no elemento certo (#wa-user-inst-test).
+async function waTestUserInstance() {
+  const testEl = document.getElementById('wa-user-inst-test');
+  const base = typeof getApiBase === 'function' ? getApiBase() : '';
+  const key  = typeof getApiKey  === 'function' ? getApiKey()  : '';
+  const inst = typeof getInst    === 'function' ? getInst()    : '';
+
+  if (!base || !key || !inst) {
+    if (testEl) testEl.innerHTML = '<span style="color:var(--red)">⚠ Nenhuma instância configurada. Fale com o administrador.</span>';
+    return;
+  }
+
+  if (testEl) testEl.innerHTML = '⏳ Testando conexão com a instância "' + esc(inst) + '"...';
+
+  try {
+    const r = await fetch('/api/whatsapp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'test', apiUrl: base, apiKey: key, instance: inst })
+    });
+    const result = await r.json().catch(() => null);
+
+    if (!result) {
+      if (testEl) testEl.innerHTML = '<span style="color:var(--red)">✗ Não foi possível concluir a busca. Verifique a conexão com a API ou tente novamente.</span>';
+      return;
+    }
+    if (!result.ok) {
+      if (testEl) testEl.innerHTML = '<span style="color:var(--red)">✗ ' + esc(result.error || 'Falha desconhecida') + '</span>';
+      if (typeof toast === 'function') toast(result.error || 'Falha no teste de conexão', 'err');
+      return;
+    }
+    const stateLabel = /open|connected/i.test(String(result.state)) ? '🟢 conectada' : `🟡 ${esc(result.state || 'status desconhecido')}`;
+    if (testEl) testEl.innerHTML = `<span style="color:var(--g)">✓ Instância "${esc(inst)}" encontrada — ${stateLabel}</span>`;
+    if (typeof toast === 'function') toast('✓ Conexão WhatsApp OK');
+  } catch(e) {
+    if (testEl) testEl.innerHTML = '<span style="color:var(--red)">✗ Falha ao conectar com o serviço de WhatsApp. Tente novamente em alguns instantes.</span>';
   }
 }
+window.waTestUserInstance = waTestUserInstance;
+
 async function testDB() {
   const s=wGet('db-status');
   if(s) s.textContent='Testando...';
@@ -8853,66 +8951,33 @@ async function fetchChatHistory(tel) {
   }
 
   let apiMsgs = [];
+  let waErrorType = null, waErrorMsg = null;
 
-  // Evolution API v1.7.x — endpoint correto
-  // POST /chat/findMessages/{instance}
+  // ── Camada de API segura: uma única chamada à rota interna, que já
+  //    tenta o endpoint correto e normaliza a resposta/erro. Antes havia
+  //    3 tentativas de fetch direto à Evolution API daqui do navegador. ──
   try {
-    const r = await fetch(`${base}/chat/findMessages/${inst}`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':key},
-      body: JSON.stringify({
-        where: { key: { remoteJid: jid } },
-        limit: 200,
-        sort: { messageTimestamp: -1 }
-      })
+    const r = await fetch('/api/whatsapp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'messages', apiUrl: base, apiKey: key, instance: inst, remoteJid: jid, limit: 200 })
     });
-    if(r.ok) {
-      const d = await r.json();
-      apiMsgs = extractMsgs(d);
-      console.log('findMessages result:', apiMsgs.length, 'msgs for', jid);
+    const result = await r.json().catch(() => null);
+    if (result && result.ok) {
+      // Reconstroi o formato esperado por extractMsgs/convertMsg a partir
+      // da resposta já normalizada pelo backend.
+      const pseudoRaw = (result.messages || []).map(m => ({
+        key: { id: m.id, fromMe: m.fromMe, remoteJid: jid },
+        message: { conversation: m.text },
+        messageTimestamp: m.timestamp,
+      }));
+      apiMsgs = extractMsgs(pseudoRaw);
+    } else if (result) {
+      waErrorType = result.errorType;
+      waErrorMsg = result.error;
     }
-  } catch(e) { console.warn('fetchChatHistory err:', e); }
+  } catch(e) { console.warn('fetchChatHistory err:', e); waErrorType = 'network'; }
 
-  // Alternativa: /messages/findMessages (outro path usado em algumas versões)
-  if(!apiMsgs.length) {
-    try {
-      const r2 = await fetch(`${base}/messages/findMessages/${inst}`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','apikey':key},
-        body: JSON.stringify({
-          where: { key: { remoteJid: jid } },
-          limit: 50
-        })
-      });
-      if(r2.ok) {
-        const d = await r2.json();
-        apiMsgs = extractMsgs(d);
-      }
-    } catch(e) {}
-  }
-
-  // Se ainda não encontrou — buscar todos e filtrar localmente
-  if(!apiMsgs.length) {
-    try {
-      const r3 = await fetch(`${base}/chat/findMessages/${inst}`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','apikey':key},
-        body: JSON.stringify({ where:{}, limit: 200 })
-      });
-      if(r3.ok) {
-        const d = await r3.json();
-        // Filtrar localmente por este número
-        let all = [];
-        if(Array.isArray(d)) all=d;
-        else if(d?.messages?.records) all=d.messages.records;
-        else if(Array.isArray(d?.messages)) all=d.messages;
-        apiMsgs = all.filter(m=>{
-          const rjid=m.key?.remoteJid||'';
-          return rjid===jid||rjid.startsWith(telClean);
-        });
-      }
-    } catch(e) {}
-  }
 
   if(apiMsgs.length) {
     const converted = apiMsgs
@@ -8931,18 +8996,29 @@ async function fetchChatHistory(tel) {
   }
 
   if(!apiMsgs.length) {
-    // API não tem histórico — mostrar aviso mas manter mensagens locais
+    // API não tem histórico, OU houve erro real — diferenciar os dois casos
     const existingLocal = wa_chatLogs[cId]||[];
     if(!existingLocal.length) {
       const b=wGet('chat-body');
       if(b&&wa_chatContact?.id===cId) {
+        let mainMsg = 'Nenhuma conversa encontrada para este cliente no período selecionado.';
+        let subMsg = 'As mensagens enviadas pelo Rise WA aparecem aqui.';
+        if (waErrorType === 'instance_not_found') {
+          mainMsg = waErrorMsg || `Instância WhatsApp não encontrada ou inativa: ${inst}.`;
+          subMsg = 'Verifique o nome da instância em Configurações.';
+        } else if (waErrorType === 'auth') {
+          mainMsg = waErrorMsg || 'Erro de autenticação com a API de WhatsApp. Verifique o token nas configurações.';
+          subMsg = '';
+        } else if (waErrorType === 'network' || waErrorType === 'upstream_error') {
+          mainMsg = waErrorMsg || 'Falha ao conectar com o serviço de WhatsApp. Tente novamente em alguns instantes.';
+          subMsg = '';
+        } else if (!waErrorType) {
+          subMsg = 'A Evolution API armazena mensagens apenas quando há banco de dados (MongoDB/PostgreSQL) configurado na instância.';
+        }
         b.innerHTML=`<div class="wa-empty-state">
-          <span class="wa-empty-icon">💬</span>
-          <p>Histórico não disponível na API</p>
-          <div style="font-size:11px;color:var(--t3);margin-top:8px;max-width:280px">
-            A Evolution API v1.7 armazena mensagens apenas quando há banco de dados (MongoDB/PostgreSQL) configurado.
-            As mensagens enviadas pelo Rise WA aparecem aqui.
-          </div>
+          <span class="wa-empty-icon">${waErrorType ? '⚠️' : '💬'}</span>
+          <p>${esc(mainMsg)}</p>
+          ${subMsg ? `<div style="font-size:11px;color:var(--t3);margin-top:8px;max-width:280px">${esc(subMsg)}</div>` : ''}
         </div>`;
         return;
       }
@@ -8959,20 +9035,25 @@ async function loadAllChats() {
   const base=getApiBase();const key=getApiKey();const inst=getInst();
   if(!base||!key||!inst) return;
   try {
-    // Buscar lista de chats ativos
-    const res = await fetch(`${base}/chat/findChats/${inst}`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':key},
-      body: JSON.stringify({})
+    // ── Camada de API segura: chama rota interna em vez da Evolution API
+    //    direto do navegador. O backend faz a chamada externa, normaliza
+    //    a resposta e trata 404 (instância não encontrada)/401/timeout. ──
+    const res = await fetch('/api/whatsapp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'chats', apiUrl: base, apiKey: key, instance: inst })
     });
-    if(!res.ok) return;
-    const d = await res.json();
-    const chats = Array.isArray(d)?d:(d?.chats||d?.data||[]);
+    const result = await res.json().catch(() => null);
+    if (!result || !result.ok) {
+      console.warn('[WA] loadAllChats falhou:', result?.error || 'resposta inválida');
+      if (result?.errorType && typeof waShowConnError === 'function') waShowConnError(result.errorType, result.error);
+      return;
+    }
+    const chats = result.chats || [];
 
     chats.forEach(chat => {
-      const rjid = chat.id||chat.remoteJid||'';
-      if(rjid.includes('@g.us')) return; // ignorar grupos
-      const tel = rjid.replace('@s.whatsapp.net','').replace('@c.us','').replace(/[^0-9]/g,'');
+      const rjid = chat.id || '';
+      const tel = chat.phone || rjid.replace('@s.whatsapp.net','').replace('@c.us','').replace(/[^0-9]/g,'');
       if(!tel||tel.length<8) return;
 
       // Verificar se já existe nos contatos
@@ -8990,7 +9071,7 @@ async function loadAllChats() {
           return xt===tel||xt.endsWith(tel.replace(/^55/,''));
         });
         if(!existInbox) {
-          const name = chat.name||chat.pushName||fmt(tel);
+          const name = chat.name||fmt(tel);
           wa_inboxContacts.push({
             id:'inbox_'+tel, tel, nome:name,
             empresa:'', status:'inbox', addedAt:Date.now()
@@ -10111,9 +10192,15 @@ function crmSave(immediate) {
 
 async function crmServerSync() {
   try {
+    // BUG CORRIGIDO: usava x-user-key fixo 'crm' — todos os usuários da
+    // plataforma salvavam/liam CRM na MESMA chave no banco compartilhado.
+    // Isso só não vazava dados entre clientes porque localStorage era
+    // checado primeiro, mas em qualquer outro dispositivo/navegador o
+    // usuário puxaria o CRM de outro cliente. Agora usa DB_USER_KEY,
+    // que já é isolado por usuário (mesmo padrão usado em dbSave/dbLoad).
     await fetch('/api/dados', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-key': 'crm' },
+      headers: { 'Content-Type': 'application/json', 'x-user-key': DB_USER_KEY, 'x-store-key': 'crm' },
       body: JSON.stringify({ crmData, crmCols, empresaName })
     });
   } catch(e) { /* silent — localStorage is source of truth */ }
@@ -10124,7 +10211,7 @@ async function crmServerLoad() {
   // Servidor só sobrescreve se o localStorage está vazio (primeiro acesso / outro dispositivo).
   // Nunca sobrescreve dados locais existentes para evitar ressurgimento de leads deletados.
   try {
-    const r = await fetch('/api/dados', { headers: { 'x-user-key': 'crm' } });
+    const r = await fetch('/api/dados', { headers: { 'x-user-key': DB_USER_KEY, 'x-store-key': 'crm' } });
     if (!r.ok) return;
     const d = await r.json();
     if (d && d.crmData) {
@@ -11770,13 +11857,56 @@ async function analiseGerar() {
   const btn = document.getElementById('analise-btn-gerar');
   if (btn) { btn.textContent = '⏳ Analisando...'; btn.disabled = true; }
 
-  // Collect all data
-  const buscas = (() => { try { return JSON.parse(localStorage.getItem('rise_buscador_historico')||'[]'); } catch(e){return[];} })();
-  const crmB = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador')||'[]'); } catch(e){return[];} })();
-  const crmZ = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap')||'[]'); } catch(e){return[];} })();
-  const crmE = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa')||'[]'); } catch(e){return[];} })();
+  // ── Cada fonte de dados é isolada — uma falha aqui NUNCA deve impedir
+  //    as demais nem travar o botão. PASSO 5 do pedido de auditoria. ──
+  const dataAvailability = { buscador: true, crm: true, ia_historico: true, whatsapp: true, ligacoes: true };
+
+  const buscas = (() => { try { return JSON.parse(localStorage.getItem('rise_buscador_historico')||'[]'); } catch(e){ dataAvailability.buscador = false; return[]; } })();
+  const crmB = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_buscador')||'[]'); } catch(e){ dataAvailability.crm = false; return[]; } })();
+  const crmZ = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_zap')||'[]'); } catch(e){ dataAvailability.crm = false; return[]; } })();
+  const crmE = (() => { try { return JSON.parse(localStorage.getItem((typeof getCurrentUsername==='function'?getCurrentUsername()+'_':'') + 'rise_crm_empresa')||'[]'); } catch(e){ dataAvailability.crm = false; return[]; } })();
   const allCRM = [...crmB,...crmZ,...crmE];
-  const iaMsgs = (() => { try { return JSON.parse(localStorage.getItem('rise_ia_historico')||'[]'); } catch(e){return[];} })();
+  const iaMsgs = (() => { try { return JSON.parse(localStorage.getItem('rise_ia_historico')||'[]'); } catch(e){ dataAvailability.ia_historico = false; return[]; } })();
+
+  // ── Ligações (módulo próprio, já isolado por cliente selecionado) ──
+  let callSummary = null;
+  try {
+    const selectedClient = typeof getSelectedAnalysisClient === 'function' ? getSelectedAnalysisClient() : null;
+    if (selectedClient?.id && typeof getCallSummaryByClient === 'function') {
+      callSummary = await getCallSummaryByClient(selectedClient.id);
+    } else {
+      dataAvailability.ligacoes = false;
+    }
+  } catch(e) {
+    console.warn('[ANALISE] dados de ligações indisponíveis:', e.message);
+    dataAvailability.ligacoes = false;
+  }
+
+  // ── WhatsApp (se configurado) — isolado, nunca propaga erro para o resto ──
+  let waSummary = null;
+  try {
+    const base = typeof getApiBase === 'function' ? getApiBase() : '';
+    const key  = typeof getApiKey  === 'function' ? getApiKey()  : '';
+    const inst = typeof getInst    === 'function' ? getInst()    : '';
+    if (base && key && inst) {
+      const r = await fetch('/api/whatsapp', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ action: 'chats', apiUrl: base, apiKey: key, instance: inst })
+      });
+      const result = await r.json().catch(() => null);
+      if (result?.ok) {
+        waSummary = { totalChats: (result.chats||[]).length };
+      } else {
+        dataAvailability.whatsapp = false;
+        console.warn('[ANALISE] WhatsApp indisponível:', result?.error || 'sem resposta');
+      }
+    } else {
+      dataAvailability.whatsapp = false;
+    }
+  } catch(e) {
+    console.warn('[ANALISE] erro ao buscar dados de WhatsApp (análise continua sem esse dado):', e.message);
+    dataAvailability.whatsapp = false;
+  }
 
   const dados = {
     buscas_realizadas: buscas.length,
@@ -11786,10 +11916,16 @@ async function analiseGerar() {
     leads_fechado: allCRM.filter(l=>l.status==='fechado').length,
     leads_perdido: allCRM.filter(l=>l.status==='perdido').length,
     ia_consultas: iaMsgs.filter(m=>m.role==='user').length,
-    taxa_conversao: allCRM.length ? Math.round(allCRM.filter(l=>l.status==='fechado').length/allCRM.length*100) : 0
+    taxa_conversao: allCRM.length ? Math.round(allCRM.filter(l=>l.status==='fechado').length/allCRM.length*100) : 0,
+    whatsapp_chats: waSummary?.totalChats ?? null,
+    ligacoes_total: callSummary?.total ?? null,
+    ligacoes_atendidas: callSummary?.answered ?? null,
   };
 
-  // Update quick scores
+  console.log('[ANALISE_IA] dados disponíveis:', dataAvailability);
+
+  // Update quick scores — calculados apenas com fontes disponíveis (PASSO 5:
+  // não travar score inteiro se uma fonte específica faltar)
   const scoreComercial = Math.min(100, Math.round((dados.leads_proposta + dados.leads_fechado*2) / Math.max(1,dados.leads_total) * 100));
   const scoreDigital   = Math.min(100, Math.round((dados.buscas_realizadas*5 + dados.ia_consultas*3) / 100 * 100));
   const scoreGeral     = Math.round((scoreComercial + scoreDigital) / 2);
@@ -11799,7 +11935,15 @@ async function analiseGerar() {
   safeSet('analise-score-digital', scoreDigital + '%');
   safeSet('analise-score-operacional', dados.taxa_conversao + '%');
 
-  // Ask RISE IA
+  // Aviso visual se alguma fonte não pôde ser carregada — a análise segue
+  // mesmo assim, só fica claro para o usuário que é parcial nessa parte.
+  const missingParts = [];
+  if (!dataAvailability.whatsapp) missingParts.push('WhatsApp');
+  if (!dataAvailability.ligacoes) missingParts.push('Ligações (selecione um cliente para análise)');
+  if (!dataAvailability.crm) missingParts.push('CRM');
+
+  // Ask RISE IA — também isolado: se a IA falhar, os scores acima já foram
+  // exibidos e continuam válidos; só a seção de texto da IA fica com erro.
   try {
     const prompt = `Analise os dados desta empresa de SST e gere um relatório completo:
 
@@ -11812,6 +11956,9 @@ DADOS DA PLATAFORMA RISE SST:
 - Perdidos: ${dados.leads_perdido}
 - Taxa de conversão: ${dados.taxa_conversao}%
 - Consultas à IA: ${dados.ia_consultas}
+${dataAvailability.whatsapp ? `- Conversas WhatsApp ativas: ${dados.whatsapp_chats}` : '- Dados de WhatsApp: indisponíveis nesta análise (instância desconectada ou não configurada)'}
+${dataAvailability.ligacoes ? `- Ligações registradas: ${dados.ligacoes_total} (${dados.ligacoes_atendidas} atendidas)` : '- Dados de Ligações: indisponíveis (nenhum cliente selecionado para análise)'}
+${missingParts.length ? `\nATENÇÃO: as seguintes fontes de dados não estavam disponíveis nesta análise: ${missingParts.join(', ')}. Mencione isso no plano de ação como um ponto a resolver, mas NÃO deixe de analisar o restante dos dados disponíveis.` : ''}
 
 Forneça:
 1. **Diagnóstico geral** (2-3 linhas)
@@ -11826,7 +11973,7 @@ Use markdown com emojis. Seja direto e orientado a resultado.`;
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        system:'Você é a RISE IA, especialista em SST e negócios. Analise dados de uso da plataforma e gere diagnóstico e plano de ação.',
+        system:'Você é a RISE IA, especialista em SST e negócios. Analise dados de uso da plataforma e gere diagnóstico e plano de ação. Se alguma fonte de dados estiver marcada como indisponível, analise normalmente com o que houver disponível e apenas sinalize a ausência no plano de ação — nunca recuse a análise por falta de uma fonte.',
         messages:[{role:'user',content:prompt}]
       })
     });
@@ -11837,14 +11984,20 @@ Use markdown com emojis. Seja direto e orientado a resultado.`;
     const iaBox = document.getElementById('analise-ia-box');
     const iaContent = document.getElementById('analise-ia-content');
     if (iaBox) iaBox.style.display = 'block';
-    if (iaContent) iaContent.innerHTML = typeof iaMarkdownToHtml==='function' ? iaMarkdownToHtml(text) : text.replace(/\n/g,'<br>');
+    let htmlOut = typeof iaMarkdownToHtml==='function' ? iaMarkdownToHtml(text) : text.replace(/\n/g,'<br>');
+    if (missingParts.length) {
+      htmlOut = `<div style="background:#FEF9EE;border:1px solid #EBAE36;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#854F0B">⚠️ Análise parcial — dados indisponíveis nesta execução: <strong>${esc(missingParts.join(', '))}</strong>. O restante dos dados foi analisado normalmente.</div>` + htmlOut;
+    }
+    if (iaContent) iaContent.innerHTML = htmlOut;
 
-    safeSet('analise-resumo-geral', 'Análise concluída com ' + dados.leads_total + ' leads e ' + dados.taxa_conversao + '% de conversão.');
+    safeSet('analise-resumo-geral', 'Análise concluída com ' + dados.leads_total + ' leads e ' + dados.taxa_conversao + '% de conversão.' + (missingParts.length ? ' (parcial)' : ''));
 
   } catch(e) {
+    // Falha na IA não derruba os scores já calculados acima — só a seção de texto fica com erro.
     const iaContent = document.getElementById('analise-ia-content');
-    if (iaContent) iaContent.textContent = 'Erro ao conectar com a IA: ' + e.message;
-    document.getElementById('analise-ia-box').style.display = 'block';
+    if (iaContent) iaContent.textContent = 'Erro ao conectar com a IA: ' + e.message + '. Os scores acima já refletem os dados disponíveis.';
+    const iaBox = document.getElementById('analise-ia-box');
+    if (iaBox) iaBox.style.display = 'block';
   }
 
   if (btn) { btn.textContent = '🤖 Gerar Análise IA'; btn.disabled = false; }
